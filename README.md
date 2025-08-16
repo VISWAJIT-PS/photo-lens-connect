@@ -1,73 +1,115 @@
-# Welcome to your Lovable project
+# PhotoLens - Photography & Event Management Platform
 
-## Project info
+A modern platform connecting customers with professional photographers for events, weddings, and special occasions.
 
-**URL**: https://lovable.dev/projects/f72d6c1c-87df-4aa4-9e10-451195575e8b
+## 🌟 Features
 
-## How can I edit this code?
+- **Find Photographers**: Browse 500+ verified professional photographers
+- **Equipment Rentals**: Rent cameras, drones, lighting, and studio equipment  
+- **Photo Locations**: Discover and book stunning photography locations
+- **Event Management**: End-to-end booking and event coordination
+- **Portfolio Galleries**: View photographer portfolios and customer stories
+- **Reviews & Ratings**: Authentic customer feedback system
 
-There are several ways of editing your application.
+## 🚀 Demo Credentials
 
-**Use Lovable**
+### Test Customer Account
+- **Email**: customer@demo.com
+- **Password**: demo123
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f72d6c1c-87df-4aa4-9e10-451195575e8b) and start prompting.
+### Test Photographer Account  
+- **Email**: photographer@demo.com
+- **Password**: demo123
 
-Changes made via Lovable will be committed automatically to this repo.
+## 💻 Tech Stack
 
-**Use your preferred IDE**
+- **Frontend**: React 18, TypeScript, Tailwind CSS
+- **UI Components**: shadcn/ui with custom design system
+- **Backend**: Supabase (Database, Authentication, Storage)
+- **Routing**: React Router v6
+- **State Management**: TanStack Query
+- **Styling**: Custom design system with teal accent colors
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🎨 Design System
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- **Primary Color**: Teal (#2DD4BF)
+- **Typography**: Inter font family
+- **Style**: Modern, clean, minimal (Airbnb + Swiggy inspired)
+- **Responsive**: Mobile-first design approach
 
-Follow these steps:
+## 📱 User Flows
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Customer Journey
+1. Landing page with hero section
+2. Registration/Login with role selection
+3. Search photographers by location, date, type
+4. View photographer profiles and portfolios
+5. Book services and manage events
+6. Access shared galleries
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Photographer Journey
+1. Professional registration with portfolio setup
+2. Dashboard for managing bookings and calendar
+3. Upload and organize portfolio content
+4. Manage rental equipment listings
+5. Chat with customers and share galleries
+6. Add photography location recommendations
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🔧 Development
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
+
+# Build for production
+npm run build
 ```
 
-**Edit a file directly in GitHub**
+## 📄 Project Structure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+src/
+├── components/ui/          # Reusable UI components
+├── pages/                  # Page components
+├── assets/                 # Images and static assets
+├── lib/                    # Utilities and helpers
+└── integrations/           # Supabase integration
+```
 
-**Use GitHub Codespaces**
+## 🌍 Deployment
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+This project is configured for deployment on Lovable. Simply click the "Publish" button to deploy your changes.
 
-## What technologies are used for this project?
+## 📋 Roadmap
 
-This project is built with:
+### Phase 1 (MVP) ✅
+- [x] Landing page with hero section
+- [x] Authentication system
+- [x] Basic photographer search
+- [x] Profile pages
+- [x] Equipment rental listings
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Phase 2 (Upcoming)
+- [ ] Real-time chat system
+- [ ] Payment integration
+- [ ] Advanced booking calendar
+- [ ] AI-powered photo organization
+- [ ] Mobile app (React Native)
 
-## How can I deploy this project?
+## 🤝 Contributing
 
-Simply open [Lovable](https://lovable.dev/projects/f72d6c1c-87df-4aa4-9e10-451195575e8b) and click on Share -> Publish.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-## Can I connect a custom domain to my Lovable project?
+## 📞 Support
 
-Yes, you can!
+For support or questions, contact us at support@photolens.app
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Built with ❤️ using Lovable
