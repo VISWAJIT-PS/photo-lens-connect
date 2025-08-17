@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import PhotographerDashboard from "./pages/PhotographerDashboard";
 import NotFound from "./pages/NotFound";
+import AccountDashboard from "./pages/AccountDashboard";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const AuthRefreshHandler = () => {
@@ -47,6 +48,14 @@ const App = () => (
                 <PhotographerDashboard />
               </ProtectedRoute>
             } 
+          />
+          <Route
+            path="/account"
+            element={
+              <ProtectedRoute>
+                <AccountDashboard />
+              </ProtectedRoute>
+            }
           />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

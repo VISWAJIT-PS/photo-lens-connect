@@ -1,13 +1,16 @@
-import { useAuth } from "@/hooks/use-auth";
+import { useAuthStore } from "@/stores/auth-store";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Camera, Calendar, DollarSign, Star, Upload, Settings, LogOut, Plus } from "lucide-react";
 import { FullName } from "@/lib/utils";
+import { useRentalsStore } from "@/stores/rentals-store";
+import { useEffect } from "react";
 
 const PhotographerDashboard = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut } = useAuthStore();
+  const { rentals, loading: rentalsLoading, fetchRentalsByOwner } = useRentalsStore();
 
   console.log(user);
   const upcomingBookings = [
@@ -30,6 +33,12 @@ const PhotographerDashboard = () => {
       status: "pending"
     }
   ];
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchRentalsByOwner(user.id);
+    }
+  }, [user?.id, fetchRentalsByOwner]);
 
   const recentWork = [
     {
@@ -199,16 +208,51 @@ const PhotographerDashboard = () => {
                 Add Equipment
               </Button>
             </div>
-            <Card>
-              <CardContent className="p-6 text-center">
-                <Camera className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">No equipment listed yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Start earning extra income by renting out your photography equipment
-                </p>
-                <Button>List Your First Item</Button>
-              </CardContent>
-            </Card>
+            {rentalsLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <Card key={i} className="animate-pulse">
+                    <div className="aspect-square bg-muted"></div>
+                    <CardContent className="p-4">
+                      <div className="space-y-2">
+                        <div className="h-4 bg-muted rounded w-24"></div>
+                        <div className="h-3 bg-muted rounded w-16"></div>
+                        <div className="flex items-center justify-between">
+                          <div className="h-6 bg-muted rounded w-16"></div>
+                          <div className="h-8 bg-muted rounded w-12"></div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : rentals.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {rentals.map((rental) => (
+                  <Card key={rental.id} className="overflow-hidden">
+                    <div className="aspect-square bg-muted"></div>
+                    <CardContent className="p-4">
+                      <h3 className="font-medium">{rental.name}</h3>
+                      <p className="text-sm text-muted-foreground">{rental.category}</p>
+                      <div className="flex items-center justify-between mt-2">
+                        <Badge variant="secondary">{rental.price}</Badge>
+                        <Button variant="outline" size="sm">Edit</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Camera className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">No Equipment Listed</h3>
+                <p className="text-muted-foreground mb-4">Start renting out your photography equipment</p>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Your First Equipment
+                </Button>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="earnings" className="space-y-6">

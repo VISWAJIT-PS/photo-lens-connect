@@ -16,6 +16,8 @@ A modern platform connecting customers with professional photographers for event
 ### Test Customer Account
 - **Email**: customer@demo.com
 - **Password**: demo123
+password_db = "yt30a4eMBYBt3eMn"
+
 
 ### Test Photographer Account  
 - **Email**: photographer@demo.com
