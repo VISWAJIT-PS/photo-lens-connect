@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./dialog";
 import { Button } from "./button";
 import { Input } from "./input";
@@ -7,8 +10,35 @@ import { Label } from "./label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
 import { Camera, User, Mail, Lock, UserCheck } from "lucide-react";
 import { Badge } from "./badge";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthStore } from "@/stores/auth-store";
+import type { LoginFormData, RegisterFormData } from "@/types";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "./form";
+
+// Validation schemas
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+const registerSchema = z.object({
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string()
+    .min(6, "Password must be at least 6 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+});
 
 interface AuthModalProps {
   children: React.ReactNode;
@@ -19,50 +49,55 @@ export const AuthModal = ({ children, defaultTab = "login" }: AuthModalProps) =>
   const [isOpen, setIsOpen] = useState(false);
   const [userType, setUserType] = useState<"customer" | "photographer">("customer");
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    firstName: "",
-    lastName: "",
-  });
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signIn, signUp } = useAuthStore();
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  const loginForm = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const registerForm = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+    },
+  });
+
+  const handleSignIn = async (data: LoginFormData) => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      });
+      const { user, session, error } = await signIn(data.email, data.password);
 
       if (error) throw error;
 
-      if (data.user) {
+      if (user && session) {
         toast({
           title: "Welcome back!",
           description: "You have successfully signed in.",
         });
         setIsOpen(false);
         
-        // For now, redirect based on email domain or user preference
-        // In production, you'd check user metadata or profile
-        const dashboardPath = formData.email.includes("photographer") || userType === "photographer" 
+        // Redirect based on user metadata
+        const userType = user.user_metadata?.user_type || "customer";
+        const dashboardPath = userType === "photographer" 
           ? "/photographer-dashboard" 
           : "/customer-dashboard";
         
         navigate(dashboardPath);
       }
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
       toast({
         title: "Sign in failed",
-        description: error.message || "An error occurred during sign in.",
+        description: error instanceof Error ? error.message : "An error occurred during sign in.",
         variant: "destructive",
       });
     } finally {
@@ -70,32 +105,24 @@ export const AuthModal = ({ children, defaultTab = "login" }: AuthModalProps) =>
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSignUp = async (data: RegisterFormData) => {
     setLoading(true);
 
     try {
-      const redirectUrl = `${window.location.origin}/`;
-      
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            user_type: userType,
-          }
-        }
-      });
+      const userData = {
+        first_name: data.firstName,
+        last_name: data.lastName,
+        user_type: userType,
+      };
+
+      const { user, session, error } = await signUp(data.email, data.password, userData);
 
       if (error) throw error;
 
-      if (data.user) {
+      if (user && session) {
         toast({
           title: "Account created!",
-          description: "Please check your email to verify your account.",
+          description: "Welcome! Your account has been successfully created.",
         });
         setIsOpen(false);
         
@@ -105,11 +132,18 @@ export const AuthModal = ({ children, defaultTab = "login" }: AuthModalProps) =>
           : "/customer-dashboard";
         
         navigate(dashboardPath);
+      } else if (user && !session) {
+        // Email verification required
+        toast({
+          title: "Account created!",
+          description: "Please check your email to verify your account.",
+        });
+        setIsOpen(false);
       }
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
       toast({
         title: "Sign up failed",
-        description: error.message || "An error occurred during sign up.",
+        description: error instanceof Error ? error.message : "An error occurred during sign up.",
         variant: "destructive",
       });
     } finally {
@@ -136,7 +170,7 @@ export const AuthModal = ({ children, defaultTab = "login" }: AuthModalProps) =>
           </TabsList>
 
           <TabsContent value="login" className="space-y-4">
-            <form onSubmit={handleSignIn} className="space-y-4">
+            <form onSubmit={loginForm.handleSubmit(handleSignIn)} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="login-email">Email</Label>
                 <div className="relative">
@@ -146,11 +180,12 @@ export const AuthModal = ({ children, defaultTab = "login" }: AuthModalProps) =>
                     type="email"
                     placeholder="Enter your email"
                     className="pl-10"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    required
+                    {...loginForm.register("email")}
                   />
                 </div>
+                {loginForm.formState.errors.email && (
+                  <p className="text-sm text-destructive">{loginForm.formState.errors.email.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="login-password">Password</Label>
@@ -161,11 +196,12 @@ export const AuthModal = ({ children, defaultTab = "login" }: AuthModalProps) =>
                     type="password"
                     placeholder="Enter your password"
                     className="pl-10"
-                    value={formData.password}
-                    onChange={(e) => handleInputChange("password", e.target.value)}
-                    required
+                    {...loginForm.register("password")}
                   />
                 </div>
+                {loginForm.formState.errors.password && (
+                  <p className="text-sm text-destructive">{loginForm.formState.errors.password.message}</p>
+                )}
               </div>
               <Button type="submit" className="w-full btn-hero" disabled={loading}>
                 {loading ? "Signing In..." : "Sign In"}
@@ -212,27 +248,29 @@ export const AuthModal = ({ children, defaultTab = "login" }: AuthModalProps) =>
               </div>
             </div>
 
-            <form onSubmit={handleSignUp} className="space-y-4">
+            <form onSubmit={registerForm.handleSubmit(handleSignUp)} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
                   <Input 
                     id="firstName" 
                     placeholder="John"
-                    value={formData.firstName}
-                    onChange={(e) => handleInputChange("firstName", e.target.value)}
-                    required
+                    {...registerForm.register("firstName")}
                   />
+                  {registerForm.formState.errors.firstName && (
+                    <p className="text-sm text-destructive">{registerForm.formState.errors.firstName.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Last Name</Label>
                   <Input 
                     id="lastName" 
                     placeholder="Doe"
-                    value={formData.lastName}
-                    onChange={(e) => handleInputChange("lastName", e.target.value)}
-                    required
+                    {...registerForm.register("lastName")}
                   />
+                  {registerForm.formState.errors.lastName && (
+                    <p className="text-sm text-destructive">{registerForm.formState.errors.lastName.message}</p>
+                  )}
                 </div>
               </div>
               <div className="space-y-2">
@@ -244,11 +282,12 @@ export const AuthModal = ({ children, defaultTab = "login" }: AuthModalProps) =>
                     type="email"
                     placeholder="john@example.com"
                     className="pl-10"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    required
+                    {...registerForm.register("email")}
                   />
                 </div>
+                {registerForm.formState.errors.email && (
+                  <p className="text-sm text-destructive">{registerForm.formState.errors.email.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="register-password">Password</Label>
@@ -259,12 +298,12 @@ export const AuthModal = ({ children, defaultTab = "login" }: AuthModalProps) =>
                     type="password"
                     placeholder="Create a strong password"
                     className="pl-10"
-                    value={formData.password}
-                    onChange={(e) => handleInputChange("password", e.target.value)}
-                    required
-                    minLength={6}
+                    {...registerForm.register("password")}
                   />
                 </div>
+                {registerForm.formState.errors.password && (
+                  <p className="text-sm text-destructive">{registerForm.formState.errors.password.message}</p>
+                )}
               </div>
               {userType === "photographer" && (
                 <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">

@@ -3,13 +3,14 @@ import { Button } from "./button";
 import { AuthModal } from "./auth-modal";
 import rentalImage from "@/assets/rental-equipment.jpg";
 import locationImage from "@/assets/photo-location.jpg";
+import photographerImage from "@/assets/hero-photographer.jpg";
 
 const features = [
   {
     icon: Camera,
     title: "Top Photographers",
     description: "Browse verified professional photographers with portfolios and reviews",
-    image: null,
+    image: photographerImage,
     gradient: "from-blue-500 to-teal-500"
   },
   {
@@ -30,7 +31,7 @@ const features = [
     icon: Star,
     title: "Customer Stories",
     description: "See real customer photos and read authentic reviews",
-    image: null,
+    image: photographerImage,
     gradient: "from-orange-500 to-red-500"
   }
 ];
@@ -62,23 +63,17 @@ export const FeaturesSection = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
           {features.map((feature, index) => (
             <div key={index} className="card-feature group cursor-pointer">
-              {feature.image ? (
-                <div className="relative mb-4 rounded-xl overflow-hidden">
-                  <img
-                    src={feature.image}
-                    alt={feature.title}
-                    className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/20" />
-                  <div className={`absolute top-4 left-4 p-2 rounded-lg bg-gradient-to-r ${feature.gradient}`}>
-                    <feature.icon className="h-6 w-6 text-white" />
-                  </div>
-                </div>
-              ) : (
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${feature.gradient} flex items-center justify-center mb-4`}>
+              <div className="relative mb-4 rounded-xl overflow-hidden">
+                <img
+                  src={feature.image}
+                  alt={feature.title}
+                  className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-black/20" />
+                <div className={`absolute top-4 left-4 p-2 rounded-lg bg-gradient-to-r ${feature.gradient}`}>
                   <feature.icon className="h-6 w-6 text-white" />
                 </div>
-              )}
+              </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">{feature.title}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
             </div>

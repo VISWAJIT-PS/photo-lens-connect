@@ -1,15 +1,19 @@
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Camera, MapPin, Calendar, Star, Filter, Search, LogOut } from "lucide-react";
 import { Navigation } from "@/components/ui/navigation";
+import { useAuth } from "@/hooks/use-auth";
+import { FullName } from "@/lib/utils";
 
 const CustomerDashboard = () => {
   const { user, signOut } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
+
+    console.log(user);
+    console.log(user?.user_metadata?.first_name);
 
   const photographers = [
     {
@@ -20,7 +24,7 @@ const CustomerDashboard = () => {
       reviews: 127,
       price: "$150/hour",
       location: "New York, NY",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+      image: "/src/assets/hero-photographer.jpg"
     },
     {
       id: 2,
@@ -30,7 +34,7 @@ const CustomerDashboard = () => {
       reviews: 89,
       price: "$120/hour",
       location: "Los Angeles, CA",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b586?w=150&h=150&fit=crop&crop=face"
+      image: "/src/assets/hero-photographer.jpg"
     }
   ];
 
@@ -65,7 +69,7 @@ const CustomerDashboard = () => {
               <span className="text-xl font-bold">PhotoLens</span>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-muted-foreground">Welcome, {user?.email}</span>
+              <span className="text-sm text-muted-foreground">Welcome, {FullName(user)}</span>
               <Button variant="ghost" onClick={signOut}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out

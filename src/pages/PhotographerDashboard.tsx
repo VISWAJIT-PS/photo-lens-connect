@@ -1,13 +1,15 @@
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Camera, Calendar, DollarSign, Star, Upload, Settings, LogOut, Plus } from "lucide-react";
+import { FullName } from "@/lib/utils";
 
 const PhotographerDashboard = () => {
   const { user, signOut } = useAuth();
 
+  console.log(user);
   const upcomingBookings = [
     {
       id: 1,
@@ -60,7 +62,7 @@ const PhotographerDashboard = () => {
               <span className="text-xl font-bold">PhotoLens</span>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-muted-foreground">Welcome, {user?.email}</span>
+              <span className="text-sm text-muted-foreground">Welcome, {FullName(user)}</span>
               <Button variant="ghost">
                 <Settings className="h-4 w-4 mr-2" />
                 Settings

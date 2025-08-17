@@ -3,31 +3,56 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { useAuthStore } from "@/stores/auth-store";
+import { useEffect } from "react";
 import Index from "./pages/Index";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import PhotographerDashboard from "./pages/PhotographerDashboard";
 import NotFound from "./pages/NotFound";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+
+const AuthRefreshHandler = () => {
+  const refreshSession = useAuthStore((state) => state.refreshSession);
+  
+  useEffect(() => {
+    refreshSession();
+  }, [refreshSession]);
+  
+  return null;
+};
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/customer-dashboard" element={<CustomerDashboard />} />
-            <Route path="/photographer-dashboard" element={<PhotographerDashboard />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
+    <TooltipProvider>
+      <AuthRefreshHandler />
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route 
+            path="/customer-dashboard" 
+            element={
+              <ProtectedRoute requiredRole="customer">
+                <CustomerDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/photographer-dashboard" 
+            element={
+              <ProtectedRoute requiredRole="photographer">
+                <PhotographerDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
   </QueryClientProvider>
 );
 
