@@ -26,7 +26,7 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
 
   // Check role-based access if required
   if (requiredRole) {
-    const userRole = user.user_metadata?.userType || 'customer';
+    const userRole = user.user_metadata?.user_type || 'customer';
     if (userRole !== requiredRole) {
       // Redirect to appropriate dashboard based on user role
       const redirectPath = userRole === 'photographer' ? '/photographer-dashboard' : '/customer-dashboard';

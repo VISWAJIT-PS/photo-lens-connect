@@ -27,7 +27,7 @@ const CustomerDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
     console.log(user);
-    console.log(user?.user_metadata?.first_name);
+    console.log(user?.user_metadata?.user_type);
 
   const { photographers, loading: photographersLoading, fetchPhotographers, searchPhotographers } = usePhotographersStore();
   const { rentals, loading: rentalsLoading, fetchRentals, searchRentals } = useRentalsStore();
@@ -107,6 +107,83 @@ const CustomerDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
+
+      {/* Filter Dialog (shared across sections) */}
+      <Dialog open={isFilterOpen} onOpenChange={(open) => setIsFilterOpen(open)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Filters</DialogTitle>
+          </DialogHeader>
+
+          <Tabs value={activeSection} onValueChange={(val) => setActiveSection(val as "photographers" | "rentals") }>
+            <TabsList>
+              <TabsTrigger value="photographers">Photographers</TabsTrigger>
+              <TabsTrigger value="rentals">Rentals</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="photographers">
+              <div className="space-y-4">
+                <div>
+                  <Label>Location</Label>
+                  <Input value={photoLocation} onChange={(e) => setPhotoLocation(e.target.value)} placeholder="City or area" />
+                </div>
+                <div>
+                  <Label>Photographer Type</Label>
+                  <Select onValueChange={(val) => setPhotoType(val)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Any" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="wedding">Wedding</SelectItem>
+                      <SelectItem value="portrait">Portrait</SelectItem>
+                      <SelectItem value="event">Event</SelectItem>
+                      <SelectItem value="landscape">Landscape</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Minimum Rating</Label>
+                  <Input type="number" value={photoMinRating || ""} onChange={(e) => setPhotoMinRating(Number(e.target.value || 0))} placeholder="e.g. 4" />
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="rentals">
+              <div className="space-y-4">
+                <div>
+                  <Label>Category</Label>
+                  <Select onValueChange={(val) => setRentalCategory(val)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Any" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="camera">Camera</SelectItem>
+                      <SelectItem value="lens">Lens</SelectItem>
+                      <SelectItem value="lighting">Lighting</SelectItem>
+                      <SelectItem value="accessory">Accessory</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Location</Label>
+                  <Input value={rentalLocation} onChange={(e) => setRentalLocation(e.target.value)} placeholder="City or area" />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox checked={rentalAvailableOnly} onCheckedChange={(v) => setRentalAvailableOnly(Boolean(v))} />
+                  <Label>Show available only</Label>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+
+          <DialogFooter>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={clearFilters}>Clear</Button>
+              <Button onClick={applyFilters}>Apply</Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Add top padding to offset the fixed/overlapping Navigation so the heading isn’t hidden */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20">

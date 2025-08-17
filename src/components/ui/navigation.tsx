@@ -3,12 +3,10 @@ import { Button } from "./button";
 import { Camera, Menu, X, User, LogOut } from "lucide-react";
 import { AuthModal } from "./auth-modal";
 import { useAuthStore } from "@/stores/auth-store";
-import ProfileDialog from "./profile-dialog";
 
 export const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuthStore();
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
@@ -45,21 +43,24 @@ export const Navigation = () => {
               </>
             ) : (
               <>
-                <ProfileDialog trigger={
+                <a href="/account">
                   <Button variant="ghost">
                     <User className="h-5 w-5 mr-2" />
                     Profile
                   </Button>
-                } />
-                <a
-                  href={
-                    user?.user_metadata.userType === "photographer"
-                      ? "/photographer-dashboard"
-                      : "/customer-dashboard"
-                  }
-                >
-                  <Button variant="ghost">Dashboard</Button>
                 </a>
+                {typeof window !== "undefined" &&
+                  (user?.user_metadata.user_type === "photographer"
+                    ? window.location.pathname !== "/photographer-dashboard" && (
+                        <a href="/photographer-dashboard">
+                          <Button variant="ghost">Dashboard</Button>
+                        </a>
+                      )
+                    : window.location.pathname !== "/customer-dashboard" && (
+                        <a href="/customer-dashboard">
+                          <Button variant="ghost">Dashboard</Button>
+                        </a>
+                      ))}
                 <Button variant="ghost" onClick={signOut}>
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
@@ -91,21 +92,24 @@ export const Navigation = () => {
 
               {user ? (
                 <div className="flex flex-col space-y-2 pt-4 border-t border-border">
-                  <ProfileDialog trigger={
-                    <Button variant="ghost" className="justify-start">
-                      <User className="h-4 w-4 mr-2" />
-                      Profile
-                    </Button>
-                  } />
-                  <a
-                    href={
-                      user?.user_metadata.userType === "photographer"
-                        ? "/photographer-dashboard"
-                        : "/customer-dashboard"
-                    }
-                  >
-                    <Button className="justify-start">Dashboard</Button>
-                  </a>
+                    <a href="/account">
+                      <Button variant="ghost" className="justify-start">
+                        <User className="h-4 w-4 mr-2" />
+                        Profile
+                      </Button>
+                    </a>
+                  {typeof window !== "undefined" &&
+                    (user?.user_metadata.user_type === "photographer"
+                      ? window.location.pathname !== "/photographer-dashboard" && (
+                          <a href="/photographer-dashboard">
+                            <Button className="justify-start">Dashboard</Button>
+                          </a>
+                        )
+                      : window.location.pathname !== "/customer-dashboard" && (
+                          <a href="/customer-dashboard">
+                            <Button className="justify-start">Dashboard</Button>
+                          </a>
+                        ))}
                   <Button variant="ghost" className="justify-start" onClick={signOut}>
                     <LogOut className="h-4 w-4 mr-2" />
                     Sign Out

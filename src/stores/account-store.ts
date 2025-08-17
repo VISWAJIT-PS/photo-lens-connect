@@ -6,6 +6,8 @@ export type Profile = {
   full_name?: string | null
   gender?: string | null
   address?: string | null
+  details?: string | null
+  avatar_url?: string | null
   orders?: unknown[] | null
 }
 
@@ -47,7 +49,9 @@ export const useAccountStore = create<AccountState>((set, get) => ({
         full_name: typeof metadata.full_name === 'string' ? (metadata.full_name as string) : null,
         gender: typeof metadata.gender === 'string' ? (metadata.gender as string) : null,
         address: typeof metadata.address === 'string' ? (metadata.address as string) : null,
-        orders: Array.isArray(metadata.orders) ? (metadata.orders as unknown[]) : null,
+  details: typeof metadata.details === 'string' ? (metadata.details as string) : null,
+  avatar_url: typeof metadata.avatar_url === 'string' ? (metadata.avatar_url as string) : null,
+  orders: Array.isArray(metadata.orders) ? (metadata.orders as unknown[]) : null,
       }
 
       set({ profile, loading: false })
@@ -60,11 +64,13 @@ export const useAccountStore = create<AccountState>((set, get) => ({
   updateProfile: async (data: Partial<Profile>) => {
     set({ loading: true, error: null })
     try {
-      const metadata: Record<string, unknown> = {}
-      if (data.full_name !== undefined) metadata.full_name = data.full_name
-      if (data.gender !== undefined) metadata.gender = data.gender
-      if (data.address !== undefined) metadata.address = data.address
-      if (data.orders !== undefined) metadata.orders = data.orders
+  const metadata: Record<string, unknown> = {}
+  if (data.full_name !== undefined) metadata.full_name = data.full_name
+  if (data.gender !== undefined) metadata.gender = data.gender
+  if (data.address !== undefined) metadata.address = data.address
+  if (data.details !== undefined) metadata.details = data.details
+  if (data.avatar_url !== undefined) metadata.avatar_url = data.avatar_url
+  if (data.orders !== undefined) metadata.orders = data.orders
 
       if (Object.keys(metadata).length === 0) {
         set({ loading: false })
