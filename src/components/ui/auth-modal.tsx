@@ -12,7 +12,7 @@ import { Camera, User, Mail, Lock, UserCheck } from "lucide-react";
 import { Badge } from "./badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthStore } from "@/stores/auth-store";
-import type { LoginFormData, RegisterFormData } from "@/types";
+import type { LoginFormData, RegisterFormData } from "@/types/auth.types";
 import {
   Form,
   FormControl,

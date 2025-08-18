@@ -19,8 +19,8 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthStore } from "@/stores/auth-store";
 import { FullName } from "@/lib/utils";
-import { usePhotographersStore } from "@/stores/photographers-store";
-import { useRentalsStore } from "@/stores/rentals-store";
+// import { usePhotographersStore } from "@/stores/photographers-store";
+// import { useRentalsStore } from "@/stores/rentals-store";
 
 const CustomerDashboard = () => {
   const { user, signOut } = useAuthStore();
@@ -29,8 +29,11 @@ const CustomerDashboard = () => {
     console.log(user);
     console.log(user?.user_metadata?.user_type);
 
-  const { photographers, loading: photographersLoading, fetchPhotographers, searchPhotographers } = usePhotographersStore();
-  const { rentals, loading: rentalsLoading, fetchRentals, searchRentals } = useRentalsStore();
+  // Temporary static data until database is set up
+  const [photographersLoading, setPhotographersLoading] = useState(false);
+  const [rentalsLoading, setRentalsLoading] = useState(false);
+  const photographers: any[] = [];
+  const rentals: any[] = [];
 
   // Modal + filter state
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -46,20 +49,11 @@ const CustomerDashboard = () => {
   const [rentalLocation, setRentalLocation] = useState("");
   const [rentalAvailableOnly, setRentalAvailableOnly] = useState(false);
 
-  useEffect(() => {
-    fetchPhotographers();
-    fetchRentals();
-  }, [fetchPhotographers, fetchRentals]);
+  // Remove useEffect that fetches data since stores don't exist yet
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    if (query.trim()) {
-      searchPhotographers(query);
-      searchRentals(query);
-    } else {
-      fetchPhotographers();
-      fetchRentals();
-    }
+    // Search functionality will be implemented when database is ready
   };
 
   const openFiltersFor = (section: "photographers" | "rentals") => {
@@ -68,24 +62,7 @@ const CustomerDashboard = () => {
   };
 
   const applyFilters = () => {
-    if (activeSection === "photographers") {
-      // Build a simple query string from filters for demo purposes
-      const parts: string[] = [];
-      if (photoLocation.trim()) parts.push(photoLocation);
-      if (photoType.trim()) parts.push(photoType);
-      if (photoMinRating > 0) parts.push(String(photoMinRating));
-      const q = parts.join(" ");
-      if (q) searchPhotographers(q);
-      else fetchPhotographers();
-    } else {
-      const parts: string[] = [];
-      if (rentalCategory.trim()) parts.push(rentalCategory);
-      if (rentalLocation.trim()) parts.push(rentalLocation);
-      if (rentalAvailableOnly) parts.push("available");
-      const q = parts.join(" ");
-      if (q) searchRentals(q);
-      else fetchRentals();
-    }
+    // Filter functionality will be implemented when database is ready
     setIsFilterOpen(false);
   };
 
@@ -97,9 +74,6 @@ const CustomerDashboard = () => {
     setRentalCategory("");
     setRentalLocation("");
     setRentalAvailableOnly(false);
-    // Re-fetch data for active section
-    if (activeSection === "photographers") fetchPhotographers();
-    else fetchRentals();
     setIsFilterOpen(false);
   };
 
