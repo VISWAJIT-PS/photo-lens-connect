@@ -19,8 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthStore } from "@/stores/auth-store";
 import { FullName } from "@/lib/utils";
-import { usePhotographersStore } from "@/stores/photographers-store";
-import { useRentalsStore } from "@/stores/rentals-store";
+import { CreatorCard } from "@/components/CreatorCard";
 
 const CustomerDashboard = () => {
   const { user, signOut } = useAuthStore();
@@ -29,12 +28,234 @@ const CustomerDashboard = () => {
     console.log(user);
     console.log(user?.user_metadata?.user_type);
 
-  const { photographers, loading: photographersLoading, fetchPhotographers, searchPhotographers } = usePhotographersStore();
-  const { rentals, loading: rentalsLoading, fetchRentals, searchRentals } = useRentalsStore();
+  // Temporary static data until database is set up
+  const [photographersLoading, setPhotographersLoading] = useState(false);
+  const [rentalsLoading, setRentalsLoading] = useState(false);
+  
+  const photographers = [
+    {
+      "id": "7365f749-665d-409e-b765-c01bbf55463c",
+      "name": "David Park",
+      "specialization": "Nature & Landscape",
+      "rating": 4.9,
+      "reviews": 93,
+      "price": "$600-$1,200",
+      "location": "Seattle, WA",
+      "image_url": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+      "bio": "Passionate about capturing the beauty of nature and stunning landscapes.",
+      "portfolio_count": 67,
+      "experience_years": 7,
+      "user_id": null,
+      "created_at": "2025-08-17T08:05:11.521632+00:00",
+      "updated_at": "2025-08-17T08:05:11.521632+00:00"
+    },
+    {
+      "id": "a3b38b34-e97f-46ae-87e2-60a578dcf777",
+      "name": "Sarah Johnson",
+      "specialization": "Wedding Photography",
+      "rating": 4.9,
+      "reviews": 127,
+      "price": "$2,500-$5,000",
+      "location": "New York, NY",
+      "image_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
+      "bio": "Award-winning wedding photographer with 8 years of experience capturing beautiful moments.",
+      "portfolio_count": 45,
+      "experience_years": 8,
+      "user_id": null,
+      "created_at": "2025-08-17T08:05:11.521632+00:00",
+      "updated_at": "2025-08-17T08:05:11.521632+00:00"
+    },
+    {
+      "id": "269d8963-7b3f-4d27-8f82-0eed920ced59",
+      "name": "Michael Chen",
+      "specialization": "Portrait Photography",
+      "rating": 4.8,
+      "reviews": 89,
+      "price": "$800-$1,500",
+      "location": "San Francisco, CA",
+      "image_url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
+      "bio": "Specializing in professional headshots and family portraits with a modern touch.",
+      "portfolio_count": 32,
+      "experience_years": 6,
+      "user_id": null,
+      "created_at": "2025-08-17T08:05:11.521632+00:00",
+      "updated_at": "2025-08-17T08:05:11.521632+00:00"
+    },
+    {
+      "id": "cbd4feba-60a4-4045-9d43-1cfbecffa71a",
+      "name": "Lisa Thompson",
+      "specialization": "Fashion Photography",
+      "rating": 4.8,
+      "reviews": 74,
+      "price": "$1,500-$4,000",
+      "location": "Miami, FL",
+      "image_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
+      "bio": "High-end fashion and editorial photography for brands and magazines.",
+      "portfolio_count": 54,
+      "experience_years": 9,
+      "user_id": null,
+      "created_at": "2025-08-17T08:05:11.521632+00:00",
+      "updated_at": "2025-08-17T08:05:11.521632+00:00"
+    },
+    {
+      "id": "e667a310-5e7f-404c-9c69-ef5bb18e276c",
+      "name": "Emma Rodriguez",
+      "specialization": "Event Photography",
+      "rating": 4.7,
+      "reviews": 156,
+      "price": "$1,200-$3,000",
+      "location": "Los Angeles, CA",
+      "image_url": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
+      "bio": "Corporate events, parties, and special occasions captured with creativity and style.",
+      "portfolio_count": 78,
+      "experience_years": 10,
+      "user_id": null,
+      "created_at": "2025-08-17T08:05:11.521632+00:00",
+      "updated_at": "2025-08-17T08:05:11.521632+00:00"
+    }
+  ];
+
+  const videographers = [
+    {
+      "id": "v1-8f4c-4b2e-8a1b-3d5e6f7a8b9c",
+      "name": "Alex Rivera",
+      "specialization": "Wedding Videography",
+      "rating": 4.9,
+      "reviews": 145,
+      "price": "$3,000-$8,000",
+      "location": "Austin, TX",
+      "image_url": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
+      "bio": "Cinematic wedding films that tell your unique love story with artistic flair.",
+      "portfolio_count": 89,
+      "experience_years": 12,
+      "user_id": null,
+      "created_at": "2025-08-17T08:05:11.521632+00:00",
+      "updated_at": "2025-08-17T08:05:11.521632+00:00"
+    },
+    {
+      "id": "v2-9a5b-4c3d-9b2c-4e6f7a8b9c0d",
+      "name": "Jessica Wong",
+      "specialization": "Corporate Videography",
+      "rating": 4.8,
+      "reviews": 98,
+      "price": "$2,000-$5,000",
+      "location": "Portland, OR",
+      "image_url": "https://images.unsplash.com/photo-1494790108755-2616b612b634",
+      "bio": "Professional corporate videos, commercials, and brand storytelling.",
+      "portfolio_count": 156,
+      "experience_years": 8,
+      "user_id": null,
+      "created_at": "2025-08-17T08:05:11.521632+00:00",
+      "updated_at": "2025-08-17T08:05:11.521632+00:00"
+    },
+    {
+      "id": "v3-0c6d-5e4f-0c3d-5f7a8b9c0d1e",
+      "name": "Carlos Martinez",
+      "specialization": "Music Video Production",
+      "rating": 4.7,
+      "reviews": 67,
+      "price": "$1,800-$4,500",
+      "location": "Nashville, TN",
+      "image_url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
+      "bio": "Creative music videos and live performance recordings with dynamic cinematography.",
+      "portfolio_count": 124,
+      "experience_years": 10,
+      "user_id": null,
+      "created_at": "2025-08-17T08:05:11.521632+00:00",
+      "updated_at": "2025-08-17T08:05:11.521632+00:00"
+    }
+  ];
+
+  const rentals = [
+    {
+      "id": 1,
+      "name": "Canon EOS R5",
+      "category": "Cameras",
+      "price": "$150/day",
+      "rating": 4.9,
+      "location": "New York, NY",
+      "description": "Professional mirrorless camera with 45MP sensor and 8K video recording.",
+      "image_url": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32",
+      "owner_id": null,
+      "available": true,
+      "created_at": "2025-08-17T08:05:11.521632+00:00",
+      "updated_at": "2025-08-17T08:05:11.521632+00:00"
+    },
+    {
+      "id": 2,
+      "name": "Sony A7S III",
+      "category": "Cameras",
+      "price": "$120/day",
+      "rating": 4.8,
+      "location": "Los Angeles, CA",
+      "description": "Full-frame mirrorless perfect for video with excellent low-light performance.",
+      "image_url": "https://images.unsplash.com/photo-1502920917128-1aa500764cbd",
+      "owner_id": null,
+      "available": true,
+      "created_at": "2025-08-17T08:05:11.521632+00:00",
+      "updated_at": "2025-08-17T08:05:11.521632+00:00"
+    },
+    {
+      "id": 3,
+      "name": "DJI Mavic 3",
+      "category": "Drones",
+      "price": "$200/day",
+      "rating": 4.9,
+      "location": "San Francisco, CA",
+      "description": "Professional drone with Hasselblad camera and 5.1K video recording.",
+      "image_url": "https://images.unsplash.com/photo-1527977966376-1c8408f9f108",
+      "owner_id": null,
+      "available": true,
+      "created_at": "2025-08-17T08:05:11.521632+00:00",
+      "updated_at": "2025-08-17T08:05:11.521632+00:00"
+    },
+    {
+      "id": 4,
+      "name": "Godox AD200 Pro",
+      "category": "Lighting",
+      "price": "$80/day",
+      "rating": 4.7,
+      "location": "Chicago, IL",
+      "description": "Portable flash system with 200Ws power and lithium battery.",
+      "image_url": "https://images.unsplash.com/photo-1519638399535-1b036603ac77",
+      "owner_id": null,
+      "available": true,
+      "created_at": "2025-08-17T08:05:11.521632+00:00",
+      "updated_at": "2025-08-17T08:05:11.521632+00:00"
+    },
+    {
+      "id": 5,
+      "name": "Sigma 85mm f/1.4",
+      "category": "Lenses",
+      "price": "$60/day",
+      "rating": 4.8,
+      "location": "Miami, FL",
+      "description": "Professional portrait lens with beautiful bokeh and sharp optics.",
+      "image_url": "https://images.unsplash.com/photo-1617005082133-548c4dd27f35",
+      "owner_id": null,
+      "available": true,
+      "created_at": "2025-08-17T08:05:11.521632+00:00",
+      "updated_at": "2025-08-17T08:05:11.521632+00:00"
+    },
+    {
+      "id": 6,
+      "name": "Manfrotto Tripod",
+      "category": "Accessories",
+      "price": "$25/day",
+      "rating": 4.6,
+      "location": "Boston, MA",
+      "description": "Heavy-duty aluminum tripod with fluid head for smooth movements.",
+      "image_url": "https://images.unsplash.com/photo-1495707902641-75cac588d2e9",
+      "owner_id": null,
+      "available": true,
+      "created_at": "2025-08-17T08:05:11.521632+00:00",
+      "updated_at": "2025-08-17T08:05:11.521632+00:00"
+    }
+  ];
 
   // Modal + filter state
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState<"photographers" | "rentals">("photographers");
+  const [activeSection, setActiveSection] = useState<"all" | "photographers" | "videographers" | "rentals">("all");
 
   // Photographers filters
   const [photoLocation, setPhotoLocation] = useState("");
@@ -46,46 +267,20 @@ const CustomerDashboard = () => {
   const [rentalLocation, setRentalLocation] = useState("");
   const [rentalAvailableOnly, setRentalAvailableOnly] = useState(false);
 
-  useEffect(() => {
-    fetchPhotographers();
-    fetchRentals();
-  }, [fetchPhotographers, fetchRentals]);
+  // Remove useEffect that fetches data since stores don't exist yet
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    if (query.trim()) {
-      searchPhotographers(query);
-      searchRentals(query);
-    } else {
-      fetchPhotographers();
-      fetchRentals();
-    }
+    // Search functionality will be implemented when database is ready
   };
 
-  const openFiltersFor = (section: "photographers" | "rentals") => {
+  const openFiltersFor = (section: "all" | "photographers" | "videographers" | "rentals") => {
     setActiveSection(section);
     setIsFilterOpen(true);
   };
 
   const applyFilters = () => {
-    if (activeSection === "photographers") {
-      // Build a simple query string from filters for demo purposes
-      const parts: string[] = [];
-      if (photoLocation.trim()) parts.push(photoLocation);
-      if (photoType.trim()) parts.push(photoType);
-      if (photoMinRating > 0) parts.push(String(photoMinRating));
-      const q = parts.join(" ");
-      if (q) searchPhotographers(q);
-      else fetchPhotographers();
-    } else {
-      const parts: string[] = [];
-      if (rentalCategory.trim()) parts.push(rentalCategory);
-      if (rentalLocation.trim()) parts.push(rentalLocation);
-      if (rentalAvailableOnly) parts.push("available");
-      const q = parts.join(" ");
-      if (q) searchRentals(q);
-      else fetchRentals();
-    }
+    // Filter functionality will be implemented when database is ready
     setIsFilterOpen(false);
   };
 
@@ -97,9 +292,6 @@ const CustomerDashboard = () => {
     setRentalCategory("");
     setRentalLocation("");
     setRentalAvailableOnly(false);
-    // Re-fetch data for active section
-    if (activeSection === "photographers") fetchPhotographers();
-    else fetchRentals();
     setIsFilterOpen(false);
   };
 
@@ -115,9 +307,11 @@ const CustomerDashboard = () => {
             <DialogTitle>Filters</DialogTitle>
           </DialogHeader>
 
-          <Tabs value={activeSection} onValueChange={(val) => setActiveSection(val as "photographers" | "rentals") }>
+          <Tabs value={activeSection} onValueChange={(val) => setActiveSection(val as "all" | "photographers" | "videographers" | "rentals") }>
             <TabsList>
+              <TabsTrigger value="all">All</TabsTrigger>
               <TabsTrigger value="photographers">Photographers</TabsTrigger>
+              <TabsTrigger value="videographers">Videographers</TabsTrigger>
               <TabsTrigger value="rentals">Rentals</TabsTrigger>
             </TabsList>
 
@@ -203,7 +397,7 @@ const CustomerDashboard = () => {
         </div>
         </div>
 
-        <Tabs value={activeSection} onValueChange={(val) => setActiveSection(val as "photographers" | "rentals")}>
+        <Tabs value={activeSection} onValueChange={(val) => setActiveSection(val as "all" | "photographers" | "videographers" | "rentals")}>
           <div className="mb-6 flex items-center justify-center">
             {/* Neomorphic tab container */}
             <TabsList
@@ -215,9 +409,24 @@ const CustomerDashboard = () => {
               "
             >
               <TabsTrigger
+                value="all"
+                className="
+                  px-6 py-3 text-base md:text-lg font-semibold rounded-full mx-1
+                  transition-all duration-200 ease-in-out
+                  text-muted-foreground
+                  data-[state=active]:text-primary
+                  data-[state=active]:bg-[#f8fbff] dark:data-[state=active]:bg-[#0b1220]
+                  data-[state=active]:shadow-[6px_6px_16px_rgba(16,24,40,0.08),-6px_-6px_16px_rgba(255,255,255,0.85)]
+                  data-[state=active]:scale-105
+                "
+              >
+                All
+              </TabsTrigger>
+
+              <TabsTrigger
                 value="photographers"
                 className="
-                  px-8 py-3 text-lg md:text-xl lg:text-2xl font-semibold rounded-full mx-1
+                  px-6 py-3 text-base md:text-lg font-semibold rounded-full mx-1
                   transition-all duration-200 ease-in-out
                   text-muted-foreground
                   data-[state=active]:text-primary
@@ -230,9 +439,24 @@ const CustomerDashboard = () => {
               </TabsTrigger>
 
               <TabsTrigger
+                value="videographers"
+                className="
+                  px-6 py-3 text-base md:text-lg font-semibold rounded-full mx-1
+                  transition-all duration-200 ease-in-out
+                  text-muted-foreground
+                  data-[state=active]:text-primary
+                  data-[state=active]:bg-[#f8fbff] dark:data-[state=active]:bg-[#0b1220]
+                  data-[state=active]:shadow-[6px_6px_16px_rgba(16,24,40,0.08),-6px_-6px_16px_rgba(255,255,255,0.85)]
+                  data-[state=active]:scale-105
+                "
+              >
+                Videographers
+              </TabsTrigger>
+
+              <TabsTrigger
                 value="rentals"
                 className="
-                  px-8 py-3 text-lg md:text-xl lg:text-2xl font-semibold rounded-full mx-1
+                  px-6 py-3 text-base md:text-lg font-semibold rounded-full mx-1
                   transition-all duration-200 ease-in-out
                   text-muted-foreground
                   data-[state=active]:text-primary
@@ -246,6 +470,29 @@ const CustomerDashboard = () => {
             </TabsList>
             </div>
 
+          <TabsContent value="all">
+            {/* All Section - Both Photographers and Videographers */}
+            <section className="mb-12">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-semibold">All Creators</h2>
+                <div>
+                  <Button variant="ghost" onClick={() => openFiltersFor("all")}>
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filters
+                  </Button>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {photographers.map((photographer) => (
+                  <CreatorCard key={photographer.id} creator={photographer} type="photographer" />
+                ))}
+                {videographers.map((videographer) => (
+                  <CreatorCard key={videographer.id} creator={videographer} type="videographer" />
+                ))}
+              </div>
+            </section>
+          </TabsContent>
+
           <TabsContent value="photographers">
             {/* Photographers Section */}
             <section className="mb-12">
@@ -258,77 +505,31 @@ const CustomerDashboard = () => {
                   </Button>
                 </div>
               </div>
-              {photographersLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[...Array(6)].map((_, i) => (
-                    <Card key={i} className="animate-pulse">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-12 h-12 bg-muted rounded-full"></div>
-                          <div className="space-y-2">
-                            <div className="h-4 bg-muted rounded w-32"></div>
-                            <div className="h-3 bg-muted rounded w-24"></div>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          <div className="h-3 bg-muted rounded w-20"></div>
-                          <div className="h-3 bg-muted rounded w-16"></div>
-                          <div className="h-8 bg-muted rounded"></div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : photographers.length === 0 ? (
-                <div className="text-center py-12 border-2 border-dashed rounded-lg">
-                  <Camera className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No Photographers Available</h3>
-                  <p className="text-muted-foreground mb-4">Database not initialized. Please run the setup script.</p>
-                  <Button variant="outline" onClick={() => window.location.reload()}>
-                    Retry
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {photographers.map((photographer) => (
+                  <CreatorCard key={photographer.id} creator={photographer} type="photographer" />
+                ))}
+              </div>
+            </section>
+          </TabsContent>
+
+          <TabsContent value="videographers">
+            {/* Videographers Section */}
+            <section className="mb-12">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-semibold">Featured Videographers</h2>
+                <div>
+                  <Button variant="ghost" onClick={() => openFiltersFor("videographers")}>
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filters
                   </Button>
                 </div>
-              ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {photographers.map((photographer) => (
-                      <Card key={photographer.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-                        <CardHeader className="pb-3">
-                          <div className="flex items-center space-x-3">
-                            <img
-                              src={photographer.image_url || "/src/assets/hero-photographer.jpg"}
-                              alt={photographer.name}
-                              className="w-12 h-12 rounded-full object-cover"
-                            />
-                            <div>
-                              <CardTitle className="text-lg">{photographer.name}</CardTitle>
-                              <p className="text-sm text-muted-foreground">{photographer.specialization}</p>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center space-x-1">
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <span className="text-sm font-medium">{photographer.rating}</span>
-                              <span className="text-sm text-muted-foreground">({photographer.reviews})</span>
-                            </div>
-                            <Badge variant="secondary">{photographer.price}</Badge>
-                          </div>
-                          <div className="flex items-center text-sm text-muted-foreground mb-4">
-                            <MapPin className="h-4 w-4 mr-1" />
-                            {photographer.location}
-                          </div>
-                          <Button className="w-full">
-                            <Calendar className="h-4 w-4 mr-2" />
-                            Book Now
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-              )}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {videographers.map((videographer) => (
+                  <CreatorCard key={videographer.id} creator={videographer} type="videographer" />
+                ))}
+              </div>
             </section>
           </TabsContent>
 

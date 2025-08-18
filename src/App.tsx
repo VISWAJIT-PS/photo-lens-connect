@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import Index from "./pages/Index";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import PhotographerDashboard from "./pages/PhotographerDashboard";
+import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 import AccountDashboard from "./pages/AccountDashboard";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -57,6 +58,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+          <Route path="/profile/:type/:id" element={<ProfilePage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
