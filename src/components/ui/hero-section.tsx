@@ -20,10 +20,10 @@ export const HeroSection = () => {
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Column - Text Content */}
-          <div className="text-white space-y-8 animate-fade-in-up">
-            <div className="space-y-4">
+          <div className="text-white space-y-8 animate-fade-in-up lg:pr-8 xl:pr-12">
+            <div className="space-y-4 text-left">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
                 Capture Perfect
                 <span className="block bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
@@ -37,16 +37,16 @@ export const HeroSection = () => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-6 py-6">
-              <div className="text-center">
+            <div className="grid grid-cols-3 gap-6 py-6 max-w-md">
+              <div className="text-left">
                 <div className="text-2xl md:text-3xl font-bold text-primary">500+</div>
                 <div className="text-sm text-gray-300">Photographers</div>
               </div>
-              <div className="text-center">
+              <div className="text-left">
                 <div className="text-2xl md:text-3xl font-bold text-primary">1000+</div>
                 <div className="text-sm text-gray-300">Events Captured</div>
               </div>
-              <div className="text-center">
+              <div className="text-left">
                 <div className="text-2xl md:text-3xl font-bold text-primary">4.9★</div>
                 <div className="text-sm text-gray-300">Average Rating</div>
               </div>
@@ -55,12 +55,12 @@ export const HeroSection = () => {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
               <AuthModal defaultTab="register">
-                <Button size="lg" className="btn-hero text-lg px-8 py-4">
+                <Button size="lg" className="btn-hero text-lg px-8 py-4 bg-primary hover:bg-primary/90 text-white">
                   Hire a Photographer
                 </Button>
               </AuthModal>
               <AuthModal defaultTab="register">
-                <Button size="lg" variant="outline" className="btn-outline-hero border-white text-white hover:bg-white hover:text-gray-900">
+                <Button size="lg" variant="outline" className="btn-outline-hero border-white text-white bg-white/20 backdrop-blur-md hover:bg-white hover:text-gray-900 transition-all duration-200">
                   Join as Photographer
                 </Button>
               </AuthModal>

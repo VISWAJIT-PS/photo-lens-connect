@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/ui/navigation";
 import { HeroSection } from "@/components/ui/hero-section";
 import { FeaturesSection } from "@/components/ui/features-section";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuthStore } from "@/stores/auth-store";
 
 const Index = () => {
-  const { user, loading } = useAuth();
+  const { user, loading } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
