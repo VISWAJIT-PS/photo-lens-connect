@@ -5,12 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Camera, Calendar, DollarSign, Star, Upload, Settings, LogOut, Plus } from "lucide-react";
 import { FullName } from "@/lib/utils";
-import { useRentalsStore } from "@/stores/rentals-store";
-import { useEffect } from "react";
+// import { useRentalsStore } from "@/stores/rentals-store";
+import { useState } from "react";
 
 const PhotographerDashboard = () => {
   const { user, signOut } = useAuthStore();
-  const { rentals, loading: rentalsLoading, fetchRentalsByOwner } = useRentalsStore();
+  // Temporary static data until database is set up
+  const [rentalsLoading, setRentalsLoading] = useState(false);
+  const rentals: any[] = [];
 
   console.log(user);
   const upcomingBookings = [
@@ -34,11 +36,7 @@ const PhotographerDashboard = () => {
     }
   ];
 
-  useEffect(() => {
-    if (user?.id) {
-      fetchRentalsByOwner(user.id);
-    }
-  }, [user?.id, fetchRentalsByOwner]);
+  // Remove useEffect that fetches data since stores don't exist yet
 
   const recentWork = [
     {
