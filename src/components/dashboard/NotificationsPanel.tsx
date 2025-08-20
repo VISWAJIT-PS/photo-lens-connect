@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,8 +10,8 @@ interface NotificationsPanelProps {
   onClose: () => void;
 }
 
-// Mock notifications data
-const notifications = [
+// Initial notifications data
+const initialNotifications = [
   {
     id: '1',
     type: 'booking',
@@ -75,36 +75,51 @@ const notifications = [
 ];
 
 export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, onClose }) => {
+  const [notifications, setNotifications] = useState(initialNotifications);
+  
   const unreadCount = notifications.filter(n => n.unread).length;
 
   const getIconColor = (color: string) => {
     switch (color) {
-      case 'success': return 'text-success';
-      case 'warning': return 'text-warning';
-      case 'primary': return 'text-primary';
-      default: return 'text-muted-foreground';
+      case 'success': return 'text-green-600';
+      case 'warning': return 'text-yellow-600';
+      case 'primary': return 'text-blue-600';
+      default: return 'text-gray-600';
     }
   };
 
   const getBgColor = (color: string) => {
     switch (color) {
-      case 'success': return 'bg-success/10';
-      case 'warning': return 'bg-warning/10';
-      case 'primary': return 'bg-primary/10';
-      default: return 'bg-muted';
+      case 'success': return 'bg-green-50';
+      case 'warning': return 'bg-yellow-50';
+      case 'primary': return 'bg-blue-50';
+      default: return 'bg-gray-50';
     }
   };
 
   const markAsRead = (id: string) => {
-    // Mark notification as read logic here
+    setNotifications(prevNotifications =>
+      prevNotifications.map(notification =>
+        notification.id === id 
+          ? { ...notification, unread: false }
+          : notification
+      )
+    );
   };
 
   const markAllAsRead = () => {
-    // Mark all notifications as read logic here
+    setNotifications(prevNotifications =>
+      prevNotifications.map(notification => ({ 
+        ...notification, 
+        unread: false 
+      }))
+    );
   };
 
   const deleteNotification = (id: string) => {
-    // Delete notification logic here
+    setNotifications(prevNotifications =>
+      prevNotifications.filter(notification => notification.id !== id)
+    );
   };
 
   return (
@@ -116,7 +131,7 @@ export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, 
               <Bell className="h-5 w-5 mr-2" />
               Notifications
               {unreadCount > 0 && (
-                <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center text-xs bg-red-500 text-white">
                   {unreadCount}
                 </Badge>
               )}
@@ -141,8 +156,8 @@ export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, 
                   key={notification.id}
                   className={`p-4 rounded-lg border transition-colors ${
                     notification.unread 
-                      ? 'bg-muted/50 border-primary/20' 
-                      : 'bg-card border-border hover:bg-muted/30'
+                      ? 'bg-blue-50 border-blue-200' 
+                      : 'bg-white border-gray-200 hover:bg-gray-50'
                   }`}
                 >
                   <div className="flex items-start space-x-3">
@@ -152,34 +167,36 @@ export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, 
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-1">
-                        <h4 className="font-medium text-sm">{notification.title}</h4>
+                        <h4 className="font-medium text-sm text-gray-900">{notification.title}</h4>
                         <div className="flex items-center space-x-1">
                           {notification.unread && (
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => markAsRead(notification.id)}
-                              className="h-6 w-6 p-0"
+                              className="h-6 w-6 p-0 hover:bg-green-100"
+                              title="Mark as read"
                             >
-                              <CheckCircle className="h-3 w-3" />
+                              <CheckCircle className="h-3 w-3 text-green-600" />
                             </Button>
                           )}
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => deleteNotification(notification.id)}
-                            className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                            className="h-6 w-6 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50"
+                            title="Delete notification"
                           >
                             <X className="h-3 w-3" />
                           </Button>
                         </div>
                       </div>
                       
-                      <p className="text-sm text-muted-foreground mb-2 leading-relaxed">
+                      <p className="text-sm text-gray-600 mb-2 leading-relaxed">
                         {notification.message}
                       </p>
                       
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-gray-400">
                         {notification.timestamp}
                       </p>
                     </div>
@@ -191,9 +208,9 @@ export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, 
 
           {notifications.length === 0 && (
             <div className="text-center py-12">
-              <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No notifications yet</p>
-              <p className="text-sm text-muted-foreground mt-1">
+              <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">No notifications yet</p>
+              <p className="text-sm text-gray-400 mt-1">
                 You'll see updates about your bookings and rentals here
               </p>
             </div>
@@ -201,7 +218,7 @@ export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, 
         </ScrollArea>
 
         {/* Quick Actions */}
-        <div className="border-t border-border pt-4 mt-4">
+        <div className="border-t border-gray-200 pt-4 mt-4">
           <div className="grid grid-cols-2 gap-2">
             <Button variant="outline" size="sm" className="justify-start">
               <Calendar className="h-3 w-3 mr-2" />

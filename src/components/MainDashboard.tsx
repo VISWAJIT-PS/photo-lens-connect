@@ -10,6 +10,8 @@ import { RentalsTab } from './dashboard/RentalsTab';
 import { GalleryTab } from './dashboard/GalleryTab';
 import { ChatTab } from './dashboard/ChatTab';
 import { NotificationsPanel } from './dashboard/NotificationsPanel';
+import { FavoritesPanel } from './dashboard/FavoritesPanel';
+import  EcommerceUserSettings  from './SettingsPage';
 import { cn } from '@/lib/utils';
 
 interface OnboardingData {
@@ -26,6 +28,7 @@ export const MainDashboard: React.FC = () => {
   const [worksFilter, setWorksFilter] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('Event Crew');
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showFavorites, setShowFavorites] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // Check if user needs onboarding
@@ -88,6 +91,7 @@ export const MainDashboard: React.FC = () => {
       <OnboardingPopup
         isOpen={showOnboarding}
         onComplete={handleOnboardingComplete}
+        onClose={() => setShowOnboarding(false)}
       />
 
       {/* Desktop Layout */}
@@ -96,21 +100,11 @@ export const MainDashboard: React.FC = () => {
         <div className="w-64 bg-card border-r border-border flex flex-col">
           {/* Logo & User */}
           <div className="p-6 border-b border-border">
-            <div className="flex items-center space-x-3 mb-4">
+            <div className="flex items-center space-x-3">
               <div className="bg-gradient-primary p-2 rounded-lg">
                 <Camera className="h-6 w-6 text-primary-foreground" />
               </div>
               <h1 className="text-xl font-bold">PhotoLens</h1>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <div className="bg-muted p-2 rounded-full">
-                <User className="h-4 w-4" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium truncate">{user?.email}</p>
-                <p className="text-xs text-muted-foreground">Customer</p>
-              </div>
             </div>
           </div>
 
@@ -151,12 +145,12 @@ export const MainDashboard: React.FC = () => {
               <Badge variant="secondary" className="ml-auto">3</Badge>
             </Button>
             
-            <Button variant="ghost" className="w-full justify-start">
+            <Button variant="ghost" className="w-full justify-start" onClick={() => setShowFavorites(true)}>
               <Heart className="h-4 w-4 mr-3" />
               Favorites
             </Button>
             
-            <Button variant="ghost" className="w-full justify-start">
+            <Button variant="ghost" className="w-full justify-start" onClick={() => setActiveTab('settings')}>
               <Settings className="h-4 w-4 mr-3" />
               Settings
             </Button>
@@ -176,28 +170,58 @@ export const MainDashboard: React.FC = () => {
         <div className="flex-1 flex flex-col">
           <header className="h-16 border-b border-border bg-card px-6 flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold capitalize">{activeTab}</h2>
+              <h2 className="text-2xl font-bold capitalize w-64">{activeTab}</h2>
               {onboardingData && (
-                <p className="text-sm text-muted-foreground">
-                  {onboardingData.location} • {onboardingData.eventDate ? 
-                    onboardingData.eventDate.toLocaleDateString() : 'Date TBD'}
-                </p>
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                  {onboardingData.location && <span>{onboardingData.location}</span>}
+                  <span>•</span>
+                  <span>{onboardingData.eventDate ? onboardingData.eventDate.toLocaleDateString() : 'Date TBD'}</span>
+                  {onboardingData.serviceTypes?.length > 0 && (
+                    <div className="flex items-center gap-1 ml-2">
+                      {onboardingData.serviceTypes.map((type) => (
+                        <Badge key={type} variant="secondary" className="capitalize">
+                          {type.replace(/s$/, '')}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
             
-            <div className="flex items-center space-x-2">
-              {onboardingData?.serviceTypes.map((type) => (
-                <Badge key={type} variant="secondary" className="capitalize">
-                  {type.replace(/s$/, '')}
-                </Badge>
-              ))}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowOnboarding(true)}
-              >
-                Edit Preferences
-              </Button>
+            <div className="flex items-center justify-end w-full gap-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                  {user?.user_metadata.avatar_url ? (
+                    <img
+                      src={user.user_metadata.avatar_url}
+                      alt={user?.email}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center w-full h-full text-muted-foreground">
+                      <User className="h-5 w-5" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{user?.email}</p>
+                  <p className="text-xs text-muted-foreground">Customer</p>
+                </div>
+              </div>
+
+              {/* Floating Action Button (desktop) */}
+              <div className="absolute bottom-4 right-6 z-20">
+                <Button
+                  variant="default"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg rounded-full h-10 w-10 p-0 flex items-center justify-center"
+                  onClick={() => setShowOnboarding(true)}
+                  aria-label="Edit Preferences"
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </header>
 
@@ -206,6 +230,7 @@ export const MainDashboard: React.FC = () => {
             {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
             {activeTab === 'gallery' && <GalleryTab />}
             {activeTab === 'chat' && <ChatTab />}
+            {activeTab === 'settings' && <EcommerceUserSettings />}
           </main>
         </div>
       </div>
@@ -238,6 +263,17 @@ export const MainDashboard: React.FC = () => {
               >
                 <User className="h-4 w-4" />
               </Button>
+
+              {/* Mobile floating action button (small) */}
+              <Button
+                variant="default"
+                size="sm"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 ml-2 rounded-full h-9 w-9 p-0 flex items-center justify-center"
+                onClick={() => setShowOnboarding(true)}
+                aria-label="Edit Preferences"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
@@ -255,7 +291,7 @@ export const MainDashboard: React.FC = () => {
               </div>
               
               <div className="flex space-x-2">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => setActiveTab('settings')}>
                   <Settings className="h-3 w-3 mr-1" />
                   Settings
                 </Button>
@@ -274,6 +310,7 @@ export const MainDashboard: React.FC = () => {
           {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
           {activeTab === 'gallery' && <GalleryTab />}
           {activeTab === 'chat' && <ChatTab />}
+          {activeTab === 'settings' && <EcommerceUserSettings />}
         </main>
 
         {/* Mobile Bottom Navigation */}
@@ -305,6 +342,10 @@ export const MainDashboard: React.FC = () => {
       <NotificationsPanel
         isOpen={showNotifications}
         onClose={() => setShowNotifications(false)}
+      />
+      <FavoritesPanel
+        isOpen={showFavorites}
+        onClose={() => setShowFavorites(false)}
       />
     </div>
   );

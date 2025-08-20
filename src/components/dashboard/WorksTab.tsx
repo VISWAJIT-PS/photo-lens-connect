@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Filter, MapPin, Star, Clock, DollarSign, Heart, MessageCircle } from 'lucide-react';
+import { Search, Filter, MapPin, Clock, DollarSign } from 'lucide-react';
 import { CreatorCard } from '../CreatorCard';
 
 interface OnboardingData {
@@ -19,89 +19,105 @@ interface WorksTabProps {
   filter?: string | null;
 }
 
-// Mock data
-const photographers = [
+interface BaseCreator {
+  id: string;
+  name: string;
+  specialization: string;
+  rating: number;
+  reviews: number;
+  price: string;
+  location: string;
+  image_url: string;
+  bio: string;
+  portfolio_count: number;
+  experience_years: number;
+  availability: string;
+  type: 'photographer' | 'videographer' | 'event_team';
+}
+
+// Mock data (kept small for the demo)
+const photographers: BaseCreator[] = [
   {
-    id: "7365f749-665d-409e-b765-c01bbf55463c",
-    name: "David Park",
-    specialization: "Nature & Landscape",
+    id: 'p1',
+    name: 'David Park',
+    specialization: 'Nature & Landscape',
     rating: 4.9,
     reviews: 93,
-    price: "$600-$1,200",
-    location: "Seattle, WA",
-    image_url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
-    bio: "Passionate about capturing the beauty of nature and stunning landscapes.",
+    price: '$600-$1,200',
+    location: 'Seattle, WA',
+    image_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
+    bio: 'Passionate about capturing the beauty of nature and stunning landscapes.',
     portfolio_count: 67,
     experience_years: 7,
-    availability: "Available",
-    type: "photographer"
+    availability: 'Available',
+    type: 'photographer',
   },
   {
-    id: "a3b38b34-e97f-46ae-87e2-60a578dcf777",
-    name: "Sarah Johnson",
-    specialization: "Wedding Photography",
+    id: 'p2',
+    name: 'Sarah Johnson',
+    specialization: 'Wedding Photography',
     rating: 4.9,
     reviews: 127,
-    price: "$2,500-$5,000",
-    location: "New York, NY",
-    image_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
-    bio: "Award-winning wedding photographer with 8 years of experience capturing beautiful moments.",
+    price: '$2,500-$5,000',
+    location: 'New York, NY',
+    image_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb',
+    bio: 'Award-winning wedding photographer with 8 years of experience capturing beautiful moments.',
     portfolio_count: 45,
     experience_years: 8,
-    availability: "Booked",
-    type: "photographer"
-  }
+    availability: 'Booked',
+    type: 'photographer',
+  },
 ];
 
-const videographers = [
+const videographers: BaseCreator[] = [
   {
-    id: "vid-001",
-    name: "Alex Rodriguez",
-    specialization: "Wedding Cinematography",
+    id: 'v1',
+    name: 'Alex Rodriguez',
+    specialization: 'Wedding Cinematography',
     rating: 4.8,
     reviews: 89,
-    price: "$3,000-$8,000",
-    location: "Los Angeles, CA",
-    image_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
-    bio: "Cinematic wedding videographer creating emotional stories that last a lifetime.",
+    price: '$3,000-$8,000',
+    location: 'Los Angeles, CA',
+    image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
+    bio: 'Cinematic wedding videographer creating emotional stories that last a lifetime.',
     portfolio_count: 52,
     experience_years: 6,
-    availability: "Available",
-    type: "videographer"
+    availability: 'Available',
+    type: 'videographer',
   },
   {
-    id: "vid-002",
-    name: "Emma Chen",
-    specialization: "Corporate Events",
+    id: 'v2',
+    name: 'Emma Chen',
+    specialization: 'Corporate Events',
     rating: 4.7,
     reviews: 74,
-    price: "$1,500-$4,000",
-    location: "San Francisco, CA",
-    image_url: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
-    bio: "Professional corporate videographer specializing in conferences and company events.",
+    price: '$1,500-$4,000',
+    location: 'San Francisco, CA',
+    image_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
+    bio: 'Professional corporate videographer specializing in conferences and company events.',
     portfolio_count: 38,
     experience_years: 5,
-    availability: "Available",
-    type: "videographer"
-  }
+    availability: 'Available',
+    type: 'videographer',
+  },
 ];
 
-const eventTeams = [
+const eventTeams: BaseCreator[] = [
   {
-    id: "event-001",
-    name: "Premier Event Co.",
-    specialization: "Full Service Events",
+    id: 'e1',
+    name: 'Premier Event Co.',
+    specialization: 'Full Service Events',
     rating: 4.9,
     reviews: 203,
-    price: "$5,000-$25,000",
-    location: "Miami, FL",
-    image_url: "https://images.unsplash.com/photo-1511578314322-379afb476865",
-    bio: "Complete event planning and execution for weddings, corporate events, and celebrations.",
+    price: '$5,000-$25,000',
+    location: 'Miami, FL',
+    image_url: 'https://images.unsplash.com/photo-1511578314322-379afb476865',
+    bio: 'Complete event planning and execution for weddings, corporate events, and celebrations.',
     portfolio_count: 95,
     experience_years: 12,
-    availability: "Available",
-    type: "event_team"
-  }
+    availability: 'Available',
+    type: 'event_team',
+  },
 ];
 
 export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) => {
@@ -111,34 +127,39 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
   const [availabilityFilter, setAvailabilityFilter] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
 
-  // If filter prop is set, use it as the active filter
-  React.useEffect(() => {
-    if (filter && filter !== activeFilter) {
-      setActiveFilter(filter);
-    }
-  }, [filter]);
+  useEffect(() => {
+    if (filter && filter !== activeFilter) setActiveFilter(filter);
+  }, [filter, activeFilter]);
 
   const allCreators = [...photographers, ...videographers, ...eventTeams];
 
   const getFilteredCreators = (type: string) => {
     let creators = allCreators;
-    
+
     if (type !== 'all') {
-      creators = creators.filter(creator => creator.type === type);
+      creators = creators.filter((c) => c.type === type);
     }
 
-    // Apply search filter
     if (searchQuery) {
-      creators = creators.filter(creator =>
-        creator.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        creator.specialization.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        creator.location.toLowerCase().includes(searchQuery.toLowerCase())
+      const q = searchQuery.toLowerCase();
+      creators = creators.filter(
+        (c) =>
+          c.name.toLowerCase().includes(q) ||
+          c.specialization.toLowerCase().includes(q) ||
+          c.location.toLowerCase().includes(q)
       );
     }
 
-    // Apply availability filter
     if (availabilityFilter) {
-      creators = creators.filter(creator => creator.availability === availabilityFilter);
+      creators = creators.filter((c) => c.availability === availabilityFilter);
+    }
+
+    if (priceFilter) {
+      creators = creators.filter((c) => c.price.toLowerCase().includes(priceFilter.toLowerCase()));
+    }
+
+    if (locationFilter) {
+      creators = creators.filter((c) => c.location.toLowerCase().includes(locationFilter.toLowerCase()));
     }
 
     return creators;
@@ -149,12 +170,7 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
       <div className="flex-1 min-w-64">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Search photographers, videographers..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+          <Input placeholder="Search photographers, videographers..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
         </div>
       </div>
 
@@ -177,11 +193,11 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
           <SelectValue placeholder="Location" />
         </SelectTrigger>
         <SelectContent>
+          <SelectItem value="seattle">Seattle, WA</SelectItem>
           <SelectItem value="new-york">New York, NY</SelectItem>
           <SelectItem value="los-angeles">Los Angeles, CA</SelectItem>
-          <SelectItem value="san-francisco">San Francisco, CA</SelectItem>
-          <SelectItem value="seattle">Seattle, WA</SelectItem>
           <SelectItem value="miami">Miami, FL</SelectItem>
+          <SelectItem value="san-francisco">San Francisco, CA</SelectItem>
         </SelectContent>
       </Select>
 
@@ -196,19 +212,20 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
         </SelectContent>
       </Select>
 
-      <Button variant="outline" onClick={() => {
-        setSearchQuery('');
-        setPriceFilter('');
-        setLocationFilter('');
-        setAvailabilityFilter('');
-      }}>
-        <Filter className="h-4 w-4 mr-2" />
-        Clear Filters
-      </Button>
+      <div className="ml-auto flex items-center gap-2">
+        <Button variant="ghost" onClick={() => { setSearchQuery(''); setPriceFilter(''); setLocationFilter(''); setAvailabilityFilter(''); }}>
+          <Filter className="h-4 w-4 mr-2" />
+          Clear
+        </Button>
+        <Button variant="default" onClick={() => { /* placeholder for advanced */ }}>
+          <Filter className="h-4 w-4 mr-2" />
+          Advanced
+        </Button>
+      </div>
     </div>
   );
 
-  const renderCreatorGrid = (creators: any[]) => (
+  const renderCreatorGrid = (creators: BaseCreator[]) => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {creators.map((creator) => (
         <CreatorCard key={creator.id} creator={creator} type={creator.type} />
@@ -221,7 +238,7 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
       {/* Header with Event Info */}
       {onboardingData && (
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader>
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold">Your Event Details</h3>

@@ -19,7 +19,7 @@ interface CreatorCardProps {
     portfolio_count?: number;
     experience_years?: number;
   };
-  type: 'photographer' | 'videographer';
+  type: 'photographer' | 'videographer' | 'event_team';
 }
 
 export const CreatorCard: React.FC<CreatorCardProps> = ({ creator, type }) => {
