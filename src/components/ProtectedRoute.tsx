@@ -29,7 +29,7 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
     const userRole = user.user_metadata?.user_type || 'customer';
     if (userRole !== requiredRole) {
       // Redirect to appropriate dashboard based on user role
-      const redirectPath = userRole === 'photographer' ? '/photographer-dashboard' : '/customer-dashboard';
+      const redirectPath = userRole === 'photographer' ? '/photographer-dashboard' : '/user-dashboard';
       return <Navigate to={redirectPath} replace />;
     }
   }

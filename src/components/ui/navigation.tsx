@@ -56,8 +56,8 @@ export const Navigation = () => {
                           <Button variant="ghost">Dashboard</Button>
                         </a>
                       )
-                    : window.location.pathname !== "/customer-dashboard" && (
-                        <a href="/customer-dashboard">
+                    : window.location.pathname !== "/user-dashboard" && (
+                        <a href="/user-dashboard">
                           <Button variant="ghost">Dashboard</Button>
                         </a>
                       ))}
@@ -105,8 +105,8 @@ export const Navigation = () => {
                             <Button className="justify-start">Dashboard</Button>
                           </a>
                         )
-                      : window.location.pathname !== "/customer-dashboard" && (
-                          <a href="/customer-dashboard">
+                      : window.location.pathname !== "/user-dashboard" && (
+                          <a href="/user-dashboard">
                             <Button className="justify-start">Dashboard</Button>
                           </a>
                         ))}

@@ -90,7 +90,7 @@ export const AuthModal = ({ children, defaultTab = "login" }: AuthModalProps) =>
         const userType = user.user_metadata?.user_type || "customer";
         const dashboardPath = userType === "photographer" 
           ? "/photographer-dashboard" 
-          : "/customer-dashboard";
+          : "/user-dashboard";
         
         navigate(dashboardPath);
       }
@@ -129,7 +129,7 @@ export const AuthModal = ({ children, defaultTab = "login" }: AuthModalProps) =>
         // Redirect to appropriate dashboard
         const dashboardPath = userType === "photographer" 
           ? "/photographer-dashboard" 
-          : "/customer-dashboard";
+          : "/user-dashboard";
         
         navigate(dashboardPath);
       } else if (user && !session) {
