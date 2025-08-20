@@ -22,6 +22,8 @@ export const MainDashboard: React.FC = () => {
   const { user, signOut } = useAuthStore();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
+  // If onboardingData includes 'photographers', set a filter for WorksTab
+  const [worksFilter, setWorksFilter] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('Event Crew');
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -39,6 +41,32 @@ export const MainDashboard: React.FC = () => {
     setShowOnboarding(false);
     localStorage.setItem('onboarding_completed', 'true');
     localStorage.setItem('onboarding_data', JSON.stringify(data));
+    // If only one service type is selected, set the corresponding tab in WorksTab
+    if (data.serviceTypes.length === 1) {
+      switch (data.serviceTypes[0]) {
+        case 'photographers':
+          setWorksFilter('photographer');
+          setActiveTab('Event Crew');
+          break;
+        case 'videographers':
+          setWorksFilter('videographer');
+          setActiveTab('Event Crew');
+          break;
+        case 'events':
+          setWorksFilter('event_team');
+          setActiveTab('Event Crew');
+          break;
+        case 'rentals':
+          setActiveTab('rentals');
+          setWorksFilter(null);
+          break;
+        default:
+          setWorksFilter(null);
+      }
+    } else {
+      setWorksFilter(null);
+      setActiveTab('Event Crew');
+    }
   };
 
   const tabs = [
@@ -174,7 +202,7 @@ export const MainDashboard: React.FC = () => {
           </header>
 
           <main className="flex-1 overflow-auto">
-            {activeTab === 'Event Crew' && <WorksTab onboardingData={onboardingData} />}
+            {activeTab === 'Event Crew' && <WorksTab onboardingData={onboardingData} filter={worksFilter} />}
             {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
             {activeTab === 'gallery' && <GalleryTab />}
             {activeTab === 'chat' && <ChatTab />}

@@ -16,6 +16,7 @@ interface OnboardingData {
 
 interface WorksTabProps {
   onboardingData: OnboardingData | null;
+  filter?: string | null;
 }
 
 // Mock data
@@ -103,12 +104,19 @@ const eventTeams = [
   }
 ];
 
-export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData }) => {
+export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [priceFilter, setPriceFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [availabilityFilter, setAvailabilityFilter] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+
+  // If filter prop is set, use it as the active filter
+  React.useEffect(() => {
+    if (filter && filter !== activeFilter) {
+      setActiveFilter(filter);
+    }
+  }, [filter]);
 
   const allCreators = [...photographers, ...videographers, ...eventTeams];
 
