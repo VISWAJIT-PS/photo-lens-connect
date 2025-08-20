@@ -77,7 +77,7 @@ export const GalleryTab: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'success';
-      case 'processing': return 'warning';
+      case 'processing': return 'processing';
       case 'pending': return 'secondary';
       default: return 'secondary';
     }
@@ -117,7 +117,22 @@ export const GalleryTab: React.FC = () => {
         
         <div className="absolute top-3 left-3">
           <Badge variant={getStatusColor(album.status) as any}>
-            {getStatusText(album.status)}
+            {album.status === 'processing' ? (
+              <span className="flex items-center gap-1">
+                <svg className="animate-spin h-3 w-3 mr-1 text-white" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 11-8 8z" />
+                </svg>
+                {getStatusText(album.status)}
+              </span>
+            ) : album.status === 'completed' ? (
+              <span className="flex items-center gap-1">
+                <svg className="h-3 w-3 mr-1 text-white" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" clipRule="evenodd" />
+                </svg>
+                {getStatusText(album.status)}
+              </span>
+            ) : getStatusText(album.status)}
           </Badge>
         </div>
       </div>
