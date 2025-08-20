@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { EventSpaceCard } from '@/components/EventSpaceCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Filter, MapPin, Star, DollarSign, ShoppingCart, Heart, Plus, Minus } from 'lucide-react';
 
@@ -16,6 +17,50 @@ interface OnboardingData {
 interface RentalsTabProps {
   onboardingData: OnboardingData | null;
 }
+
+// Mock rental data
+// Mock event spaces data
+const eventSpaces = [
+  {
+    id: 101,
+    name: "Grand Ballroom",
+    category: "Ballroom",
+    price: "$2,000/day",
+    rating: 4.9,
+    location: "New York, NY",
+    description: "Elegant ballroom for weddings and large events.",
+    image_url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+    available: true,
+    reviews: 120,
+    specs: ["Up to 500 guests", "Catering Available", "AV Equipment"]
+  },
+  {
+    id: 102,
+    name: "Rooftop Venue",
+    category: "Rooftop",
+    price: "$1,500/day",
+    rating: 4.8,
+    location: "Los Angeles, CA",
+    description: "Modern rooftop space with city views.",
+    image_url: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
+    available: true,
+    reviews: 85,
+    specs: ["Up to 200 guests", "Bar Service", "Outdoor Seating"]
+  },
+  {
+    id: 103,
+    name: "Garden Pavilion",
+    category: "Garden",
+    price: "$1,200/day",
+    rating: 4.7,
+    location: "Miami, FL",
+    description: "Beautiful garden pavilion for outdoor events.",
+    image_url: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308",
+    available: false,
+    reviews: 60,
+    specs: ["Up to 150 guests", "Floral Decor", "Covered Area"]
+  }
+];
 
 // Mock rental data
 const rentalItems = [
@@ -106,14 +151,15 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
   const [locationFilter, setLocationFilter] = useState('');
   const [availabilityFilter, setAvailabilityFilter] = useState('available');
   const [cart, setCart] = useState<{[key: number]: number}>({});
+  const [activeTab, setActiveTab] = useState('rentals');
 
   const categories = ['Cameras', 'Lenses', 'Lighting', 'Drones', 'Accessories'];
 
   const getFilteredItems = () => {
-    let items = rentalItems;
+    let items = activeTab === 'eventSpaces' ? eventSpaces : rentalItems;
 
-    // Apply category filter
-    if (categoryFilter) {
+    // Apply category filter (only for rentals)
+    if (activeTab === 'rentals' && categoryFilter) {
       items = items.filter(item => item.category === categoryFilter);
     }
 
@@ -162,7 +208,7 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
-            placeholder="Search equipment..."
+            placeholder={activeTab === 'eventSpaces' ? "Search event spaces..." : "Search equipment..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -170,16 +216,18 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
         </div>
       </div>
 
-      <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-        <SelectTrigger className="w-48">
-          <SelectValue placeholder="Category" />
-        </SelectTrigger>
-        <SelectContent>
-          {categories.map(category => (
-            <SelectItem key={category} value={category}>{category}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {activeTab === 'rentals' && (
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map(category => (
+              <SelectItem key={category} value={category}>{category}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
 
       <Select value={priceFilter} onValueChange={setPriceFilter}>
         <SelectTrigger className="w-48">
@@ -221,99 +269,103 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
   );
 
   const renderItemCard = (item: any) => (
-    <Card key={item.id} className="group hover:shadow-medium transition-all duration-300">
-      <div className="relative">
-        <img
-          src={item.image_url}
-          alt={item.name}
-          className="w-full h-48 object-cover rounded-t-lg"
-        />
-        <div className="absolute top-3 right-3">
-          <Button
-            variant="secondary"
-            size="sm"
-            className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <Heart className="h-4 w-4" />
-          </Button>
-        </div>
-        {!item.available && (
-          <div className="absolute inset-0 bg-black/50 rounded-t-lg flex items-center justify-center">
-            <Badge variant="destructive">Not Available</Badge>
-          </div>
-        )}
-      </div>
-
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <div>
-            <h3 className="font-semibold text-lg">{item.name}</h3>
-            <Badge variant="secondary" className="text-xs mt-1">{item.category}</Badge>
-          </div>
-          <div className="text-right">
-            <p className="font-bold text-primary">{item.price}</p>
-            <div className="flex items-center text-sm text-muted-foreground">
-              <Star className="h-3 w-3 fill-current text-yellow-400 mr-1" />
-              {item.rating} ({item.reviews})
-            </div>
-          </div>
-        </div>
-
-        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-          {item.description}
-        </p>
-
-        <div className="flex flex-wrap gap-1 mb-3">
-          {item.specs.map((spec: string, index: number) => (
-            <Badge key={index} variant="outline" className="text-xs">
-              {spec}
-            </Badge>
-          ))}
-        </div>
-
-        <div className="flex items-center justify-between text-sm text-muted-foreground mb-3">
-          <span className="flex items-center">
-            <MapPin className="h-3 w-3 mr-1" />
-            {item.location}
-          </span>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          {cart[item.id] ? (
-            <div className="flex items-center space-x-2 flex-1">
+    activeTab === 'eventSpaces'
+      ? <EventSpaceCard key={item.id} space={item} />
+      : (
+        <Card key={item.id} className="group hover:shadow-medium transition-all duration-300">
+          <div className="relative">
+            <img
+              src={item.image_url}
+              alt={item.name}
+              className="w-full h-48 object-cover rounded-t-lg"
+            />
+            <div className="absolute top-3 right-3">
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
-                onClick={() => removeFromCart(item.id)}
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
               >
-                <Minus className="h-3 w-3" />
-              </Button>
-              <span className="font-medium">{cart[item.id]}</span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => addToCart(item.id)}
-                className="h-8 w-8 p-0"
-                disabled={!item.available}
-              >
-                <Plus className="h-3 w-3" />
+                <Heart className="h-4 w-4" />
               </Button>
             </div>
-          ) : (
-            <Button
-              onClick={() => addToCart(item.id)}
-              disabled={!item.available}
-              className="flex-1"
-              size="sm"
-            >
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              Add to Cart
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+            {!item.available && (
+              <div className="absolute inset-0 bg-black/50 rounded-t-lg flex items-center justify-center">
+                <Badge variant="destructive">Not Available</Badge>
+              </div>
+            )}
+          </div>
+
+          <CardContent className="p-4">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <h3 className="font-semibold text-lg">{item.name}</h3>
+                <Badge variant="secondary" className="text-xs mt-1">{item.category}</Badge>
+              </div>
+              <div className="text-right">
+                <p className="font-bold text-primary">{item.price}</p>
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Star className="h-3 w-3 fill-current text-yellow-400 mr-1" />
+                  {item.rating} ({item.reviews})
+                </div>
+              </div>
+            </div>
+
+            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+              {item.description}
+            </p>
+
+            <div className="flex flex-wrap gap-1 mb-3">
+              {item.specs.map((spec: string, index: number) => (
+                <Badge key={index} variant="outline" className="text-xs">
+                  {spec}
+                </Badge>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between text-sm text-muted-foreground mb-3">
+              <span className="flex items-center">
+                <MapPin className="h-3 w-3 mr-1" />
+                {item.location}
+              </span>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              {cart[item.id] ? (
+                <div className="flex items-center space-x-2 flex-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeFromCart(item.id)}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Minus className="h-3 w-3" />
+                  </Button>
+                  <span className="font-medium">{cart[item.id]}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => addToCart(item.id)}
+                    className="h-8 w-8 p-0"
+                    disabled={!item.available}
+                  >
+                    <Plus className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  onClick={() => addToCart(item.id)}
+                  disabled={!item.available}
+                  className="flex-1"
+                  size="sm"
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Add to Cart
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )
   );
 
   return (
@@ -321,11 +373,11 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
       {/* Header with Cart */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Equipment Rentals</h2>
-          <p className="text-muted-foreground">Professional gear for your events</p>
+          <h2 className="text-2xl font-bold">{activeTab === 'eventSpaces' ? 'Event Spaces' : 'Equipment Rentals'}</h2>
+          <p className="text-muted-foreground">{activeTab === 'eventSpaces' ? 'Find and book venues for your events' : 'Professional gear for your events'}</p>
         </div>
         
-        {getTotalItems() > 0 && (
+        {getTotalItems() > 0 && activeTab === 'rentals' && (
           <Button className="relative">
             <ShoppingCart className="h-4 w-4 mr-2" />
             View Cart
@@ -358,19 +410,29 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
       {/* Filters */}
       {renderFilters()}
 
-      {/* Category Tabs */}
-      <Tabs value={categoryFilter} onValueChange={setCategoryFilter}>
+      {/* Tabs for Rentals and Event Spaces */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4">
         <TabsList>
-          <TabsTrigger value="">All Categories</TabsTrigger>
-          {categories.map(category => (
-            <TabsTrigger key={category} value={category}>
-              {category}
-            </TabsTrigger>
-          ))}
+          <TabsTrigger value="rentals">Equipment Rentals</TabsTrigger>
+          <TabsTrigger value="eventSpaces">Event Spaces</TabsTrigger>
         </TabsList>
       </Tabs>
 
-      {/* Items Grid */}
+      {/* Category Tabs for Rentals only */}
+      {activeTab === 'rentals' && (
+        <Tabs value={categoryFilter} onValueChange={setCategoryFilter}>
+          <TabsList>
+            <TabsTrigger value="">All Categories</TabsTrigger>
+            {categories.map(category => (
+              <TabsTrigger key={category} value={category}>
+                {category}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      )}
+
+      {/* Items/Event Spaces Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {getFilteredItems().map(renderItemCard)}
       </div>
@@ -379,7 +441,7 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
       {getFilteredItems().length === 0 && (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">No equipment found. Try adjusting your filters.</p>
+            <p className="text-muted-foreground">{activeTab === 'eventSpaces' ? 'No event spaces found. Try adjusting your filters.' : 'No equipment found. Try adjusting your filters.'}</p>
           </CardContent>
         </Card>
       )}
