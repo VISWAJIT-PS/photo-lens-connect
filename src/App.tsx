@@ -12,6 +12,7 @@ import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 import AccountDashboard from "./pages/AccountDashboard";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import UserDashboard from "./pages/UserDashboard";
 
 const AuthRefreshHandler = () => {
   const refreshSession = useAuthStore((state) => state.refreshSession);
@@ -35,10 +36,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route 
-            path="/customer-dashboard" 
+            path="/user-dashboard" 
             element={
               <ProtectedRoute requiredRole="customer">
-                <CustomerDashboard />
+                <UserDashboard />
               </ProtectedRoute>
             } 
           />

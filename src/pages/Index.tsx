@@ -17,7 +17,7 @@ const Index = () => {
       const userType = user.user_metadata?.user_type || "customer";
       const dashboardPath = userType === "photographer" 
         ? "/photographer-dashboard" 
-        : "/customer-dashboard";
+        : "/user-dashboard";
       navigate(dashboardPath);
     }
   }, [user, loading, navigate]);
