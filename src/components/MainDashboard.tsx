@@ -22,7 +22,7 @@ export const MainDashboard: React.FC = () => {
   const { user, signOut } = useAuthStore();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
-  const [activeTab, setActiveTab] = useState('works');
+  const [activeTab, setActiveTab] = useState('Event Crew');
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
@@ -42,7 +42,7 @@ export const MainDashboard: React.FC = () => {
   };
 
   const tabs = [
-    { id: 'works', label: 'Works', icon: Camera, description: 'Find photographers & videographers' },
+    { id: 'Event Crew', label: 'Event Crew', icon: Camera, description: 'Find photographers & videographers' },
     { id: 'rentals', label: 'Rentals', icon: Package, description: 'Rent equipment & gear' },
     { id: 'gallery', label: 'Gallery', icon: Images, description: 'View your event albums' },
     { id: 'chat', label: 'Chat', icon: MessageCircle, description: 'Message your service providers' },
@@ -174,7 +174,7 @@ export const MainDashboard: React.FC = () => {
           </header>
 
           <main className="flex-1 overflow-auto">
-            {activeTab === 'works' && <WorksTab onboardingData={onboardingData} />}
+            {activeTab === 'Event Crew' && <WorksTab onboardingData={onboardingData} />}
             {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
             {activeTab === 'gallery' && <GalleryTab />}
             {activeTab === 'chat' && <ChatTab />}
@@ -242,7 +242,7 @@ export const MainDashboard: React.FC = () => {
 
         {/* Mobile Content */}
         <main className="pb-20">
-          {activeTab === 'works' && <WorksTab onboardingData={onboardingData} />}
+          {activeTab === 'Event Crew' && <WorksTab onboardingData={onboardingData} />}
           {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
           {activeTab === 'gallery' && <GalleryTab />}
           {activeTab === 'chat' && <ChatTab />}

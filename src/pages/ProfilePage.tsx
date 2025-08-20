@@ -113,7 +113,7 @@ const ProfilePage = () => {
                     </div>
                     <div className="flex items-center">
                       <Camera className="h-4 w-4 mr-1" />
-                      {creator.portfolio_count} works
+                      {creator.portfolio_count} Event Crew
                     </div>
                   </div>
 

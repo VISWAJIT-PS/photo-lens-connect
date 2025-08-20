@@ -137,7 +137,7 @@ const Profile = () => {
             <Badge variant="secondary">Price: {profile.price}</Badge>
             <Badge variant="secondary">Rating: {profile.rating} ★ ({profile.reviews})</Badge>
             <Badge variant="secondary">Experience: {profile.experience_years} yrs</Badge>
-            <Badge variant="secondary">Portfolio: {profile.portfolio_count} works</Badge>
+            <Badge variant="secondary">Portfolio: {profile.portfolio_count} Event Crew</Badge>
           </div>
           <p className="text-muted-foreground text-base mt-2">{profile.bio}</p>
         </div>
