@@ -16,14 +16,135 @@ import {
   Users, 
   Clock,
   Phone,
-  MessageCircle
+  MessageCircle,
+  CalendarDays
 } from "lucide-react";
+import { Calendar as DatePicker } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format, addDays, isSameDay } from 'date-fns';
+import { useState } from 'react';
+import { OnboardingPopup } from '@/components/OnboardingPopup';
+import { useToast } from '@/components/ui/use-toast';
 
 const ProfilePage = () => {
   const { type, id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const { creator } = location.state || {};
+
+  // local UI state for booking flow
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const { toast } = useToast();
+
+  // Mock availability data - in real app this would come from API
+  const today = new Date();
+  const availableDates = [
+    addDays(today, 3),
+    addDays(today, 5),
+    addDays(today, 7),
+    addDays(today, 10),
+    addDays(today, 12),
+    addDays(today, 15),
+    addDays(today, 18),
+    addDays(today, 20),
+    addDays(today, 22),
+    addDays(today, 25),
+    addDays(today, 28),
+    addDays(today, 30)
+  ];
+
+  const bookedDates = [
+    addDays(today, 1),
+    addDays(today, 2),
+    addDays(today, 4),
+    addDays(today, 6),
+    addDays(today, 8),
+    addDays(today, 9),
+    addDays(today, 11),
+    addDays(today, 14),
+    addDays(today, 16),
+    addDays(today, 17),
+    addDays(today, 19),
+    addDays(today, 21)
+  ];
+
+  const isDateAvailable = (date: Date) => {
+    return availableDates.some(availableDate => isSameDay(availableDate, date));
+  };
+
+  const isDateBooked = (date: Date) => {
+    return bookedDates.some(bookedDate => isSameDay(bookedDate, date));
+  };
+
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date && isDateAvailable(date)) {
+      setSelectedDate(date);
+      toast({ 
+        title: 'Date Selected', 
+        description: `Selected ${format(date, 'PPP')} for booking` 
+      });
+    } else if (date && isDateBooked(date)) {
+      toast({ 
+        title: 'Date Unavailable', 
+        description: 'This date is already booked',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  interface OnboardingData {
+    eventDate?: string | Date | null;
+    location?: string;
+    serviceTypes?: string[];
+  }
+
+  const readOnboardingData = (): OnboardingData | null => {
+    try {
+      const raw = localStorage.getItem('onboarding_data');
+      return raw ? JSON.parse(raw) as OnboardingData : null;
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const writeOnboardingData = (data: OnboardingData) => {
+    try {
+      localStorage.setItem('onboarding_data', JSON.stringify(data));
+    } catch (e) {
+      // noop
+    }
+  };
+
+  const handleOnboardingComplete = (data: OnboardingData) => {
+    // ensure service type is present
+    const svc = type === 'photographer' ? 'photographers' : type === 'videographer' ? 'videographers' : null;
+    const serviceTypes = Array.isArray(data.serviceTypes) ? data.serviceTypes.slice() : [];
+    if (svc && !serviceTypes.includes(svc)) serviceTypes.push(svc);
+
+    const final = { ...data, serviceTypes };
+    writeOnboardingData(final);
+    setShowOnboarding(false);
+    toast({ title: 'Onboarding complete', description: 'Your booking preferences were saved.' });
+  };
+
+  const handleBookNowClick = () => {
+    const existing = readOnboardingData();
+
+    if (existing) {
+      const merged = { ...existing };
+      merged.serviceTypes = Array.isArray(merged.serviceTypes) ? merged.serviceTypes.slice() : [];
+      const svc = type === 'photographer' ? 'photographers' : type === 'videographer' ? 'videographers' : null;
+      if (svc && !merged.serviceTypes.includes(svc)) merged.serviceTypes.push(svc);
+      if (selectedDate) merged.eventDate = selectedDate;
+      writeOnboardingData(merged);
+      toast({ title: 'Booking prepared', description: `Saved booking preferences for ${creator.name}${selectedDate ? ` on ${format(selectedDate, 'PPP')}` : ''}` });
+    } else {
+      // open onboarding popup to collect missing data
+      setShowOnboarding(true);
+      toast({ title: 'Complete preferences', description: 'Please provide event date, location and services to continue.' });
+    }
+  };
 
   if (!creator) {
     return (
@@ -119,15 +240,12 @@ const ProfilePage = () => {
 
                   <p className="text-muted-foreground mb-6">{creator.bio}</p>
 
-                  <div className="flex gap-3">
-                    <Button size="lg" className="flex-1">
+                  <div className="flex gap-3 items-center">
+                    <Button size="lg" className="flex-1" onClick={handleBookNowClick} disabled={!selectedDate}>
                       <Calendar className="h-4 w-4 mr-2" />
-                      Book Now
+                      {selectedDate ? `Book for ${format(selectedDate, 'MMM d')}` : 'Select Date to Book'}
                     </Button>
-                    <Button variant="outline" size="lg">
-                      <Phone className="h-4 w-4 mr-2" />
-                      Call
-                    </Button>
+
                     <Button variant="outline" size="lg">
                       <MessageCircle className="h-4 w-4 mr-2" />
                       Chat
@@ -172,7 +290,63 @@ const ProfilePage = () => {
         </div>
 
         {/* Events Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <Card className="p-6 mb-8">
+          <CardHeader className="px-0 pt-0">
+            <CardTitle className="flex items-center gap-2 mb-4">
+              <CalendarDays className="h-5 w-5" />
+              Availability Calendar
+            </CardTitle>
+            <div className="flex gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-green-500 rounded"></div>
+                <span>Available</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-red-500 rounded"></div>
+                <span>Booked</span>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="px-0 pb-0">
+            <DatePicker
+              mode="single"
+              selected={selectedDate}
+              onSelect={handleDateSelect}
+              disabled={(date) => date < today}
+              modifiers={{
+                available: availableDates,
+                booked: bookedDates,
+                selected: selectedDate ? [selectedDate] : []
+              }}
+              modifiersStyles={{
+                available: { 
+                  backgroundColor: '#22c55e', 
+                  color: 'white',
+                  fontWeight: 'bold'
+                },
+                booked: { 
+                  backgroundColor: '#ef4444', 
+                  color: 'white',
+                  fontWeight: 'bold'
+                },
+                selected: { 
+                  backgroundColor: '#3b82f6', 
+                  color: 'white',
+                  fontWeight: 'bold'
+                }
+              }}
+              className="rounded-md border shadow w-fit mx-auto"
+            />
+            {selectedDate && (
+              <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                <p className="text-center font-medium text-blue-900">
+                  Selected Date: {format(selectedDate, 'PPPP')}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
           {/* Latest Events */}
           <Card className="p-6">
             <CardHeader className="px-0 pt-0">
@@ -261,13 +435,14 @@ const ProfilePage = () => {
             <p className="text-muted-foreground mb-6">
               Secure your date and create unforgettable memories with our top-rated {type}.
             </p>
-            <Button size="lg" className="px-8">
+            <Button size="lg" className="px-8" disabled={!selectedDate} onClick={handleBookNowClick}>
               <Calendar className="h-5 w-5 mr-2" />
-              Book Now - {creator.price}
+              {selectedDate ? `Book Now - ${creator.price} for ${format(selectedDate, 'MMM d')}` : `Select a Date to Book - ${creator.price}`}
             </Button>
           </div>
         </Card>
       </div>
+      <OnboardingPopup isOpen={showOnboarding} onComplete={handleOnboardingComplete} onClose={() => setShowOnboarding(false)} />
     </div>
   );
 };

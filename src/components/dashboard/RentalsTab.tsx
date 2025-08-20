@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EventSpaceCard } from '@/components/EventSpaceCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Filter, MapPin, Star, DollarSign, ShoppingCart, Heart, Plus, Minus } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useToast } from '@/components/ui/use-toast';
 
 interface OnboardingData {
   eventDate: Date | undefined;
@@ -151,6 +153,8 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
   const [locationFilter, setLocationFilter] = useState('');
   const [availabilityFilter, setAvailabilityFilter] = useState('available');
   const [cart, setCart] = useState<{[key: number]: number}>({});
+  const [showCart, setShowCart] = useState(false);
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('rentals');
 
   const categories = ['Cameras', 'Lenses', 'Lighting', 'Drones', 'Accessories'];
@@ -268,7 +272,21 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
     </div>
   );
 
-  const renderItemCard = (item: any) => (
+  type Item = {
+    id: number;
+    name: string;
+    category: string;
+    price: string;
+    rating: number;
+    location: string;
+    description: string;
+    image_url: string;
+    available: boolean;
+    reviews: number;
+    specs: string[];
+  };
+
+  const renderItemCard = (item: Item) => (
     activeTab === 'eventSpaces'
       ? <EventSpaceCard key={item.id} space={item} />
       : (
@@ -378,13 +396,13 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
         </div>
         
         {getTotalItems() > 0 && activeTab === 'rentals' && (
-          <Button className="relative">
+          <Button className="relative" onClick={() => setShowCart(true)}>
             <ShoppingCart className="h-4 w-4 mr-2" />
             View Cart
             <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center">
               {getTotalItems()}
             </Badge>
-          </Button>
+            </Button>
         )}
       </div>
 
@@ -445,6 +463,72 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
           </CardContent>
         </Card>
       )}
+      {/* Cart Dialog */}
+      <Dialog open={showCart} onOpenChange={setShowCart}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Cart</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {Object.keys(cart).length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">Your cart is empty.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {/* List cart items */}
+                {Object.entries(cart).map(([idStr, qty]) => {
+                  const id = Number(idStr);
+                  const item = [...rentalItems, ...eventSpaces].find(i => i.id === id) as Item | undefined;
+                  if (!item) return null;
+
+                  // parse mock price (e.g. "$150/day") to number
+                  const priceNum = Number((item.price || '').replace(/[^0-9.]/g, '')) || 0;
+                  return (
+                    <div key={id} className="flex items-center justify-between p-3 border rounded-md">
+                      <div className="flex items-center space-x-3">
+                        <img src={item.image_url} alt={item.name} className="w-16 h-12 object-cover rounded" />
+                        <div>
+                          <div className="font-medium">{item.name}</div>
+                          <div className="text-sm text-muted-foreground">{item.category}</div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-medium">${(priceNum * qty).toFixed(2)}</div>
+                        <div className="text-sm text-muted-foreground">{qty} x ${priceNum.toFixed(2)}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Totals + Checkout */}
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <div className="text-lg font-semibold">Total</div>
+                  <div className="text-lg font-bold">
+                    ${Object.entries(cart).reduce((sum, [idStr, qty]) => {
+                      const id = Number(idStr);
+                      const item = [...rentalItems, ...eventSpaces].find(i => i.id === id);
+                      const priceNum = item ? Number((item.price || '').replace(/[^0-9.]/g, '')) || 0 : 0;
+                      return sum + priceNum * qty;
+                    }, 0).toFixed(2)}
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setShowCart(false)}>Continue Shopping</Button>
+                  <Button onClick={() => {
+                    // mock checkout
+                    setCart({});
+                    setShowCart(false);
+                    toast({ title: 'Checkout complete', description: 'This is mock data — no payment was processed.' });
+                  }}>Checkout</Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

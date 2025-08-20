@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useToast } from '@/components/ui/use-toast';
 import { Search, Plus, Download, Share2, Calendar, MapPin, Camera, Video, Eye, Heart } from 'lucide-react';
 
 // Mock gallery data
@@ -64,7 +65,13 @@ const eventAlbums = [
 
 export const GalleryTab: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedAlbum, setSelectedAlbum] = useState<any>(null);
+  const [selectedAlbum, setSelectedAlbum] = useState(null);
+  const { toast } = useToast();
+
+  const handleButton = (title: string, description?: string, cb?: () => void) => () => {
+    if (cb) cb();
+    toast({ title, description });
+  };
 
   const getFilteredAlbums = () => {
     return eventAlbums.filter(album =>
@@ -92,7 +99,7 @@ export const GalleryTab: React.FC = () => {
     }
   };
 
-  const renderAlbumCard = (album: any) => (
+  const renderAlbumCard = (album) => (
     <Card key={album.id} className="group hover:shadow-medium transition-all duration-300 cursor-pointer">
       <div className="relative">
         <img
@@ -116,7 +123,7 @@ export const GalleryTab: React.FC = () => {
         </div>
         
         <div className="absolute top-3 left-3">
-          <Badge variant={getStatusColor(album.status) as any}>
+          <Badge variant={getStatusColor(album.status)}>
             {album.status === 'processing' ? (
               <span className="flex items-center gap-1">
                 <svg className="animate-spin h-3 w-3 mr-1 text-white" viewBox="0 0 24 24">
@@ -172,11 +179,11 @@ export const GalleryTab: React.FC = () => {
 
           {album.status === 'completed' && (
             <div className="flex space-x-2 pt-2">
-              <Button variant="outline" size="sm" className="flex-1">
+              <Button variant="outline" size="sm" className="flex-1" onClick={handleButton('Download', `Downloading ${album.title}`)}>
                 <Download className="h-3 w-3 mr-1" />
                 Download
               </Button>
-              <Button variant="outline" size="sm" className="flex-1">
+              <Button variant="outline" size="sm" className="flex-1" onClick={handleButton('Share', `Share link copied for ${album.title}`)}>
                 <Share2 className="h-3 w-3 mr-1" />
                 Share
               </Button>
@@ -194,15 +201,15 @@ export const GalleryTab: React.FC = () => {
           <DialogTitle className="flex items-center justify-between">
             <span>{selectedAlbum?.title}</span>
             <div className="flex space-x-2">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={handleButton('Favorited', `Added ${selectedAlbum?.title} to favorites`)}>
                 <Heart className="h-4 w-4 mr-1" />
                 Favorite
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={handleButton('Download started', `Preparing download for ${selectedAlbum?.title}`)}>
                 <Download className="h-4 w-4 mr-1" />
                 Download All
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={handleButton('Share', `Share link copied for ${selectedAlbum?.title}`)}>
                 <Share2 className="h-4 w-4 mr-1" />
                 Share Album
               </Button>
@@ -236,7 +243,7 @@ export const GalleryTab: React.FC = () => {
                     className="w-full h-full object-cover rounded-lg"
                   />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                    <Button variant="secondary" size="sm">
+                    <Button variant="secondary" size="sm" onClick={handleButton('View photo', 'Opening photo (mock)')}>
                       <Eye className="h-3 w-3" />
                     </Button>
                   </div>
@@ -267,7 +274,7 @@ export const GalleryTab: React.FC = () => {
           <p className="text-muted-foreground">View and manage your event photos and videos</p>
         </div>
         
-        <Button>
+        <Button onClick={handleButton('Upload', 'Open upload dialog (mock)')}>
           <Plus className="h-4 w-4 mr-2" />
           Upload Photos
         </Button>

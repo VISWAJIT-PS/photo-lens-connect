@@ -12,7 +12,7 @@ const PhotographerDashboard = () => {
   const { user, signOut } = useAuthStore();
   // Temporary static data until database is set up
   const [rentalsLoading, setRentalsLoading] = useState(false);
-  const rentals: any[] = [];
+  const rentals = [];
 
   console.log(user);
   const upcomingBookings = [

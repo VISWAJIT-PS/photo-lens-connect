@@ -8,7 +8,7 @@ import { OnboardingPopup } from './OnboardingPopup';
 import { WorksTab } from './dashboard/WorksTab';
 import { RentalsTab } from './dashboard/RentalsTab';
 import { GalleryTab } from './dashboard/GalleryTab';
-import { ChatTab } from './dashboard/ChatTab';
+import ChatApp from './dashboard/ChatTab';
 import { NotificationsPanel } from './dashboard/NotificationsPanel';
 import { FavoritesPanel } from './dashboard/FavoritesPanel';
 import  EcommerceUserSettings  from './SettingsPage';
@@ -38,6 +38,66 @@ export const MainDashboard: React.FC = () => {
       setShowOnboarding(true);
     }
   }, [user]);
+
+  // Initialize onboardingData from localStorage on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('onboarding_data');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        // convert eventDate string back to Date if present
+        if (parsed.eventDate && typeof parsed.eventDate === 'string') {
+          parsed.eventDate = new Date(parsed.eventDate);
+        }
+        setOnboardingData(parsed);
+      }
+    } catch (e) {
+      // ignore parse errors
+    }
+  }, []);
+
+  // Persist onboardingData to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      if (onboardingData) {
+        const toStore: { eventDate?: string | null; location?: string; serviceTypes?: string[] } = {};
+        if (onboardingData.eventDate instanceof Date) toStore.eventDate = onboardingData.eventDate.toISOString();
+        else if (typeof onboardingData.eventDate === 'string') toStore.eventDate = onboardingData.eventDate;
+        else toStore.eventDate = undefined;
+        toStore.location = onboardingData.location;
+        toStore.serviceTypes = onboardingData.serviceTypes;
+        localStorage.setItem('onboarding_data', JSON.stringify(toStore));
+        localStorage.setItem('onboarding_completed', 'true');
+      } else {
+        localStorage.removeItem('onboarding_data');
+        localStorage.removeItem('onboarding_completed');
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [onboardingData]);
+
+  // Listen for storage events (updates from other tabs/windows)
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'onboarding_data') {
+        try {
+          if (e.newValue) {
+            const parsed = JSON.parse(e.newValue);
+            if (parsed.eventDate && typeof parsed.eventDate === 'string') parsed.eventDate = new Date(parsed.eventDate);
+            setOnboardingData(parsed);
+          } else {
+            setOnboardingData(null);
+          }
+        } catch (err) {
+          // ignore
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   const handleOnboardingComplete = (data: OnboardingData) => {
     setOnboardingData(data);
@@ -170,7 +230,7 @@ export const MainDashboard: React.FC = () => {
         <div className="flex-1 flex flex-col">
           <header className="h-16 border-b border-border bg-card px-6 flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold capitalize w-64">{activeTab}</h2>
+              <h2 className="text-2xl font-bold capitalize w-[700px]">{activeTab}</h2>
               {onboardingData && (
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                   {onboardingData.location && <span>{onboardingData.location}</span>}
@@ -212,7 +272,7 @@ export const MainDashboard: React.FC = () => {
               </div>
 
               {/* Floating Action Button (desktop) */}
-              <div className="absolute bottom-4 right-6 z-20">
+              <div className="absolute bottom-16 right-9 z-20">
                 <Button
                   variant="default"
                   className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg rounded-full h-10 w-10 p-0 flex items-center justify-center"
@@ -229,7 +289,7 @@ export const MainDashboard: React.FC = () => {
             {activeTab === 'Event Crew' && <WorksTab onboardingData={onboardingData} filter={worksFilter} />}
             {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
             {activeTab === 'gallery' && <GalleryTab />}
-            {activeTab === 'chat' && <ChatTab />}
+            {activeTab === 'chat' && <ChatApp />}
             {activeTab === 'settings' && <EcommerceUserSettings />}
           </main>
         </div>
@@ -309,7 +369,7 @@ export const MainDashboard: React.FC = () => {
           {activeTab === 'Event Crew' && <WorksTab onboardingData={onboardingData} />}
           {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
           {activeTab === 'gallery' && <GalleryTab />}
-          {activeTab === 'chat' && <ChatTab />}
+          {activeTab === 'chat' && <ChatApp />}
           {activeTab === 'settings' && <EcommerceUserSettings />}
         </main>
 
