@@ -802,15 +802,15 @@ export const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="messages" className="">
+          <TabsContent value="messages" className="overflow-y-auto h-screen">
             {renderMessages()}
           </TabsContent>
           
-          <TabsContent value="gallery" className="">
+          <TabsContent value="gallery" className="overflow-y-auto h-screen">
             {renderGallery()}
           </TabsContent>
           
-          <TabsContent value="invoice" className="">
+          <TabsContent value="invoice" className="overflow-y-auto h-screen">
             {renderInvoice()}
           </TabsContent>
         </Tabs>
