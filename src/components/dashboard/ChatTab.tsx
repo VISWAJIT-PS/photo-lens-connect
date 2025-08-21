@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft } from 'lucide-react';
+import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft, MessageSquare, Images, Receipt, Lock } from 'lucide-react';
 import { Button } from '../ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 // Types
 interface Message {
@@ -10,6 +11,25 @@ interface Message {
   timestamp: string;
   type: 'text' | 'image' | 'file';
   status: 'sent' | 'delivered' | 'read';
+}
+
+interface GalleryPhoto {
+  id: string;
+  url: string;
+  thumbnail: string;
+  caption?: string;
+  uploadedBy: string;
+  uploadDate: string;
+}
+
+interface Invoice {
+  id: string;
+  bookingId: string;
+  amount: number;
+  status: 'pending' | 'paid' | 'overdue';
+  dueDate: string;
+  services: string[];
+  issueDate: string;
 }
 
 interface Conversation {
@@ -23,6 +43,8 @@ interface Conversation {
   isOnline: boolean;
   bookingId: string;
   messages: Message[];
+  gallery?: GalleryPhoto[];
+  invoice?: Invoice;
 }
 
 interface ChatAppData {
@@ -44,6 +66,41 @@ const initialChatData: ChatAppData = {
       unreadCount: 0,
       isOnline: true,
       bookingId: "WED-2024-001",
+      gallery: [
+        {
+          id: "photo-1",
+          url: "https://images.unsplash.com/photo-1606800052052-a08af7148866?w=800",
+          thumbnail: "https://images.unsplash.com/photo-1606800052052-a08af7148866?w=300",
+          caption: "Ceremony entrance",
+          uploadedBy: "sarah-1",
+          uploadDate: "2024-01-15"
+        },
+        {
+          id: "photo-2",
+          url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800",
+          thumbnail: "https://images.unsplash.com/photo-1519741497674-611481863552?w=300",
+          caption: "First dance",
+          uploadedBy: "sarah-1",
+          uploadDate: "2024-01-15"
+        },
+        {
+          id: "photo-3",
+          url: "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?w=800",
+          thumbnail: "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?w=300",
+          caption: "Wedding cake",
+          uploadedBy: "sarah-1",
+          uploadDate: "2024-01-15"
+        }
+      ],
+      invoice: {
+        id: "inv-001",
+        bookingId: "WED-2024-001",
+        amount: 2500,
+        status: "paid",
+        dueDate: "2024-01-20",
+        services: ["Wedding Photography", "Photo Editing", "Digital Gallery"],
+        issueDate: "2024-01-10"
+      },
       messages: [
         {
           id: "msg-1",
@@ -446,6 +503,200 @@ const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
     </div>
   );
 
+  // Render Gallery Section
+  const renderGallery = () => {
+    if (!selectedConversation?.gallery || selectedConversation.gallery.length === 0) {
+      return (
+        <div className="flex-1 flex items-center justify-center bg-gray-50">
+          <div className="text-center p-8">
+            <div className="mb-4 w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto">
+              <Lock className="h-8 w-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">Gallery Locked</h3>
+            <p className="text-gray-500">Photos will be available after the event</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {selectedConversation.gallery.map((photo) => (
+            <div key={photo.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <div className="aspect-square">
+                <img
+                  src={photo.thumbnail}
+                  alt={photo.caption || 'Event photo'}
+                  className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => window.open(photo.url, '_blank')}
+                />
+              </div>
+              {photo.caption && (
+                <div className="p-2">
+                  <p className="text-sm text-gray-600 truncate">{photo.caption}</p>
+                  <p className="text-xs text-gray-400">{photo.uploadDate}</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Render Invoice Section
+  const renderInvoice = () => {
+    if (!selectedConversation?.invoice) {
+      return (
+        <div className="flex-1 flex items-center justify-center bg-gray-50">
+          <div className="text-center p-8">
+            <div className="mb-4 w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto">
+              <Lock className="h-8 w-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">Invoice Not Available</h3>
+            <p className="text-gray-500">Invoice will be generated after booking confirmation</p>
+          </div>
+        </div>
+      );
+    }
+
+    const invoice = selectedConversation.invoice;
+    const statusColors = {
+      paid: 'text-green-600 bg-green-100',
+      pending: 'text-yellow-600 bg-yellow-100',
+      overdue: 'text-red-600 bg-red-100'
+    };
+
+    return (
+      <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-sm border">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-gray-900">Invoice #{invoice.id}</h3>
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[invoice.status]}`}>
+                {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-gray-500">Issue Date</p>
+                <p className="font-medium">{invoice.issueDate}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Due Date</p>
+                <p className="font-medium">{invoice.dueDate}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Booking ID</p>
+                <p className="font-medium">{invoice.bookingId}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Amount</p>
+                <p className="font-semibold text-lg">${invoice.amount}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="p-6">
+            <h4 className="font-semibold text-gray-900 mb-3">Services</h4>
+            <div className="space-y-2">
+              {invoice.services.map((service, index) => (
+                <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                  <span className="text-gray-700">{service}</span>
+                  <span className="text-gray-500">✓</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {invoice.status === 'pending' && (
+            <div className="p-6 bg-gray-50 border-t border-gray-200">
+              <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white">
+                Pay Now - ${invoice.amount}
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Render Messages Section
+  const renderMessages = () => (
+    <>
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+        <div className="space-y-4">
+          {selectedConversation!.messages.map((message) => {
+            const isOwn = message.senderId === chatData.currentUserId;
+            return (
+              <div
+                key={message.id}
+                className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                    isOwn
+                      ? "bg-blue-500 text-white"
+                      : "bg-white text-gray-900 border border-gray-200"
+                  }`}
+                >
+                  <p className="text-sm">{message.content}</p>
+                  <div className="flex items-center justify-between mt-1">
+                    <p className={`text-xs ${
+                      isOwn ? "text-blue-100" : "text-gray-500"
+                    }`}>
+                      {message.timestamp}
+                    </p>
+                    {isOwn && (
+                      <span className={`text-xs ml-2 ${
+                        message.status === 'read' ? 'text-blue-200' : 
+                        message.status === 'delivered' ? 'text-blue-300' : 'text-blue-400'
+                      }`}>
+                        {message.status === 'read' ? '✓✓' : 
+                         message.status === 'delivered' ? '✓✓' : '✓'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+
+      {/* Message Input */}
+      <div className="p-4 border-t border-gray-200 bg-white">
+        <div className="flex items-center space-x-2">
+          <Button variant='ghost' className="p-2 hover:bg-gray-100 rounded-full">
+            <Paperclip className="h-4 w-4 text-gray-600" />
+          </Button>
+          <Button variant='ghost' className="p-2 hover:bg-gray-100 rounded-full">
+            <Smile className="h-4 w-4 text-gray-600" />
+          </Button>
+          <input
+            ref={messageInputRef}
+            type="text"
+            placeholder="Type your message..."
+            value={messageInput}
+            onChange={(e) => setMessageInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <Button
+            onClick={sendMessage}
+            disabled={!messageInput.trim()}
+            className="p-2 bg-blue-500 w-[100px] text-white rounded-full hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </>
+  );
+
   // Render chat area
   const renderChatArea = () => {
     if (!selectedConversation) {
@@ -468,6 +719,7 @@ const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
               {isMobileView && (
                 <Button
                   onClick={() => setSelectedConversationId(null)}
+                  variant="ghost"
                   className="p-1 hover:bg-gray-100 rounded-full"
                 >
                   <ArrowLeft className="h-5 w-5 text-gray-600" />
@@ -498,88 +750,50 @@ const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
               <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
                 {selectedConversation.bookingId}
               </span>
-              <Button className="p-2 hover:bg-gray-100 rounded-full">
+              <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full">
                 <Phone className="h-4 w-4 text-gray-600" />
               </Button>
-              <Button className="p-2 hover:bg-gray-100 rounded-full">
+              <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full">
                 <Video className="h-4 w-4 text-gray-600" />
               </Button>
-              <Button className="p-2 hover:bg-gray-100 rounded-full">
+              <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full">
                 <MoreVertical className="h-4 w-4 text-gray-600" />
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
-          <div className="space-y-4">
-            {selectedConversation.messages.map((message) => {
-              const isOwn = message.senderId === chatData.currentUserId;
-              return (
-                <div
-                  key={message.id}
-                  className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                      isOwn
-                        ? "bg-blue-500 text-white"
-                        : "bg-white text-gray-900 border border-gray-200"
-                    }`}
-                  >
-                    <p className="text-sm">{message.content}</p>
-                    <div className="flex items-center justify-between mt-1">
-                      <p className={`text-xs ${
-                        isOwn ? "text-blue-100" : "text-gray-500"
-                      }`}>
-                        {message.timestamp}
-                      </p>
-                      {isOwn && (
-                        <span className={`text-xs ml-2 ${
-                          message.status === 'read' ? 'text-blue-200' : 
-                          message.status === 'delivered' ? 'text-blue-300' : 'text-blue-400'
-                        }`}>
-                          {message.status === 'read' ? '✓✓' : 
-                           message.status === 'delivered' ? '✓✓' : '✓'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            <div ref={messagesEndRef} />
-          </div>
-        </div>
-
-        {/* Message Input */}
-        <div className="p-4 border-t border-gray-200 bg-white">
-          <div className="flex items-center space-x-2">
-            <Button variant='ghost' className="p-2 hover:bg-gray-100 rounded-full">
-              <Paperclip className="h-4 w-4 text-gray-600" />
-            </Button>
-            <Button variant='ghost' className="p-2 hover:bg-gray-100 rounded-full">
-              <Smile className="h-4 w-4 text-gray-600" />
-            </Button>
-            <input
-              ref={messageInputRef}
-              type="text"
-              placeholder="Type your message..."
-              value={messageInput}
-              onChange={(e) => setMessageInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <Button
-              onClick={sendMessage}
-              disabled={!messageInput.trim()}
-              className="p-2 bg-blue-500 w-[100px] text-white rounded-full hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+        {/* Tabbed Content */}
+        <Tabs defaultValue="messages" className="flex-1 flex flex-col">
+          <TabsList className="grid w-full grid-cols-3 mx-4 mt-2">
+            <TabsTrigger value="messages" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Messages
+            </TabsTrigger>
+            <TabsTrigger value="gallery" className="flex items-center gap-2">
+              <Images className="h-4 w-4" />
+              Gallery
+              {!selectedConversation.gallery && <Lock className="h-3 w-3" />}
+            </TabsTrigger>
+            <TabsTrigger value="invoice" className="flex items-center gap-2">
+              <Receipt className="h-4 w-4" />
+              Invoice
+              {!selectedConversation.invoice && <Lock className="h-3 w-3" />}
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="messages" className="flex-1 flex flex-col mt-0">
+            {renderMessages()}
+          </TabsContent>
+          
+          <TabsContent value="gallery" className="flex-1 flex flex-col mt-0">
+            {renderGallery()}
+          </TabsContent>
+          
+          <TabsContent value="invoice" className="flex-1 flex flex-col mt-0">
+            {renderInvoice()}
+          </TabsContent>
+        </Tabs>
       </div>
     );
   };
