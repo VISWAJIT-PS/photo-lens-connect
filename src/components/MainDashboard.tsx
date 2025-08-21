@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Camera, Package, Images, MessageCircle, Bell, Heart, Settings, User, LogOut } from 'lucide-react';
+import { Camera, Package, Images, MessageCircle, Bell, Heart, Settings, User, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import { OnboardingPopup } from './OnboardingPopup';
 import { WorksTab } from './dashboard/WorksTab';
@@ -35,6 +35,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'work
   const [showNotifications, setShowNotifications] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Check if user needs onboarding
   useEffect(() => {
@@ -169,19 +170,39 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'work
       {/* Desktop Layout */}
       <div className="hidden lg:flex h-screen">
         {/* Sidebar */}
-        <div className="w-64 bg-card border-r border-border flex flex-col">
+        <div className={cn(sidebarCollapsed ? 'w-20' : 'w-64', 'bg-card border-r border-border flex flex-col') }>
           {/* Logo & User */}
-          <div className="p-6 border-b border-border">
-            <div className="flex items-center space-x-3">
-              <div className="bg-gradient-primary p-2 rounded-lg">
-                <Camera className="h-6 w-6 text-primary-foreground" />
+          <div className="p-4 border-b border-border flex items-center justify-between">
+            <div className={cn("flex items-center space-x-3 relative", sidebarCollapsed ? 'group' : '')}>
+              <div className="bg-gradient-primary p-2 rounded-lg relative z-20 transition-opacity duration-150 group-hover:opacity-0 group-hover:pointer-events-none">
+                <Camera className="h-6 w-6 text-primary-foreground  " />
+
               </div>
-              <h1 className="text-xl font-bold">PhotoLens</h1>
+                {/* When collapsed, render the toggle behind the camera icon and show on hover */}
+                {sidebarCollapsed && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute -left-2 z-10 opacity-0 bg-[#e8f9f8] border-[#29d9cb] group-hover:opacity-100 transition-opacity"
+                    onClick={() => setSidebarCollapsed(false)}
+                    aria-label="Expand sidebar"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 -960 960 960" className="shrink-0 h-7 w-7" fill="#29d9cb"><path d="M180-120q-24.75 0-42.37-17.63Q120-155.25 120-180v-600q0-24.75 17.63-42.38Q155.25-840 180-840h600q24.75 0 42.38 17.62Q840-804.75 840-780v600q0 24.75-17.62 42.37Q804.75-120 780-120zm207-60h393v-600H387z"></path></svg>
+                  </Button>
+                )}
+              {!sidebarCollapsed && <h1 className="text-xl font-bold">PhotoLens</h1>}
             </div>
+
+            {/* Only show the right-side collapse button when sidebar is expanded */}
+            {!sidebarCollapsed && (
+              <Button variant="ghost" size="sm" onClick={() => setSidebarCollapsed(s => !s)}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 -960 960 960" className="shrink-0 h-7 w-7" fill="#29d9cb"><path d="M180-120q-24.75 0-42.37-17.63Q120-155.25 120-180v-600q0-24.75 17.63-42.38Q155.25-840 180-840h600q24.75 0 42.38 17.62Q840-804.75 840-780v600q0 24.75-17.62 42.37Q804.75-120 780-120zm207-60h393v-600H387z"></path></svg>
+              </Button>
+            )}
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-2">
+          <nav className="flex-1 p-2 space-y-2">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
@@ -189,42 +210,43 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'work
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    "w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors",
+                    "w-full flex items-center px-3 py-3 rounded-lg text-left transition-colors",
                     activeTab === tab.id
                       ? "bg-primary/10 text-primary border border-primary/20"
                       : "hover:bg-muted"
                   )}
                 >
                   <Icon className="h-5 w-5 flex-shrink-0" />
-                  <div className="min-w-0">
-                    <p className="font-medium">{tab.label}</p>
-                    <p className="text-xs text-muted-foreground">{tab.description}</p>
-                  </div>
+                  {!sidebarCollapsed && (
+                    <div className="min-w-0 ml-3">
+                      <p className="font-medium">{tab.label}</p>
+                      <p className="text-xs text-muted-foreground">{tab.description}</p>
+                    </div>
+                  )}
                 </button>
               );
             })}
           </nav>
 
           {/* Bottom Actions */}
-          <div className="p-4 border-t border-border space-y-2">
+          <div className="p-3 border-t border-border space-y-2">
             <Button
               variant="ghost"
               className="w-full justify-start"
               onClick={() => setShowNotifications(true)}
             >
-              <Bell className="h-4 w-4 mr-3" />
-              Notifications
-              <Badge variant="secondary" className="ml-auto">3</Badge>
+              <Bell className="h-4 w-4" />
+              {!sidebarCollapsed && <><span className="ml-3">Notifications</span><Badge variant="secondary" className="ml-auto">3</Badge></>}
             </Button>
             
             <Button variant="ghost" className="w-full justify-start" onClick={() => setShowFavorites(true)}>
-              <Heart className="h-4 w-4 mr-3" />
-              Favorites
+              <Heart className="h-4 w-4" />
+              {!sidebarCollapsed && <span className="ml-3">Favorites</span>}
             </Button>
             
             <Button variant="ghost" className="w-full justify-start" onClick={() => setActiveTab('settings')}>
-              <Settings className="h-4 w-4 mr-3" />
-              Settings
+              <Settings className="h-4 w-4" />
+              {!sidebarCollapsed && <span className="ml-3">Settings</span>}
             </Button>
             
             <Button
@@ -232,8 +254,8 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'work
               className="w-full justify-start text-destructive hover:text-destructive"
               onClick={handleSignOut}
             >
-              <LogOut className="h-4 w-4 mr-3" />
-              Sign Out
+              <LogOut className="h-4 w-4" />
+              {!sidebarCollapsed && <span className="ml-3">Sign Out</span>}
             </Button>
           </div>
         </div>
