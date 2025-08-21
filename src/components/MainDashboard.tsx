@@ -25,7 +25,7 @@ interface MainDashboardProps {
   conversationId?: string;
 }
 
-export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'works', conversationId }) => {
+export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Event Crew', conversationId }) => {
   const { user, signOut } = useAuthStore();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
