@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PhotoReviewDialog, Photo } from '@/components/PhotoReviewDialog';
 import { useToast } from '@/components/ui/use-toast';
-import { Search, Plus, Download, Share2, Calendar, MapPin, Camera, Video, Eye, Heart } from 'lucide-react';
+import { Search, Plus, Download, Share2, Calendar, MapPin, Camera, Video, Eye, Heart, Star, Award, CheckCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Mock photo data for review
 const mockPhotos: Photo[] = [
@@ -113,7 +113,11 @@ const eventAlbums = [
 export const GalleryTab: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAlbum, setSelectedAlbum] = useState(null);
+  const [modalImages, setModalImages] = useState<string[]>([]);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showPhotoReview, setShowPhotoReview] = useState(false);
+  const [previewMeta, setPreviewMeta] = useState<Record<string, { rating: number; status: 'editors_choice'|'approved'|'not_approved' }>>({});
   const { toast } = useToast();
 
   const handleButton = (title: string, description?: string, cb?: () => void) => () => {
@@ -151,6 +155,49 @@ export const GalleryTab: React.FC = () => {
     }
   };
 
+  // map star rating to photo review status
+  const mapRatingToStatus = (rating: number): 'editors_choice'|'approved'|'not_approved' => {
+    if (rating >= 4.8) return 'editors_choice';
+    if (rating >= 4.0) return 'approved';
+    return 'not_approved';
+  };
+
+  const getPhotoStatusText = (status: string) => {
+    switch (status) {
+      case 'editors_choice': return 'Top Shot';
+      case 'approved': return 'Ready for Edit';
+      case 'not_approved': return 'Not Approved - Rejected';
+      default: return status;
+    }
+  };
+
+  const getStatusInfo = (status: string) => {
+    switch (status) {
+      case 'editors_choice':
+        return { icon: <Award className="h-3 w-3" />, label: 'Top Shot', className: 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white' };
+      case 'approved':
+        return { icon: <CheckCircle className="h-3 w-3" />, label: 'Ready for Edit', className: 'bg-green-100 text-green-800 border-green-200' };
+      case 'not_approved':
+        return { icon: <XCircle className="h-3 w-3" />, label: 'Not Approved - Rejected', className: 'bg-red-100 text-red-800 border-red-200' };
+      default:
+        return { icon: null, label: 'Unknown', className: '' };
+    }
+  };
+
+  const handleSetRating = (imageUrl: string, rating: number) => {
+    setPreviewMeta(prev => ({
+      ...prev,
+      [imageUrl]: { rating, status: mapRatingToStatus(rating) }
+    }));
+  };
+
+  const handleSetStatus = (imageUrl: string, status: 'editors_choice'|'approved'|'not_approved') => {
+    setPreviewMeta(prev => ({
+      ...prev,
+      [imageUrl]: { rating: prev[imageUrl]?.rating ?? 4, status }
+    }));
+  };
+
   const renderAlbumCard = (album) => (
     <Card key={album.id} className="group hover:shadow-medium transition-all duration-300 cursor-pointer">
       <div className="relative">
@@ -165,7 +212,10 @@ export const GalleryTab: React.FC = () => {
               <Button
                 variant="secondary"
                 className="opacity-90"
-                onClick={() => setSelectedAlbum(album)}
+                onClick={() => {
+                  setSelectedAlbum(album);
+                  setModalImages(album.preview ? [...album.preview] : []);
+                }}
               >
                 <Eye className="h-4 w-4 mr-2" />
                 View Album
@@ -231,7 +281,7 @@ export const GalleryTab: React.FC = () => {
 
           {album.status === 'completed' && (
             <div className="flex space-x-2 pt-2">
-              <Button variant="outline" size="sm" className="flex-1" 
+              {/* <Button variant="outline" size="sm" className="flex-1" 
                 onClick={() => {
                   setSelectedAlbum(album);
                   handleButton('View Photos', `Opening photo review for ${album.title}`)();
@@ -239,7 +289,7 @@ export const GalleryTab: React.FC = () => {
               >
                 <Eye className="h-3 w-3 mr-1" />
                 View Photos
-              </Button>
+              </Button> */}
               <Button variant="outline" size="sm" className="flex-1" onClick={handleButton('Download', `Downloading ${album.title}`)}>
                 <Download className="h-3 w-3 mr-1" />
                 Download
@@ -256,6 +306,7 @@ export const GalleryTab: React.FC = () => {
   );
 
   const renderAlbumModal = () => (
+    <>
     <Dialog open={!!selectedAlbum} onOpenChange={() => setSelectedAlbum(null)}>
       <DialogContent className="max-w-4xl">
         <DialogHeader>
@@ -296,26 +347,52 @@ export const GalleryTab: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-3 md:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
-              {selectedAlbum.preview.map((image: string, index: number) => (
+              {modalImages.map((image: string, index: number) => {
+                const meta = previewMeta[image] || { rating: 4, status: mapRatingToStatus(4) };
+                return (
                 <div key={index} className="aspect-square relative group cursor-pointer">
+                  {/* Status badge on each preview photo */}
+                  <div className="absolute top-2 left-2 z-10">
+                    <Badge className={getStatusInfo(meta.status).className}>
+                      {getStatusInfo(meta.status).icon}
+                      <span className="ml-1 text-xs">{getStatusInfo(meta.status).label}</span>
+                    </Badge>
+                  </div>
                   <img
                     src={image}
                     alt={`Photo ${index + 1}`}
                     className="w-full h-full object-cover rounded-lg"
                   />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                    <Button variant="secondary" size="sm" onClick={handleButton('View photo', 'Opening photo (mock)')}>
+                    <Button variant="secondary" size="sm" onClick={() => { setLightboxIndex(index); setLightboxOpen(true); }}>
                       <Eye className="h-3 w-3" />
                     </Button>
                   </div>
+
+                  <div className="absolute bottom-2 left-2 right-2 p-2 bg-white/100 rounded-md">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: 5 }).map((_, i) => {
+                          const starIndex = i + 1;
+                          return (
+                            <button key={i} onClick={() => handleSetRating(image, starIndex)} aria-label={`Rate ${starIndex}`}>
+                              <Star className={`h-4 w-4 ${starIndex <= Math.round(meta.rating) ? 'text-yellow-400' : 'text-gray-500'}`} />
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* status select intentionally hidden here (we use badge) */}
+                    </div>
+                  </div>
                 </div>
-              ))}
+              )})}
               {/* Show more indicator */}
               <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
                 <div className="text-center">
                   <Plus className="h-6 w-6 mx-auto mb-1 text-muted-foreground" />
                   <p className="text-xs text-muted-foreground">
-                    +{selectedAlbum.totalPhotos - selectedAlbum.preview.length} more
+                    +{(selectedAlbum.totalPhotos ?? 0) - modalImages.length} more
                   </p>
                 </div>
               </div>
@@ -323,7 +400,26 @@ export const GalleryTab: React.FC = () => {
           </div>
         )}
       </DialogContent>
+  </Dialog>
+  {/* Lightbox dialog */}
+  <Dialog open={lightboxOpen} onOpenChange={() => setLightboxOpen(false)}>
+      <DialogContent className="max-w-4xl">
+        <div className="relative">
+          <img src={modalImages[lightboxIndex]} alt={`Photo ${lightboxIndex + 1}`} className="w-full h-[70vh] object-contain" />
+          <div className="absolute left-2 top-1/2 transform -translate-y-1/2">
+            <Button variant="secondary" size="icon" onClick={() => setLightboxIndex(i => (i > 0 ? i - 1 : modalImages.length - 1))}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+            <Button variant="secondary" size="icon" onClick={() => setLightboxIndex(i => (i < modalImages.length - 1 ? i + 1 : 0))}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
     </Dialog>
+    </>
   );
 
   return (

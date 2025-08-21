@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, Award, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CheckCircle, XCircle, Award, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 
 export interface Photo {
   id: string;
@@ -27,7 +27,35 @@ export const PhotoReviewDialog: React.FC<PhotoReviewDialogProps> = ({
 }) => {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
-  const sortedPhotos = [...photos].sort((a, b) => {
+  // Keep an editable copy of photos so each photo can be updated locally (rating/status)
+  const [editablePhotos, setEditablePhotos] = React.useState<Photo[]>(() =>
+    photos.map(p => ({ ...p }))
+  );
+
+  React.useEffect(() => {
+    setEditablePhotos(photos.map(p => ({ ...p })));
+    setCurrentPhotoIndex(0);
+  }, [photos]);
+
+  const mapRatingToStatus = (rating: number): Photo['status'] => {
+    if (rating >= 5) return 'editors_choice';
+    if (rating >= 4) return 'approved';
+    return 'not_approved';
+  };
+
+  const handleSetRating = (photoId: string, rating: number) => {
+    setEditablePhotos(prev =>
+      prev.map(p =>
+        p.id === photoId ? { ...p, rating, status: mapRatingToStatus(rating) } : p
+      )
+    );
+  };
+
+  const handleSetStatus = (photoId: string, status: Photo['status']) => {
+    setEditablePhotos(prev => prev.map(p => (p.id === photoId ? { ...p, status } : p)));
+  };
+
+  const sortedPhotos = [...editablePhotos].sort((a, b) => {
     // Sort by status priority: editors_choice > approved > not_approved
     const statusPriority = { editors_choice: 3, approved: 2, not_approved: 1 };
     if (statusPriority[a.status] !== statusPriority[b.status]) {
@@ -44,21 +72,21 @@ export const PhotoReviewDialog: React.FC<PhotoReviewDialogProps> = ({
       case 'editors_choice':
         return {
           icon: <Award className="h-4 w-4" />,
-          label: "Editor's Choice",
+          label: 'Top Shot',
           variant: 'default' as const,
           className: 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white'
         };
       case 'approved':
         return {
           icon: <CheckCircle className="h-4 w-4" />,
-          label: 'Approved for Editing',
+          label: 'Ready for Edit',
           variant: 'secondary' as const,
           className: 'bg-green-100 text-green-800 border-green-200'
         };
       case 'not_approved':
         return {
           icon: <XCircle className="h-4 w-4" />,
-          label: 'Not Approved',
+          label: 'Not Approved - Rejected',
           variant: 'destructive' as const,
           className: 'bg-red-100 text-red-800 border-red-200'
         };
@@ -130,11 +158,26 @@ export const PhotoReviewDialog: React.FC<PhotoReviewDialogProps> = ({
                 </Badge>
               </div>
 
-              {/* Rating */}
-              <div className="absolute top-3 right-3">
-                <Badge variant="secondary">
-                  Rating: {currentPhoto.rating}/5
-                </Badge>
+              {/* Rating (clickable stars) */}
+              <div className="absolute top-3 right-3 flex items-center gap-2">
+                <div className="flex items-center">
+                  {Array.from({ length: 5 }).map((_, i) => {
+                    const starIndex = i + 1;
+                    const filled = currentPhoto && currentPhoto.rating >= starIndex;
+                    return (
+                      <button
+                        key={starIndex}
+                        aria-label={`Set rating ${starIndex}`}
+                        onClick={() => currentPhoto && handleSetRating(currentPhoto.id, starIndex)}
+                        className={`p-1 rounded ${filled ? 'text-yellow-400' : 'text-muted-foreground'}`}
+                        type="button"
+                      >
+                        <Star className="h-4 w-4" />
+                      </button>
+                    );
+                  })}
+                </div>
+                <Badge variant="secondary">{currentPhoto ? `${currentPhoto.rating}/5` : ''}</Badge>
               </div>
             </div>
 
@@ -142,10 +185,24 @@ export const PhotoReviewDialog: React.FC<PhotoReviewDialogProps> = ({
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold">{currentPhoto.name}</h3>
-                <p className="text-sm text-muted-foreground">
-                  Status: {getStatusInfo(currentPhoto.status).label}
-                </p>
+                <p className="text-sm text-muted-foreground">Status: {getStatusInfo(currentPhoto.status).label}</p>
               </div>
+
+              {/* Status control */}
+              {currentPhoto && (
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-muted-foreground">Change review:</label>
+                  <select
+                    value={currentPhoto.status}
+                    onChange={e => handleSetStatus(currentPhoto.id, e.target.value as Photo['status'])}
+                    className="border rounded px-2 py-1 text-sm"
+                  >
+                    <option value="not_approved">Not Approved - Rejected</option>
+                    <option value="approved">Ready for Edit</option>
+                    <option value="editors_choice">Top Shot</option>
+                  </select>
+                </div>
+              )}
             </div>
 
             {/* Thumbnail Strip */}
