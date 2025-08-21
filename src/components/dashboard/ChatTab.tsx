@@ -294,7 +294,7 @@ interface ChatTabProps {
   conversationId?: string;
 }
 
-const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
+export const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
   const [chatData, setChatData] = useState<ChatAppData>(initialChatData);
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(conversationId || "conv-1");
   const [searchQuery, setSearchQuery] = useState("");
@@ -303,42 +303,43 @@ const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
   
   // Initialize URL parameters for chat routing
   useEffect(() => {
-    if (conversationId) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const name = urlParams.get('name');
-      const role = urlParams.get('role');
-      const avatar = urlParams.get('avatar');
-      
-      if (name && role && avatar) {
-        // Check if conversation already exists
-        const existingConversation = chatData.conversations.find(conv => conv.id === conversationId);
-        
-        if (!existingConversation) {
-          // Create new conversation
-          const newConversation: Conversation = {
-            id: conversationId,
-            name: decodeURIComponent(name),
-            role: decodeURIComponent(role),
-            avatar: decodeURIComponent(avatar),
-            lastMessage: 'New conversation',
-            timestamp: 'now',
-            unreadCount: 0,
-            isOnline: true,
-            bookingId: `BOOK-${Date.now()}`,
-            messages: []
-          };
-          
-          setChatData(prev => ({
-            ...prev,
-            conversations: [newConversation, ...prev.conversations]
-          }));
-        }
+    if (!conversationId) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const name = urlParams.get('name');
+    const role = urlParams.get('role');
+    const avatar = urlParams.get('avatar');
+
+    if (name && role && avatar) {
+      // Check if conversation already exists
+      const existingConversation = chatData.conversations.find(conv => conv.id === conversationId);
+
+      if (!existingConversation) {
+        // Create new conversation
+        const newConversation: Conversation = {
+          id: conversationId,
+          name: decodeURIComponent(name),
+          role: decodeURIComponent(role),
+          avatar: decodeURIComponent(avatar),
+          lastMessage: 'New conversation',
+          timestamp: 'now',
+          unreadCount: 0,
+          isOnline: true,
+          bookingId: `BOOK-${Date.now()}`,
+          messages: []
+        };
+
+        setChatData(prev => ({
+          ...prev,
+          conversations: [newConversation, ...prev.conversations]
+        }));
       }
-      
-      // Set this conversation as selected
-      setSelectedConversationId(conversationId);
     }
-  }, [conversationId, chatData.conversations]);
+
+    // Set this conversation as selected (run once on mount when conversationId provided)
+    setSelectedConversationId(conversationId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationId]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
