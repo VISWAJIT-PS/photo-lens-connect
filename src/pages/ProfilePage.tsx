@@ -35,6 +35,9 @@ const ProfilePage = () => {
   // local UI state for booking flow
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
+  const [isBooked, setIsBooked] = useState(false);
+  const [chatEnabled, setChatEnabled] = useState(false);
   const { toast } = useToast();
 
   // Mock availability data - in real app this would come from API
@@ -146,6 +149,25 @@ const ProfilePage = () => {
     }
   };
 
+  const handlePackageSelect = (pkg: string) => {
+    setSelectedPackage(pkg);
+    // reset booking/chat state when picking a new package
+    setIsBooked(false);
+    setChatEnabled(false);
+  };
+
+  const handleConfirmBooking = () => {
+    if (!selectedPackage) {
+      toast({ title: 'Select a package', description: 'Please choose a package before booking', variant: 'destructive' });
+      return;
+    }
+
+    // perform booking preparation (mock)
+    setIsBooked(true);
+    setChatEnabled(true);
+    toast({ title: 'Package booked', description: `You selected the ${selectedPackage} package. Chat enabled.` });
+  };
+
   if (!creator) {
     return (
       <div className="min-h-screen bg-background">
@@ -241,18 +263,7 @@ const ProfilePage = () => {
                   <p className="text-muted-foreground mb-6">{creator.bio}</p>
 
                   <div className="flex gap-3 items-center">
-                    <Button size="lg" className="flex-1" onClick={handleBookNowClick} disabled={true}>
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Select Package to Book
-                    </Button>
-
-                    <Button variant="outline" size="lg" onClick={() => {
-                      const conversationId = `conv-${creator.id}`;
-                      navigate(`/chat/${conversationId}?name=${encodeURIComponent(creator.name)}&role=${encodeURIComponent(type)}&avatar=${encodeURIComponent(creator.image_url)}`);
-                    }} disabled={true}>
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      Chat (Book First)
-                    </Button>
+                    {/* <div className="text-sm text-muted-foreground">Select a package in "Package Options" to enable booking and chat.</div> */}
                   </div>
                 </div>
               </div>
@@ -361,7 +372,7 @@ const ProfilePage = () => {
               <div className="space-y-4">
                 <div className="space-y-3">
                   <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
-                    <input type="radio" name="package" value="basic" className="text-primary" />
+                    <input type="radio" name="package" value="basic" className="text-primary" checked={selectedPackage === 'basic'} onChange={() => handlePackageSelect('basic')} />
                     <div className="flex-1">
                       <div className="font-semibold">Basic Package</div>
                       <div className="text-sm text-muted-foreground">Essential coverage for your event</div>
@@ -370,7 +381,7 @@ const ProfilePage = () => {
                   </label>
                   
                   <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
-                    <input type="radio" name="package" value="advance" className="text-primary" />
+                    <input type="radio" name="package" value="advance" className="text-primary" checked={selectedPackage === 'advance'} onChange={() => handlePackageSelect('advance')} />
                     <div className="flex-1">
                       <div className="font-semibold">Advance Package</div>
                       <div className="text-sm text-muted-foreground">Extended coverage with editing</div>
@@ -379,7 +390,7 @@ const ProfilePage = () => {
                   </label>
                   
                   <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
-                    <input type="radio" name="package" value="pro" className="text-primary" />
+                    <input type="radio" name="package" value="pro" className="text-primary" checked={selectedPackage === 'pro'} onChange={() => handlePackageSelect('pro')} />
                     <div className="flex-1">
                       <div className="font-semibold">Pro Package</div>
                       <div className="text-sm text-muted-foreground">Full service with premium features</div>
@@ -388,7 +399,7 @@ const ProfilePage = () => {
                   </label>
                   
                   <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
-                    <input type="radio" name="package" value="custom" className="text-primary" />
+                    <input type="radio" name="package" value="custom" className="text-primary" checked={selectedPackage === 'custom'} onChange={() => handlePackageSelect('custom')} />
                     <div className="flex-1">
                       <div className="font-semibold">Custom Package</div>
                       <div className="text-sm text-muted-foreground">Tailored to your budget and needs</div>
@@ -399,6 +410,23 @@ const ProfilePage = () => {
                       />
                     </div>
                   </label>
+                  
+                  {/* Booking / Chat buttons moved here */}
+                  <div className="flex items-center gap-3 mt-4">
+                    <Button size="lg" className="flex-1" onClick={handleConfirmBooking} disabled={!selectedPackage}>
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Book Selected Package
+                    </Button>
+
+                    <Button variant="outline" size="lg" onClick={() => {
+                      if (!chatEnabled) return;
+                      const conversationId = `conv-${creator.id}`;
+                      navigate(`/chat/${conversationId}?name=${encodeURIComponent(creator.name)}&role=${encodeURIComponent(type)}&avatar=${encodeURIComponent(creator.image_url)}`);
+                    }} disabled={!chatEnabled}>
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      Chat {chatEnabled ? '' : '(Book First)'}
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardContent>
