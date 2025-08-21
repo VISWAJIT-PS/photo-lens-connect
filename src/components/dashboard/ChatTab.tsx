@@ -300,6 +300,8 @@ export const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [messageInput, setMessageInput] = useState("");
   const [isMobileView, setIsMobileView] = useState(false);
+  // control which sub-view is shown (messages/gallery/invoice)
+  const [activeView, setActiveView] = useState<'messages' | 'gallery' | 'invoice'>('messages');
   
   // Initialize URL parameters for chat routing
   useEffect(() => {
@@ -427,6 +429,8 @@ export const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
   const selectConversation = (conversationId: string) => {
     setSelectedConversationId(conversationId);
     markAsRead(conversationId);
+  // ensure messages are shown when user selects a conversation
+  setActiveView('messages');
   };
 
   // Render conversation list
@@ -508,6 +512,7 @@ export const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
   const renderGallery = () => {
     if (!selectedConversation?.gallery || selectedConversation.gallery.length === 0) {
       return (
+        <div className='flex-1 flex flex-col mt-0'>
         <div className="flex-1 flex items-center justify-center bg-gray-50">
           <div className="text-center p-8">
             <div className="mb-4 w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto">
@@ -517,6 +522,7 @@ export const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
             <p className="text-gray-500">Photos will be available after the event</p>
           </div>
         </div>
+      </div>
       );
     }
 
@@ -550,13 +556,15 @@ export const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
   const renderInvoice = () => {
     if (!selectedConversation?.invoice) {
       return (
-        <div className="flex-1 flex items-center justify-center bg-gray-50">
-          <div className="text-center p-8">
-            <div className="mb-4 w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto">
-              <Lock className="h-8 w-8 text-gray-400" />
+        <div className='flex-1 flex flex-col mt-0'>
+          <div className="flex-1 flex items-center justify-center bg-gray-50">
+            <div className="text-center p-8">
+              <div className="mb-4 w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto">
+                <Lock className="h-8 w-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Invoice Not Available</h3>
+              <p className="text-gray-500">Invoice will be generated after booking confirmation</p>
             </div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Invoice Not Available</h3>
-            <p className="text-gray-500">Invoice will be generated after booking confirmation</p>
           </div>
         </div>
       );
@@ -625,9 +633,9 @@ export const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
 
   // Render Messages Section
   const renderMessages = () => (
-    <>
+    <div className="flex-1 flex flex-col mt-0">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-4 h-[100vh] bg-gray-50">
         <div className="space-y-4">
           {selectedConversation!.messages.map((message) => {
             const isOwn = message.senderId === chatData.currentUserId;
@@ -695,7 +703,7 @@ export const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
           </Button>
         </div>
       </div>
-    </>
+    </div>
   );
 
   // Render chat area
@@ -765,7 +773,18 @@ export const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
         </div>
 
         {/* Tabbed Content */}
-        <Tabs defaultValue="messages" className="flex-1 flex flex-col">
+        <Tabs value={activeView} onValueChange={(v: string) => {
+          // prevent switching to gallery/invoice when data missing
+          if (v === 'gallery' && !selectedConversation?.gallery) {
+            setActiveView('messages');
+            return;
+          }
+          if (v === 'invoice' && !selectedConversation?.invoice) {
+            setActiveView('messages');
+            return;
+          }
+          setActiveView(v as any);
+        }} className="flex-1 flex flex-col">
           <TabsList className="grid w-full grid-cols-3 mx-4 mt-2">
             <TabsTrigger value="messages" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
@@ -783,15 +802,15 @@ export const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="messages" className="flex-1 flex flex-col mt-0">
+          <TabsContent value="messages" className="">
             {renderMessages()}
           </TabsContent>
           
-          <TabsContent value="gallery" className="flex-1 flex flex-col mt-0">
+          <TabsContent value="gallery" className="">
             {renderGallery()}
           </TabsContent>
           
-          <TabsContent value="invoice" className="flex-1 flex flex-col mt-0">
+          <TabsContent value="invoice" className="">
             {renderInvoice()}
           </TabsContent>
         </Tabs>
