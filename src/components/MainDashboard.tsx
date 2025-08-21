@@ -44,6 +44,13 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'work
     }
   }, [user]);
 
+  // Listen for requests to open onboarding popup from child components (WorksTab FAB)
+  useEffect(() => {
+    const handler = () => setShowOnboarding(true);
+    window.addEventListener('open-onboarding', handler as EventListener);
+    return () => window.removeEventListener('open-onboarding', handler as EventListener);
+  }, []);
+
   // Initialize onboardingData from localStorage on mount
   useEffect(() => {
     try {
@@ -233,25 +240,10 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'work
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
-          <header className="h-16 border-b border-border bg-card px-6 flex items-center justify-between">
+          <header className="h-16 border-b border-border py-10 bg-card px-6 flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold capitalize w-[700px]">{activeTab}</h2>
-              {onboardingData && (
-                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                  {onboardingData.location && <span>{onboardingData.location}</span>}
-                  <span>•</span>
-                  <span>{onboardingData.eventDate ? onboardingData.eventDate.toLocaleDateString() : 'Date TBD'}</span>
-                  {onboardingData.serviceTypes?.length > 0 && (
-                    <div className="flex items-center gap-1 ml-2">
-                      {onboardingData.serviceTypes.map((type) => (
-                        <Badge key={type} variant="secondary" className="capitalize">
-                          {type.replace(/s$/, '')}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+              <h2 className="text-2xl font-bold capitalize w-[200px] ">{activeTab}</h2>
+             
             </div>
             
             <div className="flex items-center justify-end w-full gap-4">
@@ -276,21 +268,12 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'work
                 </div>
               </div>
 
-              {/* Floating Action Button (desktop) */}
-              <div className="absolute bottom-16 right-9 z-20">
-                <Button
-                  variant="default"
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg rounded-full h-10 w-10 p-0 flex items-center justify-center"
-                  onClick={() => setShowOnboarding(true)}
-                  aria-label="Edit Preferences"
-                >
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </div>
+              {/* Floating Action Button moved into WorksTab; listen for event to open onboarding */}
+              {/* The FAB is rendered inside WorksTab to keep the Event Details card self-contained. */}
             </div>
           </header>
 
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 ">
             {activeTab === 'Event Crew' && <WorksTab onboardingData={onboardingData} filter={worksFilter} />}
             {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
             {activeTab === 'gallery' && <GalleryTab />}

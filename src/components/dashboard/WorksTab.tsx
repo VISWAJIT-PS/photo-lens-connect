@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Filter, MapPin, Clock, DollarSign } from 'lucide-react';
+import { Search, Filter, MapPin, Clock, DollarSign, Settings, Edit } from 'lucide-react';
 import { CreatorCard } from '../CreatorCard';
 
 interface OnboardingData {
@@ -241,7 +241,14 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold">Your Event Details</h3>
+                <div className='flex flex-row gap-2'>
+                  <h3 className="font-semibold">Your Event Details</h3>
+                  {onboardingData.serviceTypes.map((type) => (
+                    <Badge key={type} variant="secondary" className="text-xs">
+                      {type}
+                    </Badge>
+                  ))}
+                </div>
                 <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-1">
                   <span className="flex items-center">
                     <MapPin className="h-3 w-3 mr-1" />
@@ -256,11 +263,19 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
                 </div>
               </div>
               <div className="flex flex-wrap gap-1">
-                {onboardingData.serviceTypes.map((type) => (
-                  <Badge key={type} variant="secondary" className="text-xs">
-                    {type}
-                  </Badge>
-                ))}
+              
+                {/* Desktop Floating Action Button moved here from MainDashboard */}
+                <div className="ml-2">
+                  <Button
+                    variant="default"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg rounded-full  p-4 flex items-center justify-center"
+                    onClick={() => window.dispatchEvent(new CustomEvent('open-onboarding'))}
+                    aria-label="Edit Preferences"
+                  >
+                    Edit Preferences
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </CardHeader>
