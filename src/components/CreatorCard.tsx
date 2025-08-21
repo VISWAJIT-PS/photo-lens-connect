@@ -53,11 +53,6 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({ creator, type }) => {
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-1">
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm font-medium">{creator.rating}</span>
-            <span className="text-sm text-muted-foreground">({creator.reviews})</span>
-          </div>
           <Badge variant="secondary">{creator.price}</Badge>
         </div>
         <div className="flex items-center text-sm text-muted-foreground mb-4">

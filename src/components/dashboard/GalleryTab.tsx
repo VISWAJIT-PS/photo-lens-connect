@@ -4,8 +4,55 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { PhotoReviewDialog, Photo } from '@/components/PhotoReviewDialog';
 import { useToast } from '@/components/ui/use-toast';
 import { Search, Plus, Download, Share2, Calendar, MapPin, Camera, Video, Eye, Heart } from 'lucide-react';
+
+// Mock photo data for review
+const mockPhotos: Photo[] = [
+  {
+    id: '1',
+    url: 'https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=600',
+    name: 'Ceremony Entrance',
+    status: 'editors_choice',
+    rating: 5
+  },
+  {
+    id: '2',
+    url: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=600',
+    name: 'Ring Exchange',
+    status: 'approved',
+    rating: 4.8
+  },
+  {
+    id: '3',
+    url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600',
+    name: 'Reception Dance',
+    status: 'editors_choice',
+    rating: 4.9
+  },
+  {
+    id: '4',
+    url: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600',
+    name: 'Group Photo',
+    status: 'not_approved',
+    rating: 3.2
+  },
+  {
+    id: '5',
+    url: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600',
+    name: 'Bouquet Toss',
+    status: 'approved',
+    rating: 4.3
+  },
+  {
+    id: '6',
+    url: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600',
+    name: 'Cake Cutting',
+    status: 'approved',
+    rating: 4.7
+  }
+];
 
 // Mock gallery data
 const eventAlbums = [
@@ -66,11 +113,16 @@ const eventAlbums = [
 export const GalleryTab: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAlbum, setSelectedAlbum] = useState(null);
+  const [showPhotoReview, setShowPhotoReview] = useState(false);
   const { toast } = useToast();
 
   const handleButton = (title: string, description?: string, cb?: () => void) => () => {
     if (cb) cb();
-    toast({ title, description });
+    if (title === 'View Photos') {
+      setShowPhotoReview(true);
+    } else {
+      toast({ title, description });
+    }
   };
 
   const getFilteredAlbums = () => {
@@ -84,7 +136,7 @@ export const GalleryTab: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'success';
-      case 'processing': return 'processing';
+      case 'processing': return 'secondary';
       case 'pending': return 'secondary';
       default: return 'secondary';
     }
@@ -93,7 +145,7 @@ export const GalleryTab: React.FC = () => {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'completed': return 'Ready';
-      case 'processing': return 'Processing';
+      case 'processing': return 'Pending';
       case 'pending': return 'Pending';
       default: return status;
     }
@@ -179,6 +231,15 @@ export const GalleryTab: React.FC = () => {
 
           {album.status === 'completed' && (
             <div className="flex space-x-2 pt-2">
+              <Button variant="outline" size="sm" className="flex-1" 
+                onClick={() => {
+                  setSelectedAlbum(album);
+                  handleButton('View Photos', `Opening photo review for ${album.title}`)();
+                }}
+              >
+                <Eye className="h-3 w-3 mr-1" />
+                View Photos
+              </Button>
               <Button variant="outline" size="sm" className="flex-1" onClick={handleButton('Download', `Downloading ${album.title}`)}>
                 <Download className="h-3 w-3 mr-1" />
                 Download
@@ -342,6 +403,14 @@ export const GalleryTab: React.FC = () => {
 
       {/* Album Modal */}
       {renderAlbumModal()}
+      
+      {/* Photo Review Dialog */}
+      <PhotoReviewDialog
+        isOpen={showPhotoReview}
+        onClose={() => setShowPhotoReview(false)}
+        photos={mockPhotos}
+        title={selectedAlbum?.title || 'Album Photos'}
+      />
     </div>
   );
 };
