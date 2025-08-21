@@ -233,13 +233,56 @@ const initialChatData: ChatAppData = {
   ]
 };
 
-const ChatApp: React.FC = () => {
+interface ChatTabProps {
+  conversationId?: string;
+}
+
+const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
   const [chatData, setChatData] = useState<ChatAppData>(initialChatData);
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>("conv-1");
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(conversationId || "conv-1");
   const [searchQuery, setSearchQuery] = useState("");
   const [messageInput, setMessageInput] = useState("");
   const [isMobileView, setIsMobileView] = useState(false);
   
+  // Initialize URL parameters for chat routing
+  useEffect(() => {
+    if (conversationId) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const name = urlParams.get('name');
+      const role = urlParams.get('role');
+      const avatar = urlParams.get('avatar');
+      
+      if (name && role && avatar) {
+        // Check if conversation already exists
+        const existingConversation = chatData.conversations.find(conv => conv.id === conversationId);
+        
+        if (!existingConversation) {
+          // Create new conversation
+          const newConversation: Conversation = {
+            id: conversationId,
+            name: decodeURIComponent(name),
+            role: decodeURIComponent(role),
+            avatar: decodeURIComponent(avatar),
+            lastMessage: 'New conversation',
+            timestamp: 'now',
+            unreadCount: 0,
+            isOnline: true,
+            bookingId: `BOOK-${Date.now()}`,
+            messages: []
+          };
+          
+          setChatData(prev => ({
+            ...prev,
+            conversations: [newConversation, ...prev.conversations]
+          }));
+        }
+      }
+      
+      // Set this conversation as selected
+      setSelectedConversationId(conversationId);
+    }
+  }, [conversationId, chatData.conversations]);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
 
@@ -561,4 +604,8 @@ const ChatApp: React.FC = () => {
   );
 };
 
-export default ChatApp;
+const ChatTab: React.FC<ChatTabProps> = ({ conversationId }) => {
+  return <ChatApp conversationId={conversationId} />;
+};
+
+export default ChatTab;

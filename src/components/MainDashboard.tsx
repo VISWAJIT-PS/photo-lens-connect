@@ -20,13 +20,18 @@ interface OnboardingData {
   serviceTypes: string[];
 }
 
-export const MainDashboard: React.FC = () => {
+interface MainDashboardProps {
+  defaultTab?: string;
+  conversationId?: string;
+}
+
+export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'works', conversationId }) => {
   const { user, signOut } = useAuthStore();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
   // If onboardingData includes 'photographers', set a filter for WorksTab
   const [worksFilter, setWorksFilter] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('Event Crew');
+  const [activeTab, setActiveTab] = useState(defaultTab);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -289,7 +294,7 @@ export const MainDashboard: React.FC = () => {
             {activeTab === 'Event Crew' && <WorksTab onboardingData={onboardingData} filter={worksFilter} />}
             {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
             {activeTab === 'gallery' && <GalleryTab />}
-            {activeTab === 'chat' && <ChatApp />}
+            {activeTab === 'chat' && <ChatApp conversationId={conversationId} />}
             {activeTab === 'settings' && <EcommerceUserSettings />}
           </main>
         </div>
@@ -369,7 +374,11 @@ export const MainDashboard: React.FC = () => {
           {activeTab === 'Event Crew' && <WorksTab onboardingData={onboardingData} />}
           {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
           {activeTab === 'gallery' && <GalleryTab />}
-          {activeTab === 'chat' && <ChatApp />}
+          {activeTab === 'chat' && (
+            <ChatApp 
+              conversationId={conversationId} 
+            />
+          )}
           {activeTab === 'settings' && <EcommerceUserSettings />}
         </main>
 

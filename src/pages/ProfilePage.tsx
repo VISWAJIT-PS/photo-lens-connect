@@ -246,7 +246,10 @@ const ProfilePage = () => {
                       {selectedDate ? `Book for ${format(selectedDate, 'MMM d')}` : 'Select Date to Book'}
                     </Button>
 
-                    <Button variant="outline" size="lg">
+                    <Button variant="outline" size="lg" onClick={() => {
+                      const conversationId = `conv-${creator.id}`;
+                      navigate(`/chat/${conversationId}?name=${encodeURIComponent(creator.name)}&role=${encodeURIComponent(type)}&avatar=${encodeURIComponent(creator.image_url)}`);
+                    }}>
                       <MessageCircle className="h-4 w-4 mr-2" />
                       Chat
                     </Button>
