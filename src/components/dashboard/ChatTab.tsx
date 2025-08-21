@@ -344,6 +344,39 @@ export const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
 
     // Set this conversation as selected (run once on mount when conversationId provided)
     setSelectedConversationId(conversationId);
+    // Try to load any saved mock messages for this vendor (saved by ProfilePage)
+    try {
+      const vendorId = conversationId.startsWith('conv-') ? conversationId.replace('conv-', '') : conversationId;
+      const key = `mock_chat_${vendorId}`;
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const saved = JSON.parse(raw) as Array<{ author: string; content: string; timestamp: string }>;
+        if (saved && saved.length) {
+          const mapped = saved.map((m, idx) => ({
+            id: `mock-${vendorId}-${idx}-${new Date(m.timestamp).getTime()}`,
+            senderId: m.author === 'user' ? chatData.currentUserId : `vendor-${vendorId}`,
+            content: m.content,
+            timestamp: new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            type: 'text' as const,
+            status: m.author === 'user' ? 'sent' as const : 'delivered' as const
+          }));
+
+          setChatData(prev => ({
+            ...prev,
+            conversations: prev.conversations.map(conv => {
+              if (conv.id === conversationId) {
+                const existingKey = new Set(conv.messages.map(mm => `${mm.content}|${mm.timestamp}`));
+                const newMessages = mapped.filter(mm => !existingKey.has(`${mm.content}|${mm.timestamp}`));
+                return { ...conv, messages: [...conv.messages, ...newMessages], lastMessage: newMessages.length ? newMessages[newMessages.length - 1].content : conv.lastMessage };
+              }
+              return conv;
+            })
+          }));
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId]);
 
@@ -414,6 +447,18 @@ export const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
     setTimeout(() => {
       // Auto-response simulation could go here
     }, 1000);
+
+    // persist outgoing message to mock storage so other views can pick it up
+    try {
+      const vendorId = selectedConversationId.startsWith('conv-') ? selectedConversationId.replace('conv-', '') : selectedConversationId;
+      const key = `mock_chat_${vendorId}`;
+      const raw = localStorage.getItem(key);
+      const arr = raw ? JSON.parse(raw) as any[] : [];
+      arr.push({ author: 'user', content: newMessage.content, timestamp: new Date().toISOString() });
+      localStorage.setItem(key, JSON.stringify(arr));
+    } catch (e) {
+      // noop
+    }
   };
 
   // Mark conversation as read

@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { format, addDays, isSameDay } from 'date-fns';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { OnboardingPopup } from '@/components/OnboardingPopup';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -38,6 +38,9 @@ const ProfilePage = () => {
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
   const [isBooked, setIsBooked] = useState(false);
   const [chatEnabled, setChatEnabled] = useState(false);
+  const [customAmount, setCustomAmount] = useState<string>('');
+  const [customAmountError, setCustomAmountError] = useState<string | null>(null);
+  const customInputRef = useRef<HTMLInputElement | null>(null);
   const { toast } = useToast();
 
   // Mock availability data - in real app this would come from API
@@ -154,7 +157,23 @@ const ProfilePage = () => {
     // reset booking/chat state when picking a new package
     setIsBooked(false);
     setChatEnabled(false);
+    // clear validation when switching
+    setCustomAmountError(null);
   };
+
+  useEffect(() => {
+    if (selectedPackage === 'custom') {
+      // focus the custom amount input when custom package selected
+      setTimeout(() => customInputRef.current?.focus(), 50);
+    }
+  }, [selectedPackage]);
+
+  const isCustomAmountValid = () => {
+    const amt = customAmount.trim();
+    return amt !== '' && !Number.isNaN(Number(amt)) && Number(amt) > 0;
+  };
+
+  const isBookDisabled = !selectedPackage || (selectedPackage === 'custom' && !isCustomAmountValid());
 
   const handleConfirmBooking = () => {
     if (!selectedPackage) {
@@ -166,6 +185,22 @@ const ProfilePage = () => {
     setIsBooked(true);
     setChatEnabled(true);
     toast({ title: 'Package booked', description: `You selected the ${selectedPackage} package. Chat enabled.` });
+    // Compose booking message and persist to mock chat storage so ChatTab can load it
+    try {
+      const vendorId = creator?.id ?? 'unknown';
+      const key = `mock_chat_${vendorId}`;
+      const raw = localStorage.getItem(key);
+      const arr = raw ? JSON.parse(raw) as any[] : [];
+      const message = `Hi ${creator?.name}, I'd like to book the ${selectedPackage} package${selectedPackage === 'custom' ? ` for $${customAmount}` : ''}. Please confirm.`;
+      arr.push({ author: 'user', content: message, timestamp: new Date().toISOString() });
+      localStorage.setItem(key, JSON.stringify(arr));
+    } catch (e) {
+      // noop
+    }
+
+    // navigate to chat view for this creator
+    const conversationId = `conv-${creator.id}`;
+    navigate(`/chat/${conversationId}?name=${encodeURIComponent(creator.name)}&role=${encodeURIComponent(type)}&avatar=${encodeURIComponent(creator.image_url)}`);
   };
 
   if (!creator) {
@@ -405,15 +440,22 @@ const ProfilePage = () => {
                       <div className="text-sm text-muted-foreground">Tailored to your budget and needs</div>
                       <Input 
                         placeholder="Enter your budget" 
-                        className="mt-2" 
+                        className={`mt-2 ${selectedPackage === 'custom' && !isCustomAmountValid() ? 'ring-1 ring-destructive/60' : ''}`} 
+                        value={customAmount}
+                        onChange={(e) => { setCustomAmount(e.target.value); setCustomAmountError(null); }}
                         onClick={(e) => e.stopPropagation()}
+                        ref={(el: HTMLInputElement) => (customInputRef.current = el)}
+                        required={selectedPackage === 'custom'}
+                        aria-required={selectedPackage === 'custom'}
+                        aria-invalid={!!customAmountError || (selectedPackage === 'custom' && !isCustomAmountValid())}
                       />
+                      {customAmountError && <div className="text-xs text-destructive mt-1">{customAmountError}</div>}
                     </div>
                   </label>
                   
                   {/* Booking / Chat buttons moved here */}
                   <div className="flex items-center gap-3 mt-4">
-                    <Button size="lg" className="flex-1" onClick={handleConfirmBooking} disabled={!selectedPackage}>
+                    <Button size="lg" className="flex-1" onClick={handleConfirmBooking} disabled={isBookDisabled}>
                       <Calendar className="h-4 w-4 mr-2" />
                       Book Selected Package
                     </Button>
