@@ -80,6 +80,14 @@ export const EventSpaceCard: React.FC<EventSpaceCardProps> = ({ space }) => {
             {space.location}
           </span>
         </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            className="flex-1"
+            disabled={!space.available}
+          >
+            Book Now
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

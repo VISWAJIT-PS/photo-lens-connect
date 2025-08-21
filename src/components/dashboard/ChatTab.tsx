@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft, MessageSquare, Images, Receipt, Lock } from 'lucide-react';
+import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft, MessageSquare, Images, Receipt, Lock, Award, CheckCircle, XCircle, Eye, Camera } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
@@ -20,6 +20,7 @@ interface GalleryPhoto {
   caption?: string;
   uploadedBy: string;
   uploadDate: string;
+  status?: 'approved' | 'not_approved' | 'editors_choice';
 }
 
 interface Invoice {
@@ -73,7 +74,8 @@ const initialChatData: ChatAppData = {
           thumbnail: "https://images.unsplash.com/photo-1606800052052-a08af7148866?w=300",
           caption: "Ceremony entrance",
           uploadedBy: "sarah-1",
-          uploadDate: "2024-01-15"
+          uploadDate: "2024-01-15",
+          status: "editors_choice"
         },
         {
           id: "photo-2",
@@ -81,7 +83,8 @@ const initialChatData: ChatAppData = {
           thumbnail: "https://images.unsplash.com/photo-1519741497674-611481863552?w=300",
           caption: "First dance",
           uploadedBy: "sarah-1",
-          uploadDate: "2024-01-15"
+          uploadDate: "2024-01-15",
+          status: "approved"
         },
         {
           id: "photo-3",
@@ -89,7 +92,8 @@ const initialChatData: ChatAppData = {
           thumbnail: "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?w=300",
           caption: "Wedding cake",
           uploadedBy: "sarah-1",
-          uploadDate: "2024-01-15"
+          uploadDate: "2024-01-15",
+          status: "not_approved"
         }
       ],
       invoice: {
@@ -526,27 +530,96 @@ export const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
       );
     }
 
+    // Sort photos by status priority and then by date
+    const sortedPhotos = [...selectedConversation.gallery].sort((a, b) => {
+      const statusPriority = { editors_choice: 3, approved: 2, not_approved: 1 };
+      const aPriority = statusPriority[a.status || 'approved'];
+      const bPriority = statusPriority[b.status || 'approved'];
+      
+      if (aPriority !== bPriority) {
+        return bPriority - aPriority;
+      }
+      return new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime();
+    });
+
+    const getStatusInfo = (status?: string) => {
+      switch (status) {
+        case 'editors_choice':
+          return {
+            icon: <Award className="h-3 w-3" />,
+            label: "Editor's Choice",
+            className: 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white'
+          };
+        case 'approved':
+          return {
+            icon: <CheckCircle className="h-3 w-3" />,
+            label: 'Approved for Editing',
+            className: 'bg-green-100 text-green-800 border-green-200'
+          };
+        case 'not_approved':
+          return {
+            icon: <XCircle className="h-3 w-3" />,
+            label: 'Not Approved',
+            className: 'bg-red-100 text-red-800 border-red-200'
+          };
+        default:
+          return {
+            icon: <CheckCircle className="h-3 w-3" />,
+            label: 'Approved for Editing',
+            className: 'bg-green-100 text-green-800 border-green-200'
+          };
+      }
+    };
+
     return (
       <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+            <Camera className="h-5 w-5" />
+            Event Photos ({selectedConversation.gallery.length})
+          </h3>
+          <p className="text-sm text-gray-600">Photos sorted by review status and upload date</p>
+        </div>
+        
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {selectedConversation.gallery.map((photo) => (
-            <div key={photo.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <div className="aspect-square">
-                <img
-                  src={photo.thumbnail}
-                  alt={photo.caption || 'Event photo'}
-                  className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                  onClick={() => window.open(photo.url, '_blank')}
-                />
-              </div>
-              {photo.caption && (
-                <div className="p-2">
-                  <p className="text-sm text-gray-600 truncate">{photo.caption}</p>
-                  <p className="text-xs text-gray-400">{photo.uploadDate}</p>
+          {sortedPhotos.map((photo) => {
+            const statusInfo = getStatusInfo(photo.status);
+            return (
+              <div key={photo.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+                <div className="aspect-square relative">
+                  <img
+                    src={photo.thumbnail}
+                    alt={photo.caption || 'Event photo'}
+                    className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => window.open(photo.url, '_blank')}
+                  />
+                  
+                  {/* Status Badge */}
+                  <div className="absolute top-2 left-2">
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${statusInfo.className}`}>
+                      {statusInfo.icon}
+                      <span className="hidden sm:inline">{statusInfo.label}</span>
+                    </div>
+                  </div>
+
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Button variant="secondary" size="sm">
+                      <Eye className="h-3 w-3 mr-1" />
+                      View
+                    </Button>
+                  </div>
                 </div>
-              )}
-            </div>
-          ))}
+                
+                {photo.caption && (
+                  <div className="p-3">
+                    <p className="text-sm font-medium text-gray-900 truncate">{photo.caption}</p>
+                    <p className="text-xs text-gray-500 mt-1">{photo.uploadDate}</p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     );

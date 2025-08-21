@@ -17,11 +17,11 @@ import {
   Clock,
   Phone,
   MessageCircle,
-  CalendarDays
+  CalendarDays,
+  DollarSign
 } from "lucide-react";
-import { Calendar as DatePicker } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format, addDays, isSameDay } from 'date-fns';
+import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { OnboardingPopup } from '@/components/OnboardingPopup';
 import { useToast } from '@/components/ui/use-toast';
@@ -241,17 +241,17 @@ const ProfilePage = () => {
                   <p className="text-muted-foreground mb-6">{creator.bio}</p>
 
                   <div className="flex gap-3 items-center">
-                    <Button size="lg" className="flex-1" onClick={handleBookNowClick} disabled={!selectedDate}>
+                    <Button size="lg" className="flex-1" onClick={handleBookNowClick} disabled={true}>
                       <Calendar className="h-4 w-4 mr-2" />
-                      {selectedDate ? `Book for ${format(selectedDate, 'MMM d')}` : 'Select Date to Book'}
+                      Select Package to Book
                     </Button>
 
                     <Button variant="outline" size="lg" onClick={() => {
                       const conversationId = `conv-${creator.id}`;
                       navigate(`/chat/${conversationId}?name=${encodeURIComponent(creator.name)}&role=${encodeURIComponent(type)}&avatar=${encodeURIComponent(creator.image_url)}`);
-                    }}>
+                    }} disabled={true}>
                       <MessageCircle className="h-4 w-4 mr-2" />
-                      Chat
+                      Chat (Book First)
                     </Button>
                   </div>
                 </div>
@@ -292,106 +292,114 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Events Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <Card className="p-6 mb-8">
-          <CardHeader className="px-0 pt-0">
-            <CardTitle className="flex items-center gap-2 mb-4">
-              <CalendarDays className="h-5 w-5" />
-              Availability Calendar
-            </CardTitle>
-            <div className="flex gap-6 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-green-500 rounded"></div>
-                <span>Available</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-red-500 rounded"></div>
-                <span>Booked</span>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="px-0 pb-0">
-            <DatePicker
-              mode="single"
-              selected={selectedDate}
-              onSelect={handleDateSelect}
-              disabled={(date) => date < today}
-              modifiers={{
-                available: availableDates,
-                booked: bookedDates,
-                selected: selectedDate ? [selectedDate] : []
-              }}
-              modifiersStyles={{
-                available: { 
-                  backgroundColor: '#22c55e', 
-                  color: 'white',
-                  fontWeight: 'bold'
-                },
-                booked: { 
-                  backgroundColor: '#ef4444', 
-                  color: 'white',
-                  fontWeight: 'bold'
-                },
-                selected: { 
-                  backgroundColor: '#3b82f6', 
-                  color: 'white',
-                  fontWeight: 'bold'
-                }
-              }}
-              className="rounded-md border shadow w-fit mx-auto"
-            />
-            {selectedDate && (
-              <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                <p className="text-center font-medium text-blue-900">
-                  Selected Date: {format(selectedDate, 'PPPP')}
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-          {/* Latest Events */}
+        {/* Ratings & Reviews and Price Variations Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Ratings & Reviews */}
           <Card className="p-6">
             <CardHeader className="px-0 pt-0">
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Latest Events
+              <CardTitle className="flex items-center gap-2 mb-4">
+                <Star className="h-5 w-5" />
+                Ratings & Reviews
               </CardTitle>
             </CardHeader>
             <CardContent className="px-0 pb-0">
-              <div className="space-y-3">
-                {latestEvents.map((event, index) => (
-                  <div key={index} className="flex justify-between items-center p-3 rounded-lg bg-accent/50">
-                    <div>
-                      <p className="font-medium">{event.name}</p>
-                      <p className="text-sm text-muted-foreground">{event.location}</p>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="text-4xl font-bold">{creator.rating}</div>
+                  <div>
+                    <div className="flex items-center gap-1 mb-1">
+                      {[1,2,3,4,5].map((star) => (
+                        <Star 
+                          key={star} 
+                          className={`h-4 w-4 ${star <= Math.floor(creator.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} 
+                        />
+                      ))}
                     </div>
-                    <Badge variant="outline">{event.date}</Badge>
+                    <p className="text-sm text-muted-foreground">{creator.reviews} reviews</p>
                   </div>
-                ))}
+                </div>
+                
+                {/* Sample reviews */}
+                <div className="space-y-3 border-t pt-4">
+                  {[
+                    { name: "John D.", rating: 5, comment: "Outstanding work! Exceeded expectations.", date: "2 weeks ago" },
+                    { name: "Sarah M.", rating: 5, comment: "Professional and creative. Highly recommend!", date: "1 month ago" },
+                    { name: "Mike R.", rating: 4, comment: "Great experience overall. Will book again.", date: "2 months ago" }
+                  ].map((review, idx) => (
+                    <div key={idx} className="p-3 bg-muted/50 rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-sm">{review.name}</span>
+                          <div className="flex">
+                            {[1,2,3,4,5].map((star) => (
+                              <Star 
+                                key={star} 
+                                className={`h-3 w-3 ${star <= review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} 
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <span className="text-xs text-muted-foreground">{review.date}</span>
+                      </div>
+                      <p className="text-sm">{review.comment}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Popular Events */}
+          {/* Price Variations */}
           <Card className="p-6">
             <CardHeader className="px-0 pt-0">
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Popular Events
+              <CardTitle className="flex items-center gap-2 mb-4">
+                <DollarSign className="h-5 w-5" />
+                Package Options
               </CardTitle>
             </CardHeader>
             <CardContent className="px-0 pb-0">
-              <div className="space-y-3">
-                {popularEvents.map((event, index) => (
-                  <div key={index} className="flex justify-between items-center p-3 rounded-lg bg-accent/50">
-                    <div>
-                      <p className="font-medium">{event.name}</p>
-                      <p className="text-sm text-muted-foreground">{event.attendees} attendees</p>
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
+                    <input type="radio" name="package" value="basic" className="text-primary" />
+                    <div className="flex-1">
+                      <div className="font-semibold">Basic Package</div>
+                      <div className="text-sm text-muted-foreground">Essential coverage for your event</div>
+                      <div className="text-lg font-bold text-primary">$600</div>
                     </div>
-                    <Badge variant="outline">{event.date}</Badge>
-                  </div>
-                ))}
+                  </label>
+                  
+                  <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
+                    <input type="radio" name="package" value="advance" className="text-primary" />
+                    <div className="flex-1">
+                      <div className="font-semibold">Advance Package</div>
+                      <div className="text-sm text-muted-foreground">Extended coverage with editing</div>
+                      <div className="text-lg font-bold text-primary">$1,200</div>
+                    </div>
+                  </label>
+                  
+                  <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
+                    <input type="radio" name="package" value="pro" className="text-primary" />
+                    <div className="flex-1">
+                      <div className="font-semibold">Pro Package</div>
+                      <div className="text-sm text-muted-foreground">Full service with premium features</div>
+                      <div className="text-lg font-bold text-primary">$2,500</div>
+                    </div>
+                  </label>
+                  
+                  <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
+                    <input type="radio" name="package" value="custom" className="text-primary" />
+                    <div className="flex-1">
+                      <div className="font-semibold">Custom Package</div>
+                      <div className="text-sm text-muted-foreground">Tailored to your budget and needs</div>
+                      <Input 
+                        placeholder="Enter your budget" 
+                        className="mt-2" 
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  </label>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -436,11 +444,11 @@ const ProfilePage = () => {
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-4">Ready to Book {creator.name}?</h2>
             <p className="text-muted-foreground mb-6">
-              Secure your date and create unforgettable memories with our top-rated {type}.
+              Select a package above to proceed with booking and enable chat.
             </p>
-            <Button size="lg" className="px-8" disabled={!selectedDate} onClick={handleBookNowClick}>
+            <Button size="lg" className="px-8" disabled={true} onClick={handleBookNowClick}>
               <Calendar className="h-5 w-5 mr-2" />
-              {selectedDate ? `Book Now - ${creator.price} for ${format(selectedDate, 'MMM d')}` : `Select a Date to Book - ${creator.price}`}
+              Select Package to Continue
             </Button>
           </div>
         </Card>
