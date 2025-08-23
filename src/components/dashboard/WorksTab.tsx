@@ -201,16 +201,13 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
         </SelectContent>
       </Select>
 
-      <Select value={availabilityFilter} onValueChange={setAvailabilityFilter}>
-        <SelectTrigger className="w-48">
-          <Clock className="h-4 w-4 mr-2" />
-          <SelectValue placeholder="Availability" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="Available">Available</SelectItem>
-          <SelectItem value="Booked">Booked</SelectItem>
-        </SelectContent>
-      </Select>
+      {/* Date Range Picker */}
+      <div className="flex items-center space-x-2">
+        <label className="text-sm font-medium">Date Range:</label>
+        <Input type="date" className="w-40" placeholder="From" />
+        <span className="text-muted-foreground">to</span>
+        <Input type="date" className="w-40" placeholder="To" />
+      </div>
 
       <div className="ml-auto flex items-center gap-2">
         <Button variant="ghost" onClick={() => { setSearchQuery(''); setPriceFilter(''); setLocationFilter(''); setAvailabilityFilter(''); }}>

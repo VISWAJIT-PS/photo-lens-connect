@@ -2,9 +2,29 @@ import { Button } from "./button";
 import { Search, MapPin, Calendar, Star } from "lucide-react";
 import { Input } from "./input";
 import { AuthModal } from "./auth-modal";
+import { OnboardingPopup } from "@/components/OnboardingPopup";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/stores/auth-store";
 import heroImage from "@/assets/hero-photographer.jpg";
 
 export const HeroSection = () => {
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
+
+  const handleOnboardingComplete = (data: any) => {
+    setShowOnboarding(false);
+    if (!user) {
+      // Store onboarding data and redirect to auth
+      localStorage.setItem('pendingOnboardingData', JSON.stringify(data));
+      // Show auth modal or navigate to auth page
+    } else {
+      // User is logged in, process the data and navigate to dashboard
+      navigate('/user-dashboard', { state: { onboardingData: data } });
+    }
+  };
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
@@ -67,54 +87,21 @@ export const HeroSection = () => {
             </div>
           </div>
 
-          {/* Right Column - Search Card */}
+          {/* Right Column - Quick Start */}
           <div className="lg:justify-self-end w-full max-w-md">
             <div className="card-elevated bg-white/95 backdrop-blur-sm p-6 space-y-6">
               <div className="text-center">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Find Your Photographer</h3>
-                <p className="text-gray-600">Book the perfect professional for your event</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Get Started</h3>
+                <p className="text-gray-600">Tell us about your event and find the perfect match</p>
               </div>
 
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Location</label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input
-                      placeholder="Enter city or area"
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Event Date</label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input
-                      type="date"
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Event Type</label>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                    <option>Wedding</option>
-                    <option>Portrait</option>
-                    <option>Corporate Event</option>
-                    <option>Birthday Party</option>
-                    <option>Family Photo</option>
-                    <option>Other</option>
-                  </select>
-                </div>
-
-                <Button className="w-full btn-hero">
-                  <Search className="h-4 w-4 mr-2" />
-                  Search Photographers
-                </Button>
-              </div>
+              <Button 
+                className="w-full btn-hero text-lg py-6" 
+                onClick={() => setShowOnboarding(true)}
+              >
+                <Search className="h-5 w-5 mr-2" />
+                Start Planning Your Event
+              </Button>
 
               <div className="text-center text-sm text-gray-500">
                 Over 500 verified photographers available
@@ -123,6 +110,13 @@ export const HeroSection = () => {
           </div>
         </div>
       </div>
+
+      {/* Onboarding Popup */}
+      <OnboardingPopup
+        isOpen={showOnboarding}
+        onComplete={handleOnboardingComplete}
+        onClose={() => setShowOnboarding(false)}
+      />
 
       {/* Decorative Elements */}
       <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
