@@ -1,6 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft, MessageSquare, Images, Receipt, Lock, Award, CheckCircle, XCircle, Eye, Camera } from 'lucide-react';
 import { Button } from '../ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '../ui/dropdown-menu';
+import { useToast } from '../ui/use-toast';
 
 // Types
 interface Message {
@@ -300,6 +308,9 @@ const ChatApp: React.FC = () => {
   const [messageInput, setMessageInput] = useState("");
   const [isMobileView, setIsMobileView] = useState(false);
   const [activeView, setActiveView] = useState<'messages' | 'gallery' | 'invoice'>('messages');
+  const { toast } = useToast();
+  const [mutedConversations, setMutedConversations] = useState<Record<string, boolean>>({});
+  const [blockedConversations, setBlockedConversations] = useState<Record<string, boolean>>({});
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -322,9 +333,12 @@ const ChatApp: React.FC = () => {
   // Get filtered conversations based on search
   const getFilteredConversations = () => {
     return chatData.conversations.filter(conv =>
-      conv.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conv.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conv.bookingId.toLowerCase().includes(searchQuery.toLowerCase())
+      // exclude blocked conversations
+      !blockedConversations[conv.id] && (
+        conv.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        conv.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        conv.bookingId.toLowerCase().includes(searchQuery.toLowerCase())
+      )
     );
   };
 
@@ -782,9 +796,38 @@ const ChatApp: React.FC = () => {
               <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <Video className="h-5 w-5 text-gray-600" />
               </Button> */}
-              <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <MoreVertical className="h-5 w-5 text-gray-600" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <MoreVertical className="h-5 w-5 text-gray-600" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className='bg-white' align="end">
+                  <DropdownMenuItem onSelect={() => {
+                    toast({ title: 'Reported', description: `You reported ${selectedConversation?.name}` });
+                  }}>
+                    Report
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => {
+                    if (!selectedConversation) return;
+                    setBlockedConversations(prev => ({ ...prev, [selectedConversation.id]: true }));
+                    toast({ title: 'Blocked', description: `${selectedConversation.name} has been blocked` });
+                    // if blocking the currently selected conversation, close it
+                    setSelectedConversationId(null);
+                  }}>
+                    Block
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => {
+                    if (!selectedConversation) return;
+                    setMutedConversations(prev => ({ ...prev, [selectedConversation.id]: !prev[selectedConversation.id] }));
+                    const muted = !mutedConversations[selectedConversation.id];
+                    toast({ title: muted ? 'Muted' : 'Unmuted', description: `${selectedConversation.name} notifications ${muted ? 'muted' : 'unmuted'}` });
+                  }}>
+                    {mutedConversations[selectedConversation?.id || ''] ? 'Unmute' : 'Mute'} Notifications
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
