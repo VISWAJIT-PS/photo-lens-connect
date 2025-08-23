@@ -25,7 +25,7 @@ interface MainDashboardProps {
   conversationId?: string;
 }
 
-export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Event Crew', conversationId }) => {
+export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book Your Event', conversationId }) => {
   const { user, signOut } = useAuthStore();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
@@ -138,15 +138,15 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Even
       switch (data.serviceTypes[0]) {
         case 'photographers':
           setWorksFilter('photographer');
-          setActiveTab('Event Crew');
+          setActiveTab('Book Your Event');
           break;
         case 'videographers':
           setWorksFilter('videographer');
-          setActiveTab('Event Crew');
+          setActiveTab('Book Your Event');
           break;
         case 'events':
           setWorksFilter('event_team');
-          setActiveTab('Event Crew');
+          setActiveTab('Book Your Event');
           break;
         case 'rentals':
           setActiveTab('rentals');
@@ -157,13 +157,13 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Even
       }
     } else {
       setWorksFilter(null);
-      setActiveTab('Event Crew');
+      setActiveTab('Book Your Event');
     }
   };
 
   const tabs = [
-    { id: 'Event Crew', label: 'Event Crew', icon: Camera, description: 'Find photographers & videographers' },
-    { id: 'rentals', label: 'Rentals', icon: Package, description: 'Rent equipment & gear' },
+    { id: 'Book Your Event', label: 'Book Your Event', icon: Camera, description: 'Find photographers & videographers' },
+    { id: 'rentals', label: 'Rentals', icon: Package, description: 'Rent equipment & Find Your Photo Spot' },
     { id: 'gallery', label: 'Gallery', icon: Images, description: 'View your event albums' },
     { id: 'chat', label: 'Chat', icon: MessageCircle, description: 'Message your service providers' },
   ];
@@ -312,7 +312,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Even
           </header>
 
           <main className="flex-1 ">
-            {activeTab === 'Event Crew' && <WorksTab onboardingData={onboardingData} filter={worksFilter} />}
+            {activeTab === 'Book Your Event' && <WorksTab onboardingData={onboardingData} filter={worksFilter} />}
             {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
             {activeTab === 'gallery' && <GalleryTab />}
             {activeTab === 'chat' && <ChatApp conversationId={conversationId} />}
@@ -392,7 +392,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Even
 
         {/* Mobile Content */}
         <main className="pb-20">
-          {activeTab === 'Event Crew' && <WorksTab onboardingData={onboardingData} />}
+          {activeTab === 'Book Your Event' && <WorksTab onboardingData={onboardingData} />}
           {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
           {activeTab === 'gallery' && <GalleryTab />}
           {activeTab === 'chat' && (

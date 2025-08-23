@@ -402,7 +402,7 @@ const galleryImages = [
                     </div>
                     <div className="flex items-center">
                       <Camera className="h-4 w-4 mr-1" />
-                      {creator.portfolio_count} Event Crew
+                      {creator.portfolio_count} Book Your Event
                     </div>
                   </div>
 

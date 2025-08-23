@@ -332,7 +332,7 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
                 reviews: 156,
                 price: '$2,000-$5,000',
                 location: 'Tokyo, Japan',
-                image_url: 'https://images.unsplash.com/photo-1528195674353-7b4b5b0dad52',
+                image_url: 'https://images.unsplash.com/photo-1642541724214-b0f12b7b50df',
                 bio: 'Specializing in traditional Japanese wedding ceremonies with modern photography techniques.',
                 portfolio_count: 89,
                 experience_years: 12,

@@ -23,7 +23,7 @@ interface RentalsTabProps {
 }
 
 // Mock rental data
-// Mock event spaces data
+// Mock Find Your Photo Spot data
 const eventSpaces = [
   {
     id: 101,
@@ -218,7 +218,7 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
-            placeholder={activeTab === 'eventSpaces' ? "Search event spaces..." : "Search equipment..."}
+            placeholder={activeTab === 'eventSpaces' ? "Search Find Your Photo Spot..." : "Search equipment..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -436,7 +436,7 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
       {/* Header with Cart */}
       <div className="flex items-center justify-between ">
         <div>
-          <h2 className="text-2xl font-bold">{activeTab === 'eventSpaces' ? 'Event Spaces' : 'Equipment Rentals'}</h2>
+          <h2 className="text-2xl font-bold">{activeTab === 'eventSpaces' ? 'Find Your Photo Spot' : 'Equipment Rentals'}</h2>
           <p className="text-muted-foreground">{activeTab === 'eventSpaces' ? 'Find and book venues for your events' : 'Professional gear for your events'}</p>
         </div>
         
@@ -473,11 +473,11 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
       {/* Filters */}
       {renderFilters()}
 
-      {/* Tabs for Rentals and Event Spaces */}
+      {/* Tabs for Rentals and Find Your Photo Spot */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4">
         <TabsList>
           <TabsTrigger value="rentals">Equipment Rentals</TabsTrigger>
-          <TabsTrigger value="eventSpaces">Event Spaces</TabsTrigger>
+          <TabsTrigger value="eventSpaces">Find Your Photo Spot</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -495,7 +495,7 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
         </Tabs>
       )}
 
-      {/* Items/Event Spaces Grid */}
+      {/* Items/Find Your Photo Spot Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {getFilteredItems().map(renderItemCard)}
       </div>
@@ -504,7 +504,7 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
       {getFilteredItems().length === 0 && (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">{activeTab === 'eventSpaces' ? 'No event spaces found. Try adjusting your filters.' : 'No equipment found. Try adjusting your filters.'}</p>
+            <p className="text-muted-foreground">{activeTab === 'eventSpaces' ? 'No Find Your Photo Spot found. Try adjusting your filters.' : 'No equipment found. Try adjusting your filters.'}</p>
           </CardContent>
         </Card>
       )}
