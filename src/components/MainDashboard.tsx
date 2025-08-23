@@ -278,7 +278,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
-          <header className="h-16 border-b border-border py-10 bg-card px-6 flex items-center justify-between">
+          <header className=" h-16 border-b border-border py-10 bg-card px-6 flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold capitalize w-[200px] ">{activeTab}</h2>
              
@@ -311,7 +311,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
             </div>
           </header>
 
-          <main className="flex-1 ">
+          <main className="flex-1 overflow-y-auto">
             {activeTab === 'Book Your Event' && <WorksTab onboardingData={onboardingData} filter={worksFilter} />}
             {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
             {activeTab === 'gallery' && <GalleryTab />}
@@ -324,7 +324,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
       {/* Mobile Layout */}
       <div className="lg:hidden">
         {/* Mobile Header */}
-        <header className="bg-card border-b border-border px-4 py-3">
+        <header className="bg-card  border-b border-border px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="bg-gradient-primary p-2 rounded-lg">
@@ -391,7 +391,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
         </header>
 
         {/* Mobile Content */}
-        <main className="pb-20">
+        <main className="pb-20 overflow-y-auto">
           {activeTab === 'Book Your Event' && <WorksTab onboardingData={onboardingData} />}
           {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
           {activeTab === 'gallery' && <GalleryTab />}
