@@ -19,7 +19,10 @@ import {
   Phone,
   MessageCircle,
   CalendarDays,
-  DollarSign
+  DollarSign,
+  Eye,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { format, addDays, isSameDay } from 'date-fns';
 import { Input } from '@/components/ui/input';
@@ -295,14 +298,42 @@ const ProfilePage = () => {
   }
 
   // Dummy gallery images
-  const galleryImages = [
-    "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=600",
-    "https://images.unsplash.com/photo-1519741497674-611481863552?w=600",
-    "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=600",
-    "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600",
-    "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600",
-    "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600"
-  ];
+const galleryImages = [
+  {
+    src: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=600",
+    title: "Wedding Decor",
+    description: "Elegant floral arrangements and lighting setup."
+  },
+  {
+    src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600",
+    title: "Bridal Portrait",
+    description: "Capturing the bride’s stunning look in natural light."
+  },
+  {
+    src: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=600",
+    title: "Couple Moments",
+    description: "A candid moment between the couple."
+  },
+  {
+    src: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600",
+    title: "Dance Floor",
+    description: "Guests enjoying the celebration with music and dance."
+  },
+  {
+    src: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600",
+    title: "Venue Setup",
+    description: "Beautifully arranged venue with creative themes."
+  },
+  {
+    src: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600",
+    title: "Wedding Cake",
+    description: "A grand wedding cake centerpiece."
+  }
+];
+
+  // Gallery modal / lightbox state
+  const [galleryModalOpen, setGalleryModalOpen] = useState(false);
+  const [galleryModalIndex, setGalleryModalIndex] = useState(0);
 
   // Dummy events data
   const latestEvents = [
@@ -597,25 +628,55 @@ const ProfilePage = () => {
             <Carousel className="w-full">
               <CarouselContent className="-ml-2 md:-ml-4">
                 {galleryImages.map((image, index) => (
-                  <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                    <div className="relative group overflow-hidden rounded-lg">
-                      <img
-                        src={image}
-                        alt={`Gallery ${index + 1}`}
-                        className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                        <Badge variant="secondary" className="text-white bg-white/20">
-                          View Full Size
-                        </Badge>
-                      </div>
-                    </div>
-                  </CarouselItem>
+      <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+  <div className="relative group overflow-hidden rounded-lg">
+    <img
+      src={image.src}
+      alt={`Gallery ${index + 1}`}
+      className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
+    />
+
+    {/* Overlay with title, description & button */}
+    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center text-center px-4">
+      <h3 className="text-white text-lg font-semibold mb-1">{image.title}</h3>
+      <p className="text-white text-sm mb-3">{image.description}</p>
+      <Badge
+        variant="secondary"
+        className="text-white bg-white/20 cursor-pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          setGalleryModalIndex(index);
+          setGalleryModalOpen(true);
+        }}
+      >
+        View Full Size
+      </Badge>
+    </div>
+  </div>
+</CarouselItem>
                 ))}
               </CarouselContent>
               <CarouselPrevious className="left-2" />
               <CarouselNext className="right-2" />
             </Carousel>
+            {/* Gallery lightbox dialog */}
+            <Dialog open={galleryModalOpen} onOpenChange={setGalleryModalOpen}>
+              <DialogContent className="max-w-4xl">
+                <div className="relative">
+                  <img src={galleryImages[galleryModalIndex].src} alt={`Gallery ${galleryModalIndex + 1}`} className="w-full h-[70vh] object-contain" />
+                  <div className="absolute left-2 top-1/2 transform -translate-y-1/2">
+                    <Button variant="secondary" size="icon" onClick={() => setGalleryModalIndex(i => (i > 0 ? i - 1 : galleryImages.length - 1))}>
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                    <Button variant="secondary" size="icon" onClick={() => setGalleryModalIndex(i => (i < galleryImages.length - 1 ? i + 1 : 0))}>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </CardContent>
         </Card>
 

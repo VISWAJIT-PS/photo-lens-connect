@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft, MessageSquare, Images, Receipt, Lock, Award, CheckCircle, XCircle, Eye, Camera } from 'lucide-react';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { useToast } from '@/components/ui/use-toast';
 import { Button } from '../ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
@@ -304,6 +306,8 @@ export const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [messageInput, setMessageInput] = useState("");
   const [isMobileView, setIsMobileView] = useState(false);
+  const { toast } = useToast();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   // control which sub-view is shown (messages/gallery/invoice)
   const [activeView, setActiveView] = useState<'messages' | 'gallery' | 'invoice'>('messages');
   
@@ -877,15 +881,40 @@ export const ChatApp: React.FC<ChatTabProps> = ({ conversationId }) => {
               <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
                 {selectedConversation.bookingId}
               </span>
-              <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full">
+              {/* <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full">
                 <Phone className="h-4 w-4 text-gray-600" />
               </Button>
               <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full">
                 <Video className="h-4 w-4 text-gray-600" />
-              </Button>
-              <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full">
-                <MoreVertical className="h-4 w-4 text-gray-600" />
-              </Button>
+              </Button> */}
+              <DropdownMenu >
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full">
+                    <MoreVertical className="h-4 w-4 text-gray-600" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-white">
+                  <DropdownMenuItem onSelect={() => {
+                    // Toggle block state (mock)
+                    toast({ title: 'User blocked', description: `${selectedConversation.name} has been blocked.` });
+                  }}>
+                    Block
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => {
+                    // Report action (mock)
+                    toast({ title: 'Reported', description: `You reported ${selectedConversation.name}. Our team will review.` });
+                  }}>
+                    Report
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => {
+                    setNotificationsEnabled(prev => !prev);
+                    toast({ title: notificationsEnabled ? 'Notifications disabled' : 'Notifications enabled', description: notificationsEnabled ? `Notifications for ${selectedConversation.name} are turned off.` : `Notifications for ${selectedConversation.name} are turned on.` });
+                  }}>
+                    {notificationsEnabled ? 'Disable Notifications' : 'Enable Notifications'}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

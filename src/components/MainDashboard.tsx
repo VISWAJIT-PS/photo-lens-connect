@@ -39,17 +39,33 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Even
 
   // Check if user needs onboarding
   useEffect(() => {
-    const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
-    if (!hasCompletedOnboarding && user) {
-      setShowOnboarding(true);
+    try {
+      const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
+      const hasPending = localStorage.getItem('pendingOnboardingData');
+      // If there's pending onboarding data (user clicked Get Started), don't show the onboarding popup here
+      if (!hasCompletedOnboarding && user && !hasPending) {
+        setShowOnboarding(true);
+      } else {
+        setShowOnboarding(false);
+      }
+    } catch (e) {
+      // ignore storage errors
+      if (!localStorage.getItem('onboarding_completed') && user) setShowOnboarding(true);
     }
   }, [user]);
 
   // Listen for requests to open onboarding popup from child components (WorksTab FAB)
   useEffect(() => {
     const handler = () => setShowOnboarding(true);
+    const closeOnAuth = () => setShowOnboarding(false);
     window.addEventListener('open-onboarding', handler as EventListener);
-    return () => window.removeEventListener('open-onboarding', handler as EventListener);
+    // If onboarding is completed via Get Started and the OnboardingPopup stored pending data and opened auth modal,
+    // listen for that event and ensure the onboarding popup is closed here.
+    window.addEventListener('open-auth-modal', closeOnAuth as EventListener);
+    return () => {
+      window.removeEventListener('open-onboarding', handler as EventListener);
+      window.removeEventListener('open-auth-modal', closeOnAuth as EventListener);
+    };
   }, []);
 
   // Initialize onboardingData from localStorage on mount

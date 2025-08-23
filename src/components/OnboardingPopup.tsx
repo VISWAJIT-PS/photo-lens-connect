@@ -50,11 +50,20 @@ export const OnboardingPopup: React.FC<OnboardingPopupProps> = ({ isOpen, onComp
     if (currentStep < 3) {
       setCurrentStep(prev => prev + 1);
     } else {
-      onComplete({
+      const data = {
         eventDate,
         location,
         serviceTypes
-      });
+      };
+      // persist pending onboarding data so AuthModal can open on Get Started
+      try {
+        localStorage.setItem('pendingOnboardingData', JSON.stringify(data));
+        // dispatch a window event to notify other components
+        window.dispatchEvent(new CustomEvent('open-auth-modal'));
+      } catch (e) {
+        // ignore storage errors
+      }
+      onComplete(data);
     }
   };
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -150,6 +150,36 @@ export const AuthModal = ({ children, defaultTab = "login" }: AuthModalProps) =>
       setLoading(false);
     }
   };
+
+  // Open modal if there's pending onboarding data in localStorage or when event dispatched
+  useEffect(() => {
+    const checkPending = () => {
+      try {
+        const raw = localStorage.getItem('pendingOnboardingData');
+        if (raw) {
+          setIsOpen(true);
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    const onOpenEvent = () => setIsOpen(true);
+
+    checkPending();
+    window.addEventListener('open-auth-modal', onOpenEvent as EventListener);
+
+    return () => {
+      window.removeEventListener('open-auth-modal', onOpenEvent as EventListener);
+    };
+  }, []);
+
+  // Clear pending onboarding data when modal is closed (successful sign up should also clear)
+  useEffect(() => {
+    if (!isOpen) {
+      try { localStorage.removeItem('pendingOnboardingData'); } catch (e) {}
+    }
+  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
