@@ -311,7 +311,12 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
       {/* Far Locations Section */}
       <Card className="mt-8">
         <CardHeader>
-          <CardTitle>Events, Photographers & Videographers from Far Locations</CardTitle>
+          <CardTitle>
+            {activeFilter === 'photographer' ? 'Photographers Far From Location' :
+             activeFilter === 'videographer' ? 'Videographers Far From Location' :
+             activeFilter === 'event_team' ? 'Event Teams Far From Location' :
+             'Events, Photographers & Videographers from Far Locations'}
+          </CardTitle>
           <p className="text-muted-foreground">Discover talented creators from other cities and regions</p>
         </CardHeader>
         <CardContent>

@@ -3,6 +3,7 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Navigation } from "@/components/ui/navigation";
 import { 
@@ -39,7 +40,10 @@ const ProfilePage = () => {
   const [isBooked, setIsBooked] = useState(false);
   const [chatEnabled, setChatEnabled] = useState(false);
   const [customAmount, setCustomAmount] = useState<string>('');
+  const [customEventName, setCustomEventName] = useState<string>('');
   const [customAmountError, setCustomAmountError] = useState<string | null>(null);
+  const [showPackageDetails, setShowPackageDetails] = useState(false);
+  const [currentSelectedPackageData, setCurrentSelectedPackageData] = useState<any>(null);
   const customInputRef = useRef<HTMLInputElement | null>(null);
   const { toast } = useToast();
 
@@ -152,6 +156,54 @@ const ProfilePage = () => {
     }
   };
 
+  // Event packages data
+  const eventPackages = [
+    { 
+      id: 'marriage', 
+      name: 'Marriage Package', 
+      price: '₹50,000-70,000', 
+      description: 'Complete wedding photography coverage',
+      subPlans: [
+        { name: 'Basic Wedding', price: '₹50,000-55,000', features: ['6 hours coverage', '300+ photos', 'Online gallery'] },
+        { name: 'Premium Wedding', price: '₹60,000-65,000', features: ['8 hours coverage', '500+ photos', 'Photo album', 'Online gallery'] },
+        { name: 'Luxury Wedding', price: '₹65,000-70,000', features: ['10 hours coverage', '700+ photos', 'Premium album', 'Same day highlights', 'Online gallery'] }
+      ]
+    },
+    { 
+      id: 'save-date', 
+      name: 'Save The Date', 
+      price: '₹15,000-25,000', 
+      description: 'Pre-wedding shoot package',
+      subPlans: [
+        { name: 'Classic Shoot', price: '₹15,000-18,000', features: ['2 hours shoot', '50+ photos', 'Basic editing'] },
+        { name: 'Cinematic Shoot', price: '₹20,000-22,000', features: ['3 hours shoot', '75+ photos', 'Advanced editing', 'Short video'] },
+        { name: 'Destination Shoot', price: '₹22,000-25,000', features: ['4 hours shoot', '100+ photos', 'Premium editing', 'Travel included'] }
+      ]
+    },
+    { 
+      id: 'bridal-shower', 
+      name: 'Bridal Shower', 
+      price: '₹10,000-18,000', 
+      description: 'Intimate celebration photography',
+      subPlans: [
+        { name: 'Intimate Gathering', price: '₹10,000-12,000', features: ['2 hours coverage', '100+ photos', 'Basic editing'] },
+        { name: 'Party Coverage', price: '₹14,000-16,000', features: ['3 hours coverage', '150+ photos', 'Advanced editing'] },
+        { name: 'Full Event', price: '₹16,000-18,000', features: ['4 hours coverage', '200+ photos', 'Same day preview'] }
+      ]
+    },
+    { 
+      id: 'add-shoot', 
+      name: 'Additional Shoot', 
+      price: '₹8,000-15,000', 
+      description: 'Extra hours or event coverage',
+      subPlans: [
+        { name: 'Extended Hours', price: '₹8,000-10,000', features: ['2 extra hours', '100+ photos', 'Basic editing'] },
+        { name: 'Extra Event', price: '₹12,000-13,000', features: ['Additional event', '200+ photos', 'Advanced editing'] },
+        { name: 'Multiple Sessions', price: '₹13,000-15,000', features: ['Multiple shoots', '300+ photos', 'Premium editing'] }
+      ]
+    }
+  ];
+
   const handlePackageSelect = (pkg: string) => {
     setSelectedPackage(pkg);
     // reset booking/chat state when picking a new package
@@ -159,6 +211,34 @@ const ProfilePage = () => {
     setChatEnabled(false);
     // clear validation when switching
     setCustomAmountError(null);
+    
+    // Show package details for event packages
+    if (pkg !== 'custom') {
+      const packageData = eventPackages.find(p => p.id === pkg);
+      if (packageData) {
+        setCurrentSelectedPackageData(packageData);
+        setShowPackageDetails(true);
+      }
+    }
+  };
+
+  const handleBookPackage = (subPlanName: string) => {
+    const message = `Hi ${creator.name}! I'm interested in booking the ${subPlanName} from your ${currentSelectedPackageData?.name || 'Custom'} package. Could you please provide more details and confirm availability?`;
+    
+    toast({
+      title: "Booking Initiated",
+      description: "A message has been sent to the photographer. You'll be redirected to chat.",
+    });
+
+    // Navigate to chat with the photographer
+    setTimeout(() => {
+      const conversationId = `conv-${creator.id}`;
+      navigate(`/chat/${conversationId}?name=${encodeURIComponent(creator.name)}&role=${encodeURIComponent(type)}&avatar=${encodeURIComponent(creator.image_url)}`);
+    }, 1500);
+    
+    setShowPackageDetails(false);
+    setIsBooked(true);
+    setChatEnabled(true);
   };
 
   useEffect(() => {
@@ -406,30 +486,40 @@ const ProfilePage = () => {
             <CardContent className="px-0 pb-0">
               <div className="space-y-4">
                 <div className="space-y-3">
+                  {/* Event-Based Packages */}
                   <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
-                    <input type="radio" name="package" value="basic" className="text-primary" checked={selectedPackage === 'basic'} onChange={() => handlePackageSelect('basic')} />
+                    <input type="radio" name="package" value="marriage" className="text-primary" checked={selectedPackage === 'marriage'} onChange={() => handlePackageSelect('marriage')} />
                     <div className="flex-1">
-                      <div className="font-semibold">Basic Package</div>
-                      <div className="text-sm text-muted-foreground">Essential coverage for your event</div>
-                      <div className="text-lg font-bold text-primary">$600</div>
+                      <div className="font-semibold">Marriage Package</div>
+                      <div className="text-sm text-muted-foreground">Complete wedding photography coverage</div>
+                      <Badge variant="secondary" className="mt-1">₹50,000-70,000</Badge>
                     </div>
                   </label>
                   
                   <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
-                    <input type="radio" name="package" value="advance" className="text-primary" checked={selectedPackage === 'advance'} onChange={() => handlePackageSelect('advance')} />
+                    <input type="radio" name="package" value="save-date" className="text-primary" checked={selectedPackage === 'save-date'} onChange={() => handlePackageSelect('save-date')} />
                     <div className="flex-1">
-                      <div className="font-semibold">Advance Package</div>
-                      <div className="text-sm text-muted-foreground">Extended coverage with editing</div>
-                      <div className="text-lg font-bold text-primary">$1,200</div>
+                      <div className="font-semibold">Save The Date</div>
+                      <div className="text-sm text-muted-foreground">Pre-wedding shoot package</div>
+                      <Badge variant="secondary" className="mt-1">₹15,000-25,000</Badge>
                     </div>
                   </label>
                   
                   <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
-                    <input type="radio" name="package" value="pro" className="text-primary" checked={selectedPackage === 'pro'} onChange={() => handlePackageSelect('pro')} />
+                    <input type="radio" name="package" value="bridal-shower" className="text-primary" checked={selectedPackage === 'bridal-shower'} onChange={() => handlePackageSelect('bridal-shower')} />
                     <div className="flex-1">
-                      <div className="font-semibold">Pro Package</div>
-                      <div className="text-sm text-muted-foreground">Full service with premium features</div>
-                      <div className="text-lg font-bold text-primary">$2,500</div>
+                      <div className="font-semibold">Bridal Shower</div>
+                      <div className="text-sm text-muted-foreground">Intimate celebration photography</div>
+                      <Badge variant="secondary" className="mt-1">₹10,000-18,000</Badge>
+                    </div>
+                  </label>
+                  
+                  <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
+                    <input type="radio" name="package" value="add-shoot" className="text-primary" checked={selectedPackage === 'add-shoot'} onChange={() => handlePackageSelect('add-shoot')} />
+                    <div className="flex-1">
+                      <div className="font-semibold">Additional Shoot</div>
+                      <div className="text-sm text-muted-foreground">Extra hours or event coverage</div>
+                      <Badge variant="secondary" className="mt-1">₹8,000-15,000</Badge>
                     </div>
                   </label>
                   
@@ -438,17 +528,24 @@ const ProfilePage = () => {
                     <div className="flex-1">
                       <div className="font-semibold">Custom Package</div>
                       <div className="text-sm text-muted-foreground">Tailored to your budget and needs</div>
-                      <Input 
-                        placeholder="Enter your budget" 
-                        className={`mt-2 ${selectedPackage === 'custom' && !isCustomAmountValid() ? 'ring-1 ring-destructive/60' : ''}`} 
-                        value={customAmount}
-                        onChange={(e) => { setCustomAmount(e.target.value); setCustomAmountError(null); }}
-                        onClick={(e) => e.stopPropagation()}
-                        ref={(el: HTMLInputElement) => (customInputRef.current = el)}
-                        required={selectedPackage === 'custom'}
-                        aria-required={selectedPackage === 'custom'}
-                        aria-invalid={!!customAmountError || (selectedPackage === 'custom' && !isCustomAmountValid())}
-                      />
+                      <div className="mt-2 space-y-2">
+                         <Input 
+                           placeholder="Event name (e.g., Anniversary, Corporate Event)" 
+                           className={`${selectedPackage === 'custom' && !customEventName ? 'ring-1 ring-destructive/60' : ''}`} 
+                           value={customEventName}
+                           onChange={(e) => setCustomEventName(e.target.value)}
+                           onClick={(e) => e.stopPropagation()}
+                         />
+                        <Input 
+                          placeholder="Budget range (e.g., ₹25,000-40,000)" 
+                          className={`${selectedPackage === 'custom' && !isCustomAmountValid() ? 'ring-1 ring-destructive/60' : ''}`} 
+                          value={customAmount}
+                          onChange={(e) => { setCustomAmount(e.target.value); setCustomAmountError(null); }}
+                          onClick={(e) => e.stopPropagation()}
+                          ref={(el: HTMLInputElement) => (customInputRef.current = el)}
+                          required={selectedPackage === 'custom'}
+                        />
+                      </div>
                       {customAmountError && <div className="text-xs text-destructive mt-1">{customAmountError}</div>}
                     </div>
                   </label>
@@ -523,6 +620,50 @@ const ProfilePage = () => {
           </div>
         </Card>
       </div>
+
+      {/* Package Details Dialog */}
+      {currentSelectedPackageData && (
+        <Dialog open={showPackageDetails} onOpenChange={setShowPackageDetails}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>{currentSelectedPackageData.name} - Choose Your Plan</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-6">
+              <div className="text-center">
+                <Badge variant="secondary" className="text-lg px-4 py-2">{currentSelectedPackageData.price}</Badge>
+                <p className="text-muted-foreground mt-2">{currentSelectedPackageData.description}</p>
+              </div>
+
+              <div className="grid gap-4">
+                {currentSelectedPackageData.subPlans?.map((subPlan: any, index: number) => (
+                  <div key={index} className="border rounded-lg p-4 hover:border-primary/50 transition-colors">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h4 className="font-semibold text-lg">{subPlan.name}</h4>
+                        <Badge variant="outline" className="mt-1">{subPlan.price}</Badge>
+                      </div>
+                    </div>
+                    
+                    <ul className="space-y-1 text-sm text-muted-foreground mb-4">
+                      {subPlan.features.map((feature: string, featureIndex: number) => (
+                        <li key={featureIndex}>• {feature}</li>
+                      ))}
+                    </ul>
+                    
+                    <Button 
+                      className="w-full"
+                      onClick={() => handleBookPackage(subPlan.name)}
+                    >
+                      Book {subPlan.name}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
       <OnboardingPopup isOpen={showOnboarding} onComplete={handleOnboardingComplete} onClose={() => setShowOnboarding(false)} />
     </div>
   );
