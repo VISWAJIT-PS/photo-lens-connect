@@ -18,6 +18,7 @@ interface CreatorCardProps {
     bio?: string;
     portfolio_count?: number;
     experience_years?: number;
+   distance?: string;
   };
   type: 'photographer' | 'videographer' | 'event_team';
 }
@@ -31,10 +32,15 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({ creator, type }) => {
 
   return (
     <Card 
-      className="hover:shadow-lg transition-shadow cursor-pointer group hover:scale-[1.02] duration-200" 
+      className="relative hover:shadow-lg transition-shadow cursor-pointer group hover:scale-[1.02] duration-200" 
       onClick={handleCardClick}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-3 relative">
+        {creator.distance && (
+          <Button variant="ghost" className=" bg-background/80 backdrop-blur-sm">
+            <MapPin className="w-4 h-4 mr-1" /> {creator.distance}
+          </Button>
+        )}
         <div className="flex items-center space-x-3">
           <img
             src={creator.image_url || "/src/assets/hero-photographer.jpg"}

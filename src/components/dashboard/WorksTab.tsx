@@ -124,12 +124,34 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
   const [searchQuery, setSearchQuery] = useState('');
   const [priceFilter, setPriceFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
   const [availabilityFilter, setAvailabilityFilter] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
 
   useEffect(() => {
     if (filter && filter !== activeFilter) setActiveFilter(filter);
   }, [filter, activeFilter]);
+
+  // Prefill filters from onboardingData (date & location)
+  useEffect(() => {
+    if (onboardingData) {
+      if (onboardingData.location) {
+        setLocationFilter(onboardingData.location);
+      }
+      if (onboardingData.eventDate) {
+        try {
+          const d = onboardingData.eventDate instanceof Date ? onboardingData.eventDate : new Date(onboardingData.eventDate as any);
+          // format to yyyy-mm-dd for input[type=date]
+          const yyyy = d.getFullYear();
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const dd = String(d.getDate()).padStart(2, '0');
+          setDateFilter(`${yyyy}-${mm}-${dd}`);
+        } catch (e) {
+          // ignore invalid date
+        }
+      }
+    }
+  }, [onboardingData]);
 
   const allCreators = [...photographers, ...videographers, ...eventTeams];
 
@@ -195,31 +217,42 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
           <SelectValue placeholder="Location" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="seattle">Seattle, WA</SelectItem>
-          <SelectItem value="new-york">New York, NY</SelectItem>
-          <SelectItem value="los-angeles">Los Angeles, CA</SelectItem>
-          <SelectItem value="miami">Miami, FL</SelectItem>
-          <SelectItem value="san-francisco">San Francisco, CA</SelectItem>
+          <SelectItem value="Seattle, WA">Seattle, WA</SelectItem>
+          <SelectItem value="New York, NY">New York, NY</SelectItem>
+          <SelectItem value="Los Angeles, CA">Los Angeles, CA</SelectItem>
+          <SelectItem value="Miami, FL">Miami, FL</SelectItem>
+          <SelectItem value="San Francisco, CA">San Francisco, CA</SelectItem>
         </SelectContent>
       </Select>
 
       {/* Date Range Picker */}
       <div className="flex items-center space-x-2">
         {/* <label className="text-sm font-medium">Date Range:</label> */}
-        <Input type="date" className="w-40" placeholder="From" />
+        <Input type="date" className="w-40" placeholder="From" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} />
         {/* <span className="text-muted-foreground">to</span>
         <Input type="date" className="w-40" placeholder="To" /> */}
       </div>
 
       <div className="ml-auto flex items-center gap-2">
-        <Button variant="ghost" onClick={() => { setSearchQuery(''); setPriceFilter(''); setLocationFilter(''); setAvailabilityFilter(''); }}>
+  <Button variant="ghost" onClick={() => { setSearchQuery(''); setPriceFilter(''); setLocationFilter(''); setAvailabilityFilter(''); setDateFilter(''); }}>
           <Filter className="h-4 w-4 mr-2" />
           Clear
         </Button>
-        <Button variant="default" onClick={() => { /* placeholder for advanced */ }}>
-          <Filter className="h-4 w-4 mr-2" />
-          Advanced
-        </Button>
+       <div className="flex flex-wrap gap-1">
+              
+                {/* Desktop Floating Action Button moved here from MainDashboard */}
+                <div className="ml-2">
+                  <Button
+                    variant="default"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg rounded-full  p-4 flex items-center justify-center"
+                    onClick={() => window.dispatchEvent(new CustomEvent('open-onboarding'))}
+                    aria-label="Edit Preferences"
+                  >
+                    Edit Preferences
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
       </div>
     </div>
   );
@@ -235,51 +268,7 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
   return (
     <div className="p-6 space-y-6">
       {/* Header with Event Info */}
-      {onboardingData && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className='flex flex-row gap-2'>
-                  <h3 className="font-semibold">Your Event Details</h3>
-                  {onboardingData.serviceTypes.map((type) => (
-                    <Badge key={type} variant="secondary" className="text-xs">
-                      {type}
-                    </Badge>
-                  ))}
-                </div>
-                <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-1">
-                  <span className="flex items-center">
-                    <MapPin className="h-3 w-3 mr-1" />
-                    {onboardingData.location}
-                  </span>
-                  {onboardingData.eventDate && (
-                    <span className="flex items-center">
-                      <Clock className="h-3 w-3 mr-1" />
-                      {onboardingData.eventDate.toLocaleDateString()}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-1">
-              
-                {/* Desktop Floating Action Button moved here from MainDashboard */}
-                <div className="ml-2">
-                  <Button
-                    variant="default"
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg rounded-full  p-4 flex items-center justify-center"
-                    onClick={() => window.dispatchEvent(new CustomEvent('open-onboarding'))}
-                    aria-label="Edit Preferences"
-                  >
-                    Edit Preferences
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
-      )}
+     
 
       {/* Filters */}
       {renderFilters()}
@@ -375,9 +364,6 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
             ].map((creator) => (
               <div key={creator.id} className="relative pb-2">
                 <CreatorCard creator={creator} type={creator.type} />
-                <Badge variant="outline" className="absolute top-2 left-2 bg-background/80 backdrop-blur-sm">
-                  <LocateIcon className="w-4 h-4 mr-1" /> {creator.distance}
-                </Badge>
               </div>
             ))}
           </div>
