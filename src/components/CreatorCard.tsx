@@ -9,7 +9,7 @@ interface CreatorCardProps {
   creator: {
     id: string;
     name: string;
-    specialization: string;
+    specialization: string | string[];
     rating: number;
     reviews: number;
     price: string;
@@ -47,13 +47,48 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({ creator, type }) => {
               {type === 'videographer' && <Video className="h-4 w-4 text-primary" />}
               {type === 'photographer' && <Camera className="h-4 w-4 text-primary" />}
             </CardTitle>
-            <p className="text-sm text-muted-foreground">{creator.specialization}</p>
+            {/* specialization can be a string or an array */}
+            {Array.isArray(creator.specialization) ? (
+              (() => {
+                const specs = creator.specialization as string[];
+                const first = specs[0];
+                const more = specs.length - 1;
+                const rest = specs.slice(1).join(', ');
+                return (
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-xs">{first}</Badge>
+                    {more > 0 && (
+                      <Badge variant="outline" className="text-xs" title={rest}>
+                        +{more} more
+                      </Badge>
+                    )}
+                  </div>
+                );
+              })()
+            ) : (
+              <p className="text-sm text-muted-foreground">{creator.specialization}</p>
+            )}
+
+            {/* Rating: stars + numeric value + reviews */}
+            <div className="flex items-center mt-1">
+              <div className="flex items-center">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star
+                    key={i}
+                    className={(i < Math.round(creator.rating) ? 'text-yellow-400' : 'text-muted-foreground') + ' h-4 w-4'}
+                    aria-hidden
+                  />
+                ))}
+              </div>
+              <span className="ml-2 text-sm font-medium">{Number(creator.rating).toFixed(1)}</span>
+              <span className="ml-2 text-sm text-muted-foreground">({creator.reviews})</span>
+            </div>
           </div>
         </div>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between mb-3">
-          <Badge variant="secondary">{creator.price}</Badge>
+          {/* <Badge variant="secondary">{creator.price}</Badge> */}
         </div>
         <div className="flex items-center text-sm text-muted-foreground mb-4">
           <MapPin className="h-4 w-4 mr-1" />

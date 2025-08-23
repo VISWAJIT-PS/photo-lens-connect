@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Filter, MapPin, Clock, DollarSign, Settings, Edit } from 'lucide-react';
+import { Search, Filter, MapPin, Clock, DollarSign, Settings, Edit, LocateIcon } from 'lucide-react';
 import { CreatorCard } from '../CreatorCard';
 
 interface OnboardingData {
@@ -22,7 +22,7 @@ interface WorksTabProps {
 interface BaseCreator {
   id: string;
   name: string;
-  specialization: string;
+  specialization: string | string[];
   rating: number;
   reviews: number;
   price: string;
@@ -40,7 +40,7 @@ const photographers: BaseCreator[] = [
   {
     id: 'p1',
     name: 'David Park',
-    specialization: 'Nature & Landscape',
+  specialization: ['Nature & Landscape', 'Travel', 'Outdoor Weddings'],
     rating: 4.9,
     reviews: 93,
     price: '$600-$1,200',
@@ -55,7 +55,7 @@ const photographers: BaseCreator[] = [
   {
     id: 'p2',
     name: 'Sarah Johnson',
-    specialization: 'Wedding Photography',
+  specialization: ['Wedding Photography', 'Candid', 'Editorial'],
     rating: 4.9,
     reviews: 127,
     price: '$2,500-$5,000',
@@ -73,7 +73,7 @@ const videographers: BaseCreator[] = [
   {
     id: 'v1',
     name: 'Alex Rodriguez',
-    specialization: 'Wedding Cinematography',
+  specialization: ['Wedding Cinematography', 'Cinematic', 'Documentary'],
     rating: 4.8,
     reviews: 89,
     price: '$3,000-$8,000',
@@ -88,7 +88,7 @@ const videographers: BaseCreator[] = [
   {
     id: 'v2',
     name: 'Emma Chen',
-    specialization: 'Corporate Events',
+  specialization: ['Corporate Events', 'Conferences'],
     rating: 4.7,
     reviews: 74,
     price: '$1,500-$4,000',
@@ -106,7 +106,7 @@ const eventTeams: BaseCreator[] = [
   {
     id: 'e1',
     name: 'Premier Event Co.',
-    specialization: 'Full Service Events',
+  specialization: ['Full Service Events', 'Planning', 'Execution'],
     rating: 4.9,
     reviews: 203,
     price: '$5,000-$25,000',
@@ -142,12 +142,14 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      creators = creators.filter(
-        (c) =>
+      creators = creators.filter((c) => {
+        const spec = Array.isArray(c.specialization) ? c.specialization.join(', ') : c.specialization || '';
+        return (
           c.name.toLowerCase().includes(q) ||
-          c.specialization.toLowerCase().includes(q) ||
+          spec.toLowerCase().includes(q) ||
           c.location.toLowerCase().includes(q)
-      );
+        );
+      });
     }
 
     if (availabilityFilter) {
@@ -174,7 +176,7 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
         </div>
       </div>
 
-      <Select value={priceFilter} onValueChange={setPriceFilter}>
+      {/* <Select value={priceFilter} onValueChange={setPriceFilter}>
         <SelectTrigger className="w-48">
           <DollarSign className="h-4 w-4 mr-2" />
           <SelectValue placeholder="Price Range" />
@@ -185,7 +187,7 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
           <SelectItem value="3000-5000">$3,000 - $5,000</SelectItem>
           <SelectItem value="over-5000">Over $5,000</SelectItem>
         </SelectContent>
-      </Select>
+      </Select> */}
 
       <Select value={locationFilter} onValueChange={setLocationFilter}>
         <SelectTrigger className="w-48">
@@ -203,10 +205,10 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
 
       {/* Date Range Picker */}
       <div className="flex items-center space-x-2">
-        <label className="text-sm font-medium">Date Range:</label>
+        {/* <label className="text-sm font-medium">Date Range:</label> */}
         <Input type="date" className="w-40" placeholder="From" />
-        <span className="text-muted-foreground">to</span>
-        <Input type="date" className="w-40" placeholder="To" />
+        {/* <span className="text-muted-foreground">to</span>
+        <Input type="date" className="w-40" placeholder="To" /> */}
       </div>
 
       <div className="ml-auto flex items-center gap-2">
@@ -325,7 +327,7 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
               {
                 id: 'remote-1',
                 name: 'Tokyo Wedding Studio',
-                specialization: 'Traditional Japanese Weddings',
+                specialization: ['Traditional Japanese Weddings'],
                 rating: 4.9,
                 reviews: 156,
                 price: '$2,000-$5,000',
@@ -341,7 +343,7 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
               {
                 id: 'remote-2',
                 name: 'European Event Films',
-                specialization: 'Destination Weddings',
+                specialization: ['Destination Weddings'],
                 rating: 4.8,
                 reviews: 203,
                 price: '$3,500-$8,000',
@@ -357,7 +359,7 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
               {
                 id: 'remote-3',
                 name: 'Mumbai Celebrations Co.',
-                specialization: 'Indian Wedding Events',
+                specialization: ['Indian Wedding Events'],
                 rating: 4.9,
                 reviews: 284,
                 price: '$1,500-$4,000',
@@ -371,10 +373,10 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
                 distance: '8,000 miles away'
               }
             ].map((creator) => (
-              <div key={creator.id} className="relative">
+              <div key={creator.id} className="relative pb-2">
                 <CreatorCard creator={creator} type={creator.type} />
                 <Badge variant="outline" className="absolute top-2 left-2 bg-background/80 backdrop-blur-sm">
-                  📍 {creator.distance}
+                  <LocateIcon className="w-4 h-4 mr-1" /> {creator.distance}
                 </Badge>
               </div>
             ))}

@@ -8,7 +8,7 @@ const profiles = {
   "7365f749-665d-409e-b765-c01bbf55463c": {
     id: "7365f749-665d-409e-b765-c01bbf55463c",
     name: "David Park",
-    specialization: "Nature & Landscape",
+  specialization: ["Nature & Landscape", "Outdoor Weddings", "Travel"],
     type: "Photographer",
     rating: 4.9,
     reviews: 93,
@@ -34,7 +34,7 @@ const profiles = {
   "v1": {
     id: "v1",
     name: "Alex Kim",
-    specialization: "Videographer",
+  specialization: ["Videographer", "Wedding Films", "Documentaries"],
     type: "Videographer",
     rating: 4.9,
     reviews: 102,
@@ -60,7 +60,7 @@ const profiles = {
   "v2": {
     id: "v2",
     name: "Priya Singh",
-    specialization: "Videographer",
+  specialization: ["Videographer", "Short Films", "Corporate"],
     type: "Videographer",
     rating: 4.8,
     reviews: 88,
@@ -86,7 +86,7 @@ const profiles = {
   "v3": {
     id: "v3",
     name: "John Lee",
-    specialization: "Videographer",
+  specialization: ["Videographer", "Commercial", "Promotional"],
     type: "Videographer",
     rating: 4.7,
     reviews: 75,

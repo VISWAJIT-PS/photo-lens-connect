@@ -148,7 +148,7 @@ export const ProductDetailsDialog: React.FC<ProductDetailsDialogProps> = ({
             </div>
 
             <div className="pt-4 space-y-3">
-              <Button
+              <Button variant='secondary'
                 onClick={() => onAddToCart(product.id)}
                 disabled={!product.available}
                 className="w-full"

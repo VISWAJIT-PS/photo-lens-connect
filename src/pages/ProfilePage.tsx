@@ -355,9 +355,9 @@ const ProfilePage = () => {
                       <span className="font-semibold">{creator.rating}</span>
                       <span className="text-muted-foreground">({creator.reviews} reviews)</span>
                     </div>
-                    <Badge variant="secondary" className="text-lg px-3 py-1">
+                    {/* <Badge variant="secondary" className="text-lg px-3 py-1">
                       {creator.price}
-                    </Badge>
+                    </Badge> */}
                   </div>
 
                   <div className="flex items-center gap-6 mb-4 text-muted-foreground">
@@ -375,6 +375,19 @@ const ProfilePage = () => {
                     </div>
                   </div>
 
+                  {/* Specializations as badges - support array or comma-separated string */}
+                  {(() => {
+                    const raw = creator.specialization ?? '';
+                    const specs = Array.isArray(raw) ? raw : String(raw).split(',').map(s => s.trim()).filter(Boolean);
+                    return specs.length ? (
+                      <div className="flex items-center gap-2 mb-4">
+                        {specs.map((s: string) => (
+                          <Badge key={s} variant="secondary" className="text-sm">{s}</Badge>
+                        ))}
+                      </div>
+                    ) : null;
+                  })()}
+
                   <p className="text-muted-foreground mb-6">{creator.bio}</p>
 
                   <div className="flex gap-3 items-center">
@@ -390,10 +403,10 @@ const ProfilePage = () => {
             <Card className="p-6">
               <h3 className="font-semibold mb-4">Quick Stats</h3>
               <div className="space-y-3">
-                <div className="flex justify-between">
+                {/* <div className="flex justify-between">
                   <span className="text-muted-foreground">Specialization</span>
                   <span className="font-medium">{creator.specialization}</span>
-                </div>
+                </div> */}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Response Time</span>
                   <span className="font-medium">Within 2 hours</span>
@@ -625,13 +638,14 @@ const ProfilePage = () => {
       {currentSelectedPackageData && (
         <Dialog open={showPackageDetails} onOpenChange={setShowPackageDetails}>
           <DialogContent className="max-w-3xl">
-            <DialogHeader>
+            <DialogHeader className='flex gap-2'>
               <DialogTitle>{currentSelectedPackageData.name} - Choose Your Plan</DialogTitle>
+                              <p className="text-muted-foreground mt-2">{currentSelectedPackageData.description}</p>
             </DialogHeader>
             <div className="space-y-6 overflow-auto h-[50vh]">
               <div className="text-center">
-                <Badge variant="secondary" className="text-lg px-4 py-2">{currentSelectedPackageData.price}</Badge>
-                <p className="text-muted-foreground mt-2">{currentSelectedPackageData.description}</p>
+                {/* <Badge variant="secondary" className="text-lg px-4 py-2">{currentSelectedPackageData.price}</Badge> */}
+
               </div>
 
               <div className="grid grid-rows-2 grid-flow-col gap-4">

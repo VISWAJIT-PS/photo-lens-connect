@@ -334,7 +334,7 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
             )}
             {/* Always visible Add to Cart button */}
             <div className="absolute bottom-3 right-3">
-              <Button
+              {/* <Button
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -345,7 +345,7 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
               >
                 <ShoppingCart className="h-3 w-3 mr-1" />
                 Add to Cart
-              </Button>
+              </Button> */}
             </div>
           </div>
 
@@ -389,7 +389,10 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => removeFromCart(item.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeFromCart(item.id);
+                    }}
                     className="h-8 w-8 p-0"
                   >
                     <Minus className="h-3 w-3" />
@@ -398,7 +401,10 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => addToCart(item.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(item.id);
+                    }}
                     className="h-8 w-8 p-0"
                     disabled={!item.available}
                   >
@@ -406,8 +412,11 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
                   </Button>
                 </div>
               ) : (
-                <Button
-                  onClick={() => addToCart(item.id)}
+                <Button variant="secondary"
+                  onClick={(e) => {
+                  e.stopPropagation();
+                  addToCart(item.id);
+                }}
                   disabled={!item.available}
                   className="flex-1"
                   size="sm"
@@ -425,17 +434,17 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
   return (
     <div className="p-6 space-y-6">
       {/* Header with Cart */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between ">
         <div>
           <h2 className="text-2xl font-bold">{activeTab === 'eventSpaces' ? 'Event Spaces' : 'Equipment Rentals'}</h2>
           <p className="text-muted-foreground">{activeTab === 'eventSpaces' ? 'Find and book venues for your events' : 'Professional gear for your events'}</p>
         </div>
         
         {getTotalItems() > 0 && activeTab === 'rentals' && (
-          <Button className="relative" onClick={() => setShowCart(true)}>
+          <Button  className="fixed bottom-[2%] right-[2%] z-[60]" onClick={() => setShowCart(true)}>
             <ShoppingCart className="h-4 w-4 mr-2" />
             View Cart
-            <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center">
+            <Badge  className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center">
               {getTotalItems()}
             </Badge>
             </Button>

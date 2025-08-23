@@ -36,7 +36,7 @@ const CustomerDashboard = () => {
     {
       "id": "7365f749-665d-409e-b765-c01bbf55463c",
       "name": "David Park",
-      "specialization": "Nature & Landscape",
+  "specialization": ["Nature & Landscape", "Outdoor Weddings"],
       "rating": 4.9,
       "reviews": 93,
       "price": "$600-$1,200",
@@ -52,7 +52,7 @@ const CustomerDashboard = () => {
     {
       "id": "a3b38b34-e97f-46ae-87e2-60a578dcf777",
       "name": "Sarah Johnson",
-      "specialization": "Wedding Photography",
+  "specialization": ["Wedding Photography", "Candid"],
       "rating": 4.9,
       "reviews": 127,
       "price": "$2,500-$5,000",
@@ -68,7 +68,7 @@ const CustomerDashboard = () => {
     {
       "id": "269d8963-7b3f-4d27-8f82-0eed920ced59",
       "name": "Michael Chen",
-      "specialization": "Portrait Photography",
+  "specialization": ["Portrait Photography", "Headshots"],
       "rating": 4.8,
       "reviews": 89,
       "price": "$800-$1,500",
@@ -84,7 +84,7 @@ const CustomerDashboard = () => {
     {
       "id": "cbd4feba-60a4-4045-9d43-1cfbecffa71a",
       "name": "Lisa Thompson",
-      "specialization": "Fashion Photography",
+  "specialization": ["Fashion Photography", "Editorial"],
       "rating": 4.8,
       "reviews": 74,
       "price": "$1,500-$4,000",
@@ -100,7 +100,7 @@ const CustomerDashboard = () => {
     {
       "id": "e667a310-5e7f-404c-9c69-ef5bb18e276c",
       "name": "Emma Rodriguez",
-      "specialization": "Event Photography",
+  "specialization": ["Event Photography", "Corporate"],
       "rating": 4.7,
       "reviews": 156,
       "price": "$1,200-$3,000",
@@ -119,7 +119,7 @@ const CustomerDashboard = () => {
     {
       "id": "v1-8f4c-4b2e-8a1b-3d5e6f7a8b9c",
       "name": "Alex Rivera",
-      "specialization": "Wedding Videography",
+  "specialization": ["Wedding Videography", "Cinematic"],
       "rating": 4.9,
       "reviews": 145,
       "price": "$3,000-$8,000",
@@ -135,7 +135,7 @@ const CustomerDashboard = () => {
     {
       "id": "v2-9a5b-4c3d-9b2c-4e6f7a8b9c0d",
       "name": "Jessica Wong",
-      "specialization": "Corporate Videography",
+  "specialization": ["Corporate Videography", "Promo"],
       "rating": 4.8,
       "reviews": 98,
       "price": "$2,000-$5,000",
@@ -151,7 +151,7 @@ const CustomerDashboard = () => {
     {
       "id": "v3-0c6d-5e4f-0c3d-5f7a8b9c0d1e",
       "name": "Carlos Martinez",
-      "specialization": "Music Video Production",
+  "specialization": ["Music Video Production", "Live Concerts"],
       "rating": 4.7,
       "reviews": 67,
       "price": "$1,800-$4,500",
