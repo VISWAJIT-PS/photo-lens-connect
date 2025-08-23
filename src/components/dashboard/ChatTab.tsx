@@ -404,7 +404,7 @@ const ChatApp: React.FC = () => {
 
       {/* Scrollable Conversations List */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-2 space-y-1">
+        <div className="p-2 space-y-1 overflow-y-auto">
           {getFilteredConversations().map((conversation) => (
             <div
               key={conversation.id}
@@ -693,7 +693,31 @@ const ChatApp: React.FC = () => {
           <div ref={messagesEndRef} />
         </div>
       </div>
-
+     <div className="flex-shrink-0 p-4 border-t border-gray-200 bg-white">
+        <div className="flex items-center space-x-3">
+          <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+            <Paperclip className="h-5 w-5 text-gray-600" />
+          </Button>
+          <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+            <Smile className="h-5 w-5 text-gray-600" />
+          </Button>
+          <input
+            type="text"
+            placeholder="Type your message..."
+            value={messageInput}
+            onChange={(e) => setMessageInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+            className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+          />
+          <Button variant="ghost"
+            onClick={sendMessage}
+            disabled={!messageInput.trim()}
+            className="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
       
     </div>
   );
@@ -751,15 +775,13 @@ const ChatApp: React.FC = () => {
             </div>
 
             <div className="flex items-center space-x-2">
-              <span className="text-xs px-3 py-1 bg-blue-100 text-blue-800 rounded-full font-mono font-semibold">
-                {selectedConversation.bookingId}
-              </span>
-              <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+            
+              {/* <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <Phone className="h-5 w-5 text-gray-600" />
               </Button>
               <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <Video className="h-5 w-5 text-gray-600" />
-              </Button>
+              </Button> */}
               <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <MoreVertical className="h-5 w-5 text-gray-600" />
               </Button>
@@ -849,37 +871,13 @@ const ChatApp: React.FC = () => {
         </div>
 
         {/* Fixed Message Input */}
-      <div className="flex-shrink-0 p-4 border-t border-gray-200 bg-white">
-        <div className="flex items-center space-x-3">
-          <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <Paperclip className="h-5 w-5 text-gray-600" />
-          </Button>
-          <Button variant="ghost" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <Smile className="h-5 w-5 text-gray-600" />
-          </Button>
-          <input
-            type="text"
-            placeholder="Type your message..."
-            value={messageInput}
-            onChange={(e) => setMessageInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-            className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
-          />
-          <Button variant="ghost"
-            onClick={sendMessage}
-            disabled={!messageInput.trim()}
-            className="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+ 
       </div>
     );
   };
 
   return (
-    <div className="h-screen flex bg-gray-100 overflow-hidden">
+    <div className="h-[90vh] flex bg-gray-100 overflow-hidden">
       {/* Mobile Layout */}
       {isMobileView && (
         <div className="w-full h-full">
