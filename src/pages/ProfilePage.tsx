@@ -628,13 +628,13 @@ const ProfilePage = () => {
             <DialogHeader>
               <DialogTitle>{currentSelectedPackageData.name} - Choose Your Plan</DialogTitle>
             </DialogHeader>
-            <div className="space-y-6">
+            <div className="space-y-6 overflow-auto h-[50vh]">
               <div className="text-center">
                 <Badge variant="secondary" className="text-lg px-4 py-2">{currentSelectedPackageData.price}</Badge>
                 <p className="text-muted-foreground mt-2">{currentSelectedPackageData.description}</p>
               </div>
 
-              <div className="grid gap-4">
+              <div className="grid grid-rows-2 grid-flow-col gap-4">
                 {currentSelectedPackageData.subPlans?.map((subPlan: any, index: number) => (
                   <div key={index} className="border rounded-lg p-4 hover:border-primary/50 transition-colors">
                     <div className="flex justify-between items-start mb-3">
