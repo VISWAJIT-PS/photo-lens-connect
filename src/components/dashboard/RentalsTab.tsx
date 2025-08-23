@@ -434,12 +434,7 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
   return (
     <div className="p-6 space-y-6">
       {/* Header with Cart */}
-      <div className="flex items-center justify-between ">
-        <div>
-          <h2 className="text-2xl font-bold">{activeTab === 'eventSpaces' ? 'Find Your Photo Spot' : 'Equipment Rentals'}</h2>
-          <p className="text-muted-foreground">{activeTab === 'eventSpaces' ? 'Find and book venues for your events' : 'Professional gear for your events'}</p>
-        </div>
-        
+    
         {getTotalItems() > 0 && activeTab === 'rentals' && (
           <Button  className="fixed bottom-[2%] right-[2%] z-[60]" onClick={() => setShowCart(true)}>
             <ShoppingCart className="h-4 w-4 mr-2" />
@@ -449,10 +444,9 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
             </Badge>
             </Button>
         )}
-      </div>
 
       {/* Event Info */}
-      {onboardingData && onboardingData.eventDate && (
+      {/* {onboardingData && onboardingData.eventDate && (
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -468,7 +462,7 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
             </div>
           </CardHeader>
         </Card>
-      )}
+      )} */}
 
       {/* Filters */}
       {renderFilters()}

@@ -425,7 +425,7 @@ export const GalleryTab: React.FC = () => {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      {/* <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Your Event Gallery</h2>
           <p className="text-muted-foreground">View and manage your event photos and videos</p>
@@ -435,7 +435,7 @@ export const GalleryTab: React.FC = () => {
           <Plus className="h-4 w-4 mr-2" />
           Upload Photos
         </Button>
-      </div>
+      </div> */}
 
       {/* Search */}
       <div className="relative max-w-md">
