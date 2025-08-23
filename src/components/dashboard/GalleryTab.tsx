@@ -107,6 +107,58 @@ const eventAlbums = [
       'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=300',
       'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=300'
     ]
+  },
+  {
+    id: '4',
+    title: 'Sarah & John Wedding',
+    date: '2024-08-15',
+    location: 'Central Park, NYC',
+    type: 'Wedding',
+    photographer: 'Sarah Johnson',
+    status: 'completed',
+    totalPhotos: 145,
+    totalVideos: 3,
+    coverImage: 'https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=400',
+    preview: [
+      'https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=300',
+      'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=300',
+      'https://images.unsplash.com/photo-1519741497674-611481863552?w=300',
+      'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=300'
+    ]
+  },
+  {
+    id: '5',
+    title: 'Corporate Event 2024',
+    date: '2024-07-20',
+    location: 'Convention Center, LA',
+    type: 'Corporate',
+    photographer: 'Michael Chen',
+    status: 'processing',
+    totalPhotos: 89,
+    totalVideos: 1,
+    coverImage: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=400',
+    preview: [
+      'https://images.unsplash.com/photo-1511578314322-379afb476865?w=300',
+      'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300',
+      'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=300'
+    ]
+  },
+  {
+    id: '6',
+    title: 'Birthday Celebration',
+    date: '2024-06-10',
+    location: 'Private Venue, Miami',
+    type: 'Birthday',
+    photographer: 'Emma Rodriguez',
+    status: 'completed',
+    totalPhotos: 67,
+    totalVideos: 2,
+    coverImage: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400',
+    preview: [
+      'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=300',
+      'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=300',
+      'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=300'
+    ]
   }
 ];
 

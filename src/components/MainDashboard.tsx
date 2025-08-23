@@ -278,7 +278,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
-          <header className=" h-16 border-b border-border py-10 bg-card px-6 flex items-center justify-between">
+          <header className=" h-14 border-b border-border py-9 bg-card px-6 flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold capitalize w-[200px] ">{activeTab}</h2>
              
@@ -311,11 +311,11 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto">
+          <main className={`flex-1 ${activeTab === 'chat' ? "" : "flexoverflow-y-auto"}`}>
             {activeTab === 'Book Your Event' && <WorksTab onboardingData={onboardingData} filter={worksFilter} />}
             {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
             {activeTab === 'gallery' && <GalleryTab />}
-            {activeTab === 'chat' && <ChatApp conversationId={conversationId} />}
+            {activeTab === 'chat' && <ChatApp/>}
             {activeTab === 'settings' && <EcommerceUserSettings />}
           </main>
         </div>
@@ -397,7 +397,6 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
           {activeTab === 'gallery' && <GalleryTab />}
           {activeTab === 'chat' && (
             <ChatApp 
-              conversationId={conversationId} 
             />
           )}
           {activeTab === 'settings' && <EcommerceUserSettings />}
