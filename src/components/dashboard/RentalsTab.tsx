@@ -8,7 +8,9 @@ import { EventSpaceCard } from '@/components/EventSpaceCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Filter, MapPin, Star, DollarSign, ShoppingCart, Heart, Plus, Minus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useToast } from '@/components/ui/use-toast';
+import { ProductDetailsDialog } from '@/components/ProductDetailsDialog';
+import { EventSpaceDetailsDialog } from '@/components/EventSpaceDetailsDialog';
+import { useToast } from '@/hooks/use-toast';
 
 interface OnboardingData {
   eventDate: Date | undefined;
@@ -154,6 +156,10 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
   const [availabilityFilter, setAvailabilityFilter] = useState('available');
   const [cart, setCart] = useState<{[key: number]: number}>({});
   const [showCart, setShowCart] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [selectedEventSpace, setSelectedEventSpace] = useState<any>(null);
+  const [showProductDialog, setShowProductDialog] = useState(false);
+  const [showEventSpaceDialog, setShowEventSpaceDialog] = useState(false);
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('rentals');
 
@@ -288,9 +294,20 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
 
   const renderItemCard = (item: Item) => (
     activeTab === 'eventSpaces'
-      ? <EventSpaceCard key={item.id} space={item} />
+      ? <EventSpaceCard 
+          key={item.id} 
+          space={item} 
+          onViewDetails={(space) => {
+            setSelectedEventSpace(space);
+            setShowEventSpaceDialog(true);
+          }}
+        />
       : (
-        <Card key={item.id} className="group hover:shadow-medium transition-all duration-300">
+        <Card key={item.id} className="group hover:shadow-medium transition-all duration-300 cursor-pointer"
+              onClick={() => {
+                setSelectedProduct({...item, images: [item.image_url]});
+                setShowProductDialog(true);
+              }}>
           <div className="relative">
             <img
               src={item.image_url}
@@ -302,6 +319,10 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
                 variant="secondary"
                 size="sm"
                 className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Add to favorites logic
+                }}
               >
                 <Heart className="h-4 w-4" />
               </Button>
@@ -311,6 +332,21 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
                 <Badge variant="destructive">Not Available</Badge>
               </div>
             )}
+            {/* Always visible Add to Cart button */}
+            <div className="absolute bottom-3 right-3">
+              <Button
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addToCart(item.id);
+                }}
+                disabled={!item.available}
+                className="opacity-90 hover:opacity-100"
+              >
+                <ShoppingCart className="h-3 w-3 mr-1" />
+                Add to Cart
+              </Button>
+            </div>
           </div>
 
           <CardContent className="p-4">
@@ -529,6 +565,34 @@ export const RentalsTab: React.FC<RentalsTabProps> = ({ onboardingData }) => {
           </div>
         </DialogContent>
       </Dialog>
+      
+      {/* Product Details Dialog */}
+      <ProductDetailsDialog
+        product={selectedProduct}
+        isOpen={showProductDialog}
+        onClose={() => setShowProductDialog(false)}
+        onAddToCart={(productId) => {
+          addToCart(productId);
+          toast({
+            title: "Added to Cart",
+            description: `${selectedProduct?.name} has been added to your cart.`,
+          });
+        }}
+      />
+
+      {/* Event Space Details Dialog */}
+      <EventSpaceDetailsDialog
+        eventSpace={selectedEventSpace}
+        isOpen={showEventSpaceDialog}
+        onClose={() => setShowEventSpaceDialog(false)}
+        onBookNow={(spaceId) => {
+          toast({
+            title: "Booking Request Sent",
+            description: `Your booking request for ${selectedEventSpace?.name} has been sent.`,
+          });
+          setShowEventSpaceDialog(false);
+        }}
+      />
     </div>
   );
 };

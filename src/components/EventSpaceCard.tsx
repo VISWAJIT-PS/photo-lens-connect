@@ -20,11 +20,13 @@ export interface EventSpace {
 
 interface EventSpaceCardProps {
   space: EventSpace;
+  onViewDetails?: (space: EventSpace) => void;
 }
 
-export const EventSpaceCard: React.FC<EventSpaceCardProps> = ({ space }) => {
+export const EventSpaceCard: React.FC<EventSpaceCardProps> = ({ space, onViewDetails }) => {
   return (
-    <Card className="group hover:shadow-medium transition-all duration-300">
+    <Card className="group hover:shadow-medium transition-all duration-300 cursor-pointer"
+          onClick={() => onViewDetails?.(space)}>
       <div className="relative">
         <img
           src={space.image_url}
@@ -36,6 +38,10 @@ export const EventSpaceCard: React.FC<EventSpaceCardProps> = ({ space }) => {
             variant="secondary"
             size="sm"
             className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={(e) => {
+              e.stopPropagation();
+              // Add to favorites logic
+            }}
           >
             <Heart className="h-4 w-4" />
           </Button>
@@ -84,6 +90,10 @@ export const EventSpaceCard: React.FC<EventSpaceCardProps> = ({ space }) => {
           <Button
             className="flex-1"
             disabled={!space.available}
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewDetails?.(space);
+            }}
           >
             Book Now
           </Button>

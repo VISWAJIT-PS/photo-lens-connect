@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Filter, MapPin, Clock, DollarSign, Settings, Edit } from 'lucide-react';
 import { CreatorCard } from '../CreatorCard';
@@ -307,6 +307,78 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
           {renderCreatorGrid(getFilteredCreators('event_team'))}
         </TabsContent>
       </Tabs>
+
+      {/* Far Locations Section */}
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Events, Photographers & Videographers from Far Locations</CardTitle>
+          <p className="text-muted-foreground">Discover talented creators from other cities and regions</p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                id: 'remote-1',
+                name: 'Tokyo Wedding Studio',
+                specialization: 'Traditional Japanese Weddings',
+                rating: 4.9,
+                reviews: 156,
+                price: '$2,000-$5,000',
+                location: 'Tokyo, Japan',
+                image_url: 'https://images.unsplash.com/photo-1528195674353-7b4b5b0dad52',
+                bio: 'Specializing in traditional Japanese wedding ceremonies with modern photography techniques.',
+                portfolio_count: 89,
+                experience_years: 12,
+                availability: 'Available',
+                type: 'photographer' as const,
+                distance: '6,200 miles away'
+              },
+              {
+                id: 'remote-2',
+                name: 'European Event Films',
+                specialization: 'Destination Weddings',
+                rating: 4.8,
+                reviews: 203,
+                price: '$3,500-$8,000',
+                location: 'Paris, France',
+                image_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
+                bio: 'Creating cinematic wedding films across Europe for couples seeking luxury destination events.',
+                portfolio_count: 67,
+                experience_years: 8,
+                availability: 'Available',
+                type: 'videographer' as const,
+                distance: '3,600 miles away'
+              },
+              {
+                id: 'remote-3',
+                name: 'Mumbai Celebrations Co.',
+                specialization: 'Indian Wedding Events',
+                rating: 4.9,
+                reviews: 284,
+                price: '$1,500-$4,000',
+                location: 'Mumbai, India',
+                image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
+                bio: 'Full-service Indian wedding planning and photography with traditional ceremonies expertise.',
+                portfolio_count: 145,
+                experience_years: 15,
+                availability: 'Available',
+                type: 'event_team' as const,
+                distance: '8,000 miles away'
+              }
+            ].map((creator) => (
+              <div key={creator.id} className="relative">
+                <CreatorCard creator={creator} type={creator.type} />
+                <Badge variant="outline" className="absolute top-2 left-2 bg-background/80 backdrop-blur-sm">
+                  📍 {creator.distance}
+                </Badge>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-6">
+            <Button variant="outline">View More International Creators</Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* No Results */}
       {getFilteredCreators(activeFilter).length === 0 && (
