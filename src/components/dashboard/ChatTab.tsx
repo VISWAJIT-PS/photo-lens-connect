@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
 import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft, MessageSquare, Images, Receipt, Lock, Award, CheckCircle, XCircle, Eye, Camera } from 'lucide-react';
 import { Button } from '../ui/button';
 
@@ -295,7 +296,9 @@ const initialChatData: ChatAppData = {
 
 const ChatApp: React.FC = () => {
   const [chatData, setChatData] = useState<ChatAppData>(initialChatData);
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>("conv-1");
+  const params = useParams();
+  const location = useLocation();
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(params?.conversationId ?? "conv-1");
   const [searchQuery, setSearchQuery] = useState("");
   const [messageInput, setMessageInput] = useState("");
   const [isMobileView, setIsMobileView] = useState(false);
@@ -318,6 +321,79 @@ const ChatApp: React.FC = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [selectedConversationId, chatData]);
+
+  // Load persisted mock messages for a selected conversation (written by ProfilePage)
+  useEffect(() => {
+    if (!selectedConversationId) return;
+    try {
+      const vendorId = selectedConversationId.replace(/^conv-/, '');
+      const key = `mock_chat_${vendorId}`;
+      const raw = localStorage.getItem(key);
+      const arr = raw ? JSON.parse(raw) as any[] : [];
+
+      // Transform persisted messages into Message shape
+      const savedMessages: Message[] = Array.isArray(arr) ? arr.map((m, i) => ({
+        id: `mock-${Date.now()}-${i}`,
+        senderId: m.author === 'user' ? chatData.currentUserId : `vendor-${vendorId}`,
+        content: m.content,
+        timestamp: new Date(m.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        type: 'text',
+        status: 'sent'
+      })) : [];
+
+      setChatData(prev => {
+        const exists = prev.conversations.some(conv => conv.id === selectedConversationId);
+        if (exists) {
+          return {
+            ...prev,
+            conversations: prev.conversations.map(conv => {
+              if (conv.id !== selectedConversationId) return conv;
+
+              // Avoid duplicating if last message already matches
+              const lastExisting = conv.messages[conv.messages.length - 1];
+              const lastSaved = savedMessages[savedMessages.length - 1];
+              if (lastExisting && lastSaved && lastExisting.content === lastSaved.content) {
+                return conv;
+              }
+
+              return {
+                ...conv,
+                messages: [...conv.messages, ...savedMessages],
+                lastMessage: savedMessages.length ? savedMessages[savedMessages.length - 1].content : conv.lastMessage,
+                timestamp: 'now'
+              };
+            })
+          };
+        }
+
+        // Conversation doesn't exist — create a new one using query params
+        const qs = new URLSearchParams(location.search);
+        const name = qs.get('name') ? qs.get('name') as string : `User ${vendorId}`;
+        const role = qs.get('role') ? qs.get('role') as string : '';
+        const avatar = qs.get('avatar') ? qs.get('avatar') as string : '';
+
+        const newConv: Conversation = {
+          id: selectedConversationId,
+          name: decodeURIComponent(name),
+          role: decodeURIComponent(role),
+          avatar: decodeURIComponent(avatar),
+          lastMessage: savedMessages.length ? savedMessages[savedMessages.length - 1].content : '',
+          timestamp: 'now',
+          unreadCount: 0,
+          isOnline: false,
+          bookingId: `BOOK-${vendorId}`,
+          messages: savedMessages.length ? savedMessages : [],
+        } as any;
+
+        return {
+          ...prev,
+          conversations: [...prev.conversations, newConv]
+        };
+      });
+    } catch (e) {
+      // noop
+    }
+  }, [selectedConversationId, location.search]);
 
   // Get filtered conversations based on search
   const getFilteredConversations = () => {
