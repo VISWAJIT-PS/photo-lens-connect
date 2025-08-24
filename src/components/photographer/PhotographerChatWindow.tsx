@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft, MessageSquare, Images, Receipt, Lock, Award, CheckCircle, XCircle, Eye, Camera, Star, Upload, Package, Plus, Edit, Trash2, Calendar, Clock, FileText, Users, AlertCircle, CheckCheck, MapPin, DollarSign, UserPlus, Zap, PenTool, UserCheck, UserX, Settings, Download } from 'lucide-react';
+import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft, MessageSquare, Images, Receipt, Lock, Award, CheckCircle, XCircle, Eye, Camera, Star, Upload, Package, Plus, Edit, Trash2, Calendar, Clock, FileText, Users, AlertCircle, CheckCheck, MapPin, DollarSign, UserPlus, Zap, Wrench, UserCheck, UserX, Settings, Download } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -418,6 +418,7 @@ const ChatApp: React.FC = () => {
   const [showNewChatDialog, setShowNewChatDialog] = useState(false);
   const [showCreateInvoiceDialog, setShowCreateInvoiceDialog] = useState(false);
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
+  const [showCreateEventDialog, setShowCreateEventDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
@@ -593,7 +594,16 @@ const ChatApp: React.FC = () => {
   return (
     <div className="h-full bg-background">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-        <div className="border-b border-border px-6 py-4">
+        {/* Header with New Event Button */}
+        <div className="border-b border-border px-6 py-4 bg-card">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold">Project Management</h1>
+            <Button onClick={() => setShowCreateEventDialog(true)} className="bg-primary hover:bg-primary/90">
+              <Plus className="h-4 w-4 mr-2" />
+              New Event
+            </Button>
+          </div>
+          
           <TabsList className="grid w-full grid-cols-8 max-w-4xl">
             <TabsTrigger value="messages" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
@@ -624,7 +634,7 @@ const ChatApp: React.FC = () => {
               Members
             </TabsTrigger>
             <TabsTrigger value="rentals" className="flex items-center gap-2">
-              <PenTool className="h-4 w-4" />
+              <Wrench className="h-4 w-4" />
               Rentals
             </TabsTrigger>
           </TabsList>
@@ -1929,6 +1939,169 @@ const ChatApp: React.FC = () => {
                 setShowAddMemberDialog(false);
               }}>
                 Add Member
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Event Dialog */}
+      <Dialog open={showCreateEventDialog} onOpenChange={setShowCreateEventDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Create New Event
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            {/* Basic Event Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Event Name *</Label>
+                <Input placeholder="e.g., Sarah & John Wedding" />
+              </div>
+              <div>
+                <Label>Event Type *</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select event type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="wedding">Wedding Photography</SelectItem>
+                    <SelectItem value="engagement">Engagement Session</SelectItem>
+                    <SelectItem value="portrait">Portrait Session</SelectItem>
+                    <SelectItem value="corporate">Corporate Event</SelectItem>
+                    <SelectItem value="family">Family Photography</SelectItem>
+                    <SelectItem value="birthday">Birthday Party</SelectItem>
+                    <SelectItem value="graduation">Graduation</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Client Name *</Label>
+                <Input placeholder="Enter client name" />
+              </div>
+              <div>
+                <Label>Client Email *</Label>
+                <Input type="email" placeholder="client@example.com" />
+              </div>
+              <div>
+                <Label>Event Date *</Label>
+                <Input type="date" />
+              </div>
+              <div>
+                <Label>Event Time *</Label>
+                <Input type="time" />
+              </div>
+            </div>
+
+            {/* Location & Venue Details */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Location & Venue</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <Label>Event Location *</Label>
+                  <Input placeholder="e.g., Central Park Conservatory Garden, NYC" />
+                </div>
+                <div>
+                  <Label>Venue Name</Label>
+                  <Input placeholder="e.g., Conservatory Garden" />
+                </div>
+                <div>
+                  <Label>Venue Contact</Label>
+                  <Input placeholder="e.g., +1 (212) 310-6600" />
+                </div>
+                <div className="md:col-span-2">
+                  <Label>Venue Address</Label>
+                  <Input placeholder="Full venue address" />
+                </div>
+                <div className="md:col-span-2">
+                  <Label>Venue Notes</Label>
+                  <Textarea placeholder="Any special notes about the venue (permits, restrictions, etc.)" rows={2} />
+                </div>
+              </div>
+            </div>
+
+            {/* Budget & Package */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Budget & Package</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label>Total Budget *</Label>
+                  <Input type="number" placeholder="2500" />
+                </div>
+                <div>
+                  <Label>Package Type</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select package" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="basic">Basic Package</SelectItem>
+                      <SelectItem value="standard">Standard Package</SelectItem>
+                      <SelectItem value="premium">Premium Package</SelectItem>
+                      <SelectItem value="custom">Custom Package</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Payment Status</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="deposit-paid">Deposit Paid</SelectItem>
+                      <SelectItem value="paid">Fully Paid</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Requirements & Deliverables */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label>Requirements</Label>
+                <Textarea 
+                  placeholder="List event requirements (one per line)&#10;e.g.,&#10;2 photographers required&#10;No flash during ceremony&#10;Backup equipment needed"
+                  rows={4}
+                />
+              </div>
+              <div>
+                <Label>Deliverables</Label>
+                <Textarea 
+                  placeholder="List deliverables (one per line)&#10;e.g.,&#10;500+ edited photos&#10;Online gallery&#10;USB with full resolution&#10;Wedding album"
+                  rows={4}
+                />
+              </div>
+            </div>
+
+            {/* Special Notes */}
+            <div>
+              <Label>Special Notes</Label>
+              <Textarea 
+                placeholder="Any special instructions, client preferences, or important notes for the event..."
+                rows={3}
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end space-x-2 pt-4 border-t">
+              <Button variant="outline" onClick={() => setShowCreateEventDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={() => {
+                toast({
+                  title: "Event Created",
+                  description: "New event has been created successfully and added to your project list."
+                });
+                setShowCreateEventDialog(false);
+              }}>
+                Create Event
               </Button>
             </div>
           </div>
