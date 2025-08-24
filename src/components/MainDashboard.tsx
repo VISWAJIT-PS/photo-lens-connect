@@ -13,6 +13,9 @@ import { NotificationsPanel } from './dashboard/NotificationsPanel';
 import { FavoritesPanel } from './dashboard/FavoritesPanel';
 import  EcommerceUserSettings  from './SettingsPage';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FadeIn, SlideIn, StaggerContainer, StaggerItem, Interactive, ConditionalAnimate } from '@/components/ui/motion-wrappers';
+import { transitions, pageVariants } from '@/lib/motion';
 
 interface OnboardingData {
   eventDate: Date | undefined;
@@ -175,7 +178,12 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <motion.div 
+      className="min-h-screen bg-background"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={transitions.default}
+    >
       {/* Onboarding Popup */}
       <OnboardingPopup
         isOpen={showOnboarding}
@@ -186,7 +194,12 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
       {/* Desktop Layout */}
       <div className="hidden lg:flex h-screen">
         {/* Sidebar */}
-        <div className={cn(sidebarCollapsed ? 'w-20' : 'w-64', 'bg-card border-r border-border flex flex-col') }>
+        <motion.div 
+          className={cn(sidebarCollapsed ? 'w-20' : 'w-64', 'bg-card border-r border-border flex flex-col')}
+          initial={{ x: -100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ ...transitions.default, delay: 0.1 }}
+        >
           {/* Logo & User */}
           <div className="p-4 border-b border-border flex items-center justify-between">
             <div className={cn("flex items-center space-x-3 relative", sidebarCollapsed ? 'group' : '')}>
@@ -218,31 +231,54 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-2 space-y-2">
+          <StaggerContainer 
+            className="flex-1 p-2 space-y-2"
+            staggerChildren={0.1}
+            delayChildren={0.3}
+          >
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={cn(
-                    "w-full flex items-center px-3 py-3 rounded-lg text-left transition-colors",
-                    activeTab === tab.id
-                      ? "bg-primary/10 text-primary border border-primary/20"
-                      : "hover:bg-muted"
-                  )}
-                >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
-                  {!sidebarCollapsed && (
-                    <div className="min-w-0 ml-3">
-                      <p className="font-medium">{tab.label}</p>
-                      <p className="text-xs text-muted-foreground">{tab.description}</p>
-                    </div>
-                  )}
-                </button>
+                <StaggerItem key={tab.id}>
+                  <Interactive
+                    whileHover={{ x: 5 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <button
+                      onClick={() => setActiveTab(tab.id)}
+                      className={cn(
+                        "w-full flex items-center px-3 py-3 rounded-lg text-left transition-colors",
+                        activeTab === tab.id
+                          ? "bg-primary/10 text-primary border border-primary/20"
+                          : "hover:bg-muted"
+                      )}
+                    >
+                      <motion.div
+                        animate={{ rotate: activeTab === tab.id ? 360 : 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <Icon className="h-5 w-5 flex-shrink-0" />
+                      </motion.div>
+                      <AnimatePresence>
+                        {!sidebarCollapsed && (
+                          <motion.div 
+                            className="min-w-0 ml-3"
+                            initial={{ opacity: 0, width: 0 }}
+                            animate={{ opacity: 1, width: "auto" }}
+                            exit={{ opacity: 0, width: 0 }}
+                            transition={transitions.fast}
+                          >
+                            <p className="font-medium">{tab.label}</p>
+                            <p className="text-xs text-muted-foreground">{tab.description}</p>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </button>
+                  </Interactive>
+                </StaggerItem>
               );
             })}
-          </nav>
+          </StaggerContainer>
 
           {/* Bottom Actions */}
           <div className="p-3 border-t border-border space-y-2">
@@ -274,20 +310,41 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
               {!sidebarCollapsed && <span className="ml-3">Sign Out</span>}
             </Button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col">
-          <header className=" h-14 border-b border-border py-9 bg-card px-6 flex items-center justify-between">
+        <motion.div 
+          className="flex-1 flex flex-col"
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ ...transitions.default, delay: 0.2 }}
+        >
+          <motion.header 
+            className="h-14 border-b border-border bg-card px-6 flex items-center justify-between"
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ ...transitions.default, delay: 0.3 }}
+          >
             <div>
-              <h2 className="text-2xl font-bold capitalize w-[200px] ">{activeTab}</h2>
-             
+              <motion.h2 
+                className="text-2xl font-bold capitalize w-[200px] truncate"
+                key={activeTab}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={transitions.fast}
+              >
+                {activeTab}
+              </motion.h2>
             </div>
-            
-            <div className="flex items-center justify-end w-full gap-4">
+
+            <FadeIn className="flex items-center justify-end w-full gap-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-                  {user?.user_metadata.avatar_url ? (
+                <motion.div 
+                  className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center"
+                  whileHover={{ scale: 1.05 }}
+                  transition={transitions.fast}
+                >
+                  {user?.user_metadata?.avatar_url ? (
                     <img
                       src={user.user_metadata.avatar_url}
                       alt={user?.email}
@@ -298,27 +355,34 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
                       <User className="h-5 w-5" />
                     </div>
                   )}
-                </div>
+                </motion.div>
 
                 <div className="min-w-0">
                   <p className="text-sm font-medium truncate">{user?.email}</p>
                   <p className="text-xs text-muted-foreground">Customer</p>
                 </div>
               </div>
+            </FadeIn>
+          </motion.header>
 
-              {/* Floating Action Button moved into WorksTab; listen for event to open onboarding */}
-              {/* The FAB is rendered inside WorksTab to keep the Event Details card self-contained. */}
-            </div>
-          </header>
-
-          <main className={`flex-1 ${activeTab === 'chat' ? " overflow-y-hidden" : " overflow-y-auto"}`}>
-            {activeTab === 'Book Your Event' && <WorksTab onboardingData={onboardingData} filter={worksFilter} />}
-            {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
-            {activeTab === 'gallery' && <GalleryTab />}
-            {activeTab === 'chat' && <ChatApp/>}
-            {activeTab === 'settings' && <EcommerceUserSettings />}
+          <main className="flex-1 overflow-y-auto">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={transitions.default}
+              >
+                {activeTab === 'Book Your Event' && <WorksTab onboardingData={onboardingData} filter={worksFilter} />}
+                {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
+                {activeTab === 'gallery' && <GalleryTab />}
+                {activeTab === 'chat' && <ChatApp />}
+                {activeTab === 'settings' && <EcommerceUserSettings />}
+              </motion.div>
+            </AnimatePresence>
           </main>
-        </div>
+        </motion.div>
       </div>
 
       {/* Mobile Layout */}
@@ -403,28 +467,51 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
         </main>
 
         {/* Mobile Bottom Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border">
-          <div className="grid grid-cols-4 gap-1 p-2">
+        <motion.div 
+          className="fixed bottom-0 left-0 right-0 bg-card border-t border-border"
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ ...transitions.default, delay: 0.4 }}
+        >
+          <StaggerContainer 
+            className="grid grid-cols-4 gap-1 p-2"
+            staggerChildren={0.1}
+            delayChildren={0.5}
+          >
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={cn(
-                    "flex flex-col items-center py-2 px-1 rounded-lg transition-colors",
-                    activeTab === tab.id
-                      ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <Icon className="h-5 w-5 mb-1" />
-                  <span className="text-xs font-medium">{tab.label}</span>
-                </button>
+                <StaggerItem key={tab.id}>
+                  <Interactive
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <button
+                      onClick={() => setActiveTab(tab.id)}
+                      className={cn(
+                        "flex flex-col items-center py-2 px-1 rounded-lg transition-colors",
+                        activeTab === tab.id
+                          ? "text-primary bg-primary/10"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <motion.div
+                        animate={{ 
+                          scale: activeTab === tab.id ? 1.1 : 1,
+                          rotate: activeTab === tab.id ? 360 : 0 
+                        }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <Icon className="h-5 w-5 mb-1" />
+                      </motion.div>
+                      <span className="text-xs font-medium">{tab.label}</span>
+                    </button>
+                  </Interactive>
+                </StaggerItem>
               );
             })}
-          </div>
-        </div>
+          </StaggerContainer>
+        </motion.div>
       </div>
 
       {/* Notifications Panel */}
@@ -436,6 +523,6 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
         isOpen={showFavorites}
         onClose={() => setShowFavorites(false)}
       />
-    </div>
+    </motion.div>
   );
 };

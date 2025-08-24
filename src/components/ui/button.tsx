@@ -1,8 +1,9 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-
+import { motion, MotionProps } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { transitions, getAccessibleVariants } from "@/lib/motion"
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
@@ -33,15 +34,54 @@ const buttonVariants = cva(
   }
 )
 
+// Motion variants for button animations
+const buttonMotionVariants = getAccessibleVariants({
+  rest: {
+    scale: 1,
+    transition: transitions.fast,
+  },
+  hover: {
+    scale: 1.02,
+    transition: transitions.fast,
+  },
+  tap: {
+    scale: 0.98,
+    transition: transitions.fast,
+  },
+  focus: {
+    scale: 1.01,
+    transition: transitions.fast,
+  },
+});
+
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onAnimationStart' | 'onAnimationEnd'>,
     VariantProps<typeof buttonVariants> {
-  asChild?: boolean
+  asChild?: boolean;
+  enableMotion?: boolean;
+  motionProps?: Partial<MotionProps>;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, enableMotion = true, motionProps, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
+    
+    if (enableMotion && !asChild) {
+      return (
+        <motion.button
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          variants={buttonMotionVariants}
+          initial="rest"
+          whileHover="hover"
+          whileTap="tap"
+          whileFocus="focus"
+          {...motionProps}
+          {...props}
+        />
+      )
+    }
+    
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
