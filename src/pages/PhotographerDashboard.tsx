@@ -21,8 +21,11 @@ import {
   DollarSign,
   StickyNote,
   MapPin,
+  BellIcon,
+  CalendarPlus,
   Bell,
   User,
+  AlertCircle,
   ShoppingCart,
   ImageIcon
 } from "lucide-react";
@@ -39,8 +42,8 @@ const PhotographerDashboard = () => {
   const unreadCount = 3;
 
   const tabs = [
-    { id: 'bookings', label: 'Bookings', icon: Calendar, description: 'Manage your bookings' },
-    { id: 'chat', label: 'Chat', icon: MessageSquare, description: 'Message with clients' },
+    { id: 'bookings', label: 'Bookings', icon: AlertCircle, description: 'Manage your bookings' },
+    { id: 'event', label: 'Event', icon: CalendarPlus, description: 'Message with Event Organizer' },
     { id: 'portfolio', label: 'Portfolio', icon: Camera, description: 'Manage your work' },
     { id: 'equipment', label: 'Equipment', icon: Package, description: 'My equipment & rent from others' },
     { id: 'photo-spots', label: 'Photo Spots', icon: MapPin, description: 'My spots & book from others' },
@@ -52,7 +55,7 @@ const PhotographerDashboard = () => {
     switch (activeSection) {
       case 'bookings':
         return <PhotographerBookings />;
-      case 'chat':
+      case 'event':
         return <PhotographerChatWindow />;
       case 'portfolio':
         return <PhotographerPortfolio />;
@@ -180,10 +183,6 @@ const PhotographerDashboard = () => {
             
             <div className="flex items-center justify-end w-full gap-4">
               <div className="flex items-center space-x-4">
-                <NotificationTrigger 
-                  unreadCount={unreadCount}
-                  onOpenPanel={() => setIsNotificationOpen(true)}
-                />
                 
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center">

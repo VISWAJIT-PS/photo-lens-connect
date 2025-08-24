@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar as CalendarIcon, Clock, MapPin, User, Check, X, MessageSquare, Plus, Edit, Trash2, Settings } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, MapPin, User, Check, X, MessageSquare, Plus, Edit, Trash2, Settings, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -436,6 +436,15 @@ export function PhotographerBookings() {
           <TabsTrigger value="availability">
             Availability Management
           </TabsTrigger>
+          <TabsTrigger value="calendar">
+            Calendar View
+          </TabsTrigger>
+          <TabsTrigger value="history">
+            Booking History
+          </TabsTrigger>
+          <TabsTrigger value="analytics">
+            Analytics
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="upcoming" className="space-y-4">
@@ -580,6 +589,260 @@ export function PhotographerBookings() {
                     </Button>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="calendar" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarIcon className="h-5 w-5" />
+                Calendar View
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    className="rounded-md border w-full"
+                  />
+                </div>
+                <div className="space-y-4">
+                  <h3 className="font-semibold">Today's Schedule</h3>
+                  <div className="space-y-2">
+                    <div className="p-3 border rounded-lg">
+                      <p className="font-medium text-sm">Wedding Consultation</p>
+                      <p className="text-xs text-muted-foreground">2:00 PM - 3:00 PM</p>
+                      <p className="text-xs text-muted-foreground">Sarah & John</p>
+                    </div>
+                    <div className="p-3 border rounded-lg">
+                      <p className="font-medium text-sm">Equipment Prep</p>
+                      <p className="text-xs text-muted-foreground">4:00 PM - 5:00 PM</p>
+                      <p className="text-xs text-muted-foreground">Personal Task</p>
+                    </div>
+                  </div>
+                  
+                  <h3 className="font-semibold pt-4">Quick Actions</h3>
+                  <div className="space-y-2">
+                    <Button variant="outline" size="sm" className="w-full justify-start">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Block Date
+                    </Button>
+                    <Button variant="outline" size="sm" className="w-full justify-start">
+                      <Clock className="h-4 w-4 mr-2" />
+                      Add Availability
+                    </Button>
+                    <Button variant="outline" size="sm" className="w-full justify-start">
+                      <CalendarIcon className="h-4 w-4 mr-2" />
+                      Schedule Consultation
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="history" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Booking History</h2>
+            <div className="flex gap-2">
+              <Select defaultValue="all">
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Bookings</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                  <SelectItem value="no-show">No Show</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select defaultValue="2024">
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="Year" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2024">2024</SelectItem>
+                  <SelectItem value="2023">2023</SelectItem>
+                  <SelectItem value="2022">2022</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="grid gap-4">
+            {[
+              {
+                id: 'hist-1',
+                client: 'Emma & David Wilson',
+                type: 'Wedding Photography',
+                date: '2024-01-20',
+                status: 'completed',
+                revenue: 2200,
+                rating: 5
+              },
+              {
+                id: 'hist-2',
+                client: 'TechCorp Annual Meeting',
+                type: 'Corporate Event',
+                date: '2024-01-15',
+                status: 'completed',
+                revenue: 800,
+                rating: 4
+              },
+              {
+                id: 'hist-3',
+                client: 'Johnson Family',
+                type: 'Family Portrait',
+                date: '2024-01-10',
+                status: 'cancelled',
+                revenue: 0,
+                rating: null
+              }
+            ].map((booking) => (
+              <Card key={booking.id}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="font-semibold">{booking.client}</h3>
+                        <Badge variant={booking.status === 'completed' ? 'default' : booking.status === 'cancelled' ? 'destructive' : 'secondary'}>
+                          {booking.status}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{booking.type}</p>
+                      <p className="text-sm text-muted-foreground flex items-center gap-1">
+                        <CalendarIcon className="h-3 w-3" />
+                        {booking.date}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-bold text-primary">
+                        {booking.revenue > 0 ? `$${booking.revenue}` : '-'}
+                      </p>
+                      {booking.rating && (
+                        <div className="flex items-center gap-1 mt-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-3 w-3 ${i < booking.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">47</div>
+                <p className="text-xs text-muted-foreground">+12% from last month</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">$23,450</div>
+                <p className="text-xs text-muted-foreground">+18% from last month</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Avg Rating</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold flex items-center gap-1">
+                  4.8 <Star className="h-5 w-5 text-yellow-400 fill-current" />
+                </div>
+                <p className="text-xs text-muted-foreground">Based on 42 reviews</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">73%</div>
+                <p className="text-xs text-muted-foreground">Requests to bookings</p>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Booking Types Distribution</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {[
+                    { type: 'Wedding Photography', count: 18, percentage: 38 },
+                    { type: 'Portrait Sessions', count: 12, percentage: 26 },
+                    { type: 'Corporate Events', count: 8, percentage: 17 },
+                    { type: 'Family Photography', count: 6, percentage: 13 },
+                    { type: 'Engagement Photos', count: 3, percentage: 6 }
+                  ].map((item) => (
+                    <div key={item.type} className="flex items-center justify-between">
+                      <span className="text-sm">{item.type}</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-32 bg-muted rounded-full h-2">
+                          <div 
+                            className="bg-primary h-2 rounded-full" 
+                            style={{ width: `${item.percentage}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-medium w-8">{item.count}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Monthly Performance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {[
+                    { month: 'January', bookings: 15, revenue: 8200 },
+                    { month: 'February', bookings: 12, revenue: 6800 },
+                    { month: 'March', bookings: 20, revenue: 8650 },
+                    { month: 'April', bookings: 18, revenue: 9200 }
+                  ].map((month) => (
+                    <div key={month.month} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">{month.month}</p>
+                        <p className="text-sm text-muted-foreground">{month.bookings} bookings</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-primary">${month.revenue.toLocaleString()}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </div>
