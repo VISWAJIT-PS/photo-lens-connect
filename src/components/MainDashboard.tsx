@@ -311,7 +311,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
             </div>
           </header>
 
-          <main className={`flex-1 ${activeTab === 'chat' ? " overflow-y-hidden" : " overflow-y-auto"}`}>
+          <main className={`flex-1 ${activeTab === 'chat' ? "" : "flexoverflow-y-auto"}`}>
             {activeTab === 'Book Your Event' && <WorksTab onboardingData={onboardingData} filter={worksFilter} />}
             {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
             {activeTab === 'gallery' && <GalleryTab />}
