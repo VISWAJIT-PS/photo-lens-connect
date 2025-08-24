@@ -597,7 +597,7 @@ const ChatApp: React.FC = () => {
               <div className="w-96 border-r border-border bg-card">
                 <div className="p-4 border-b border-border space-y-4">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold">Work Conversations</h2>
+                    <h2 className="text-lg font-semibold">Project Management</h2>
                     <Badge variant="secondary">{getFilteredConversations().length}</Badge>
                   </div>
                   
@@ -703,7 +703,7 @@ const ChatApp: React.FC = () => {
         {/* Header with New Event Button */}
         <div className="border-b border-border px-6 py-4 bg-card">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold">Project Management</h1>
+            <h1 className="text-2xl font-bold">Work Conversations</h1>
             
           </div>
           
