@@ -333,7 +333,7 @@ const ChatApp: React.FC = () => {
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent>
+                          <DropdownMenuContent className='bg-white'>
                             <DropdownMenuItem>
                               <Edit className="h-4 w-4 mr-2" />
                               Edit Package
