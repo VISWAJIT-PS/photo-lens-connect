@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft, MessageSquare, Images, Receipt, Lock, Award, CheckCircle, XCircle, Eye, Camera, Star, Upload, Package, Plus, Edit, Trash2, Calendar, Clock, FileText, Users, AlertCircle, CheckCheck, MapPin, DollarSign, UserPlus, Zap, Wrench, UserCheck, UserX, Settings, Download, ChevronRight } from 'lucide-react';
+import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft, MessageSquare, Images, Receipt, Lock, Award, CheckCircle, XCircle, Eye, Camera, Star, Upload, Package, Plus, Edit, Trash2, Calendar, Clock, FileText, Users, AlertCircle, CheckCheck, MapPin, DollarSign, UserPlus, Zap, Wrench, UserCheck, UserX, Settings, Download, ChevronRight, ChevronLeft, Share2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -238,6 +238,7 @@ const ChatApp: React.FC = () => {
         {
           id: "photo-1",
           url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&h=800&fit=crop",
           rating: 5,
           approved: true,
           userFeedback: "Absolutely beautiful shot!"
@@ -245,9 +246,101 @@ const ChatApp: React.FC = () => {
         {
           id: "photo-2",
           url: "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?w=1200&h=800&fit=crop",
           rating: 4,
           approved: true,
           userFeedback: "Love this one!"
+        },
+        {
+          id: "photo-3",
+          url: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=1200&h=800&fit=crop",
+          rating: 5,
+          approved: true,
+          userFeedback: "Perfect ceremony moment!"
+        },
+        {
+          id: "photo-4",
+          url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&h=800&fit=crop",
+          rating: 4,
+          approved: true,
+          userFeedback: "Beautiful venue shot!"
+        },
+        {
+          id: "photo-5",
+          url: "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=1200&h=800&fit=crop",
+          rating: 5,
+          approved: true,
+          userFeedback: "Amazing couple portrait!"
+        },
+        {
+          id: "photo-6",
+          url: "https://images.unsplash.com/photo-1594736797933-d0bc2a7f7121?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1594736797933-d0bc2a7f7121?w=1200&h=800&fit=crop",
+          rating: 4,
+          approved: true,
+          userFeedback: "Great candid moment!"
+        },
+        {
+          id: "photo-7",
+          url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=1200&h=800&fit=crop",
+          rating: 5,
+          approved: true,
+          userFeedback: "Stunning reception photo!"
+        },
+        {
+          id: "photo-8",
+          url: "https://images.unsplash.com/photo-1545291730-faff8ca1d4b0?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1545291730-faff8ca1d4b0?w=1200&h=800&fit=crop",
+          rating: 4,
+          approved: true,
+          userFeedback: "Beautiful ring details!"
+        }
+      ]
+    },
+    {
+      id: "event-2",
+      eventName: "Corporate Event Photography",
+      customer: "Michael Chen",
+      eventDate: "2024-02-22",
+      uploadedPhotos: 28,
+      approvedPhotos: 25,
+      averageRating: 4.6,
+      photos: [
+        {
+          id: "photo-9",
+          url: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=1200&h=800&fit=crop",
+          rating: 5,
+          approved: true,
+          userFeedback: "Professional conference shot!"
+        },
+        {
+          id: "photo-10",
+          url: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=1200&h=800&fit=crop",
+          rating: 4,
+          approved: true,
+          userFeedback: "Great speaker capture!"
+        },
+        {
+          id: "photo-11",
+          url: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=1200&h=800&fit=crop",
+          rating: 4,
+          approved: true,
+          userFeedback: "Nice networking moment!"
+        },
+        {
+          id: "photo-12",
+          url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&h=800&fit=crop",
+          rating: 5,
+          approved: true,
+          userFeedback: "Perfect venue overview!"
         }
       ]
     }
@@ -558,6 +651,11 @@ const ChatApp: React.FC = () => {
   const [filterPriority, setFilterPriority] = useState("all");
   const [eventFilter, setEventFilter] = useState("all"); // all, created-by-me, user-initiated
   
+  // Lightbox state for photo viewer
+  const [showLightbox, setShowLightbox] = useState(false);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [currentEventPhotos, setCurrentEventPhotos] = useState([]);
+  
   // Create Event Form Data
   const [createEventForm, setCreateEventForm] = useState({
     eventName: "",
@@ -703,6 +801,31 @@ const ChatApp: React.FC = () => {
       description: "New task has been added to your workflow.",
     });
   };
+
+  // Add keyboard navigation for lightbox
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (!showLightbox || currentEventPhotos.length <= 1) return;
+      
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        const prevIndex = currentPhotoIndex > 0 ? currentPhotoIndex - 1 : currentEventPhotos.length - 1;
+        setCurrentPhotoIndex(prevIndex);
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        const nextIndex = currentPhotoIndex < currentEventPhotos.length - 1 ? currentPhotoIndex + 1 : 0;
+        setCurrentPhotoIndex(nextIndex);
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        setShowLightbox(false);
+      }
+    };
+
+    if (showLightbox) {
+      document.addEventListener('keydown', handleKeyPress);
+      return () => document.removeEventListener('keydown', handleKeyPress);
+    }
+  }, [showLightbox, currentPhotoIndex, currentEventPhotos.length]);
 
   const getFilteredConversations = () => {
     return conversations.filter(conv => {
@@ -1625,10 +1748,34 @@ const ChatApp: React.FC = () => {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Event Gallery</h2>
-                <Button onClick={() => setShowUploadDialog(true)}>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Photos
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline"
+                    onClick={() => {
+                      // Generate shareable link
+                      const shareUrl = `${window.location.origin}/gallery/shared`;
+                      navigator.clipboard.writeText(shareUrl).then(() => {
+                        toast({
+                          title: "Gallery Link Copied!",
+                          description: "Share link has been copied to clipboard."
+                        });
+                      }).catch(() => {
+                        toast({
+                          title: "Share Gallery",
+                          description: "Gallery link: " + shareUrl,
+                          variant: "default"
+                        });
+                      });
+                    }}
+                  >
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Share Gallery
+                  </Button>
+                  <Button onClick={() => setShowUploadDialog(true)}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Photos
+                  </Button>
+                </div>
               </div>
 
               <div className="grid gap-6">
@@ -1663,16 +1810,22 @@ const ChatApp: React.FC = () => {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {event.photos.map((photo) => (
-                          <div key={photo.id} className="relative group">
+                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        {event.photos.map((photo, index) => (
+                          <div key={photo.id} className="relative group cursor-pointer">
                             <img
                               src={photo.url}
                               alt="Event photo"
-                              className="w-full h-32 object-cover rounded-lg"
+                              className="w-full h-32 object-cover rounded-lg transition-transform group-hover:scale-105"
+                              onClick={() => {
+                                setCurrentEventPhotos(event.photos);
+                                setCurrentPhotoIndex(index);
+                                setShowLightbox(true);
+                              }}
                             />
                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                               <div className="text-white text-center">
+                                <Eye className="h-6 w-6 mx-auto mb-2" />
                                 <div className="flex items-center justify-center mb-1">
                                   {[...Array(5)].map((_, i) => (
                                     <Star
@@ -1693,6 +1846,16 @@ const ChatApp: React.FC = () => {
                           </div>
                         ))}
                       </div>
+                      
+                      {/* Show more photos button if there are many photos */}
+                      {event.photos.length > 12 && (
+                        <div className="text-center mt-4">
+                          <Button variant="outline">
+                            <Images className="h-4 w-4 mr-2" />
+                            View All {event.photos.length} Photos
+                          </Button>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -3322,6 +3485,173 @@ const ChatApp: React.FC = () => {
                 Send Invitation
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Photo Lightbox Dialog */}
+      <Dialog open={showLightbox} onOpenChange={setShowLightbox}>
+        <DialogContent className="max-w-6xl max-h-[95vh] p-0 bg-black/95">
+          <div className="relative h-full">
+            {currentEventPhotos.length > 0 && (
+              <>
+                {/* Main Photo */}
+                <div className="flex items-center justify-center p-4 h-[80vh]">
+                  <img
+                    src={currentEventPhotos[currentPhotoIndex]?.fullUrl || currentEventPhotos[currentPhotoIndex]?.url}
+                    alt="Event photo"
+                    className="max-w-full max-h-full object-contain rounded-lg"
+                  />
+                </div>
+                
+                {/* Navigation Controls */}
+                <div className="absolute top-1/2 left-4 transform -translate-y-1/2">
+                  <Button
+                    variant="ghost"
+                    size="lg"
+                    className="h-12 w-12 rounded-full bg-black/50 hover:bg-black/70 text-white"
+                    onClick={() => {
+                      const prevIndex = currentPhotoIndex > 0 ? currentPhotoIndex - 1 : currentEventPhotos.length - 1;
+                      setCurrentPhotoIndex(prevIndex);
+                    }}
+                    disabled={currentEventPhotos.length <= 1}
+                  >
+                    <ChevronLeft className="h-6 w-6" />
+                  </Button>
+                </div>
+                
+                <div className="absolute top-1/2 right-4 transform -translate-y-1/2">
+                  <Button
+                    variant="ghost"
+                    size="lg"
+                    className="h-12 w-12 rounded-full bg-black/50 hover:bg-black/70 text-white"
+                    onClick={() => {
+                      const nextIndex = currentPhotoIndex < currentEventPhotos.length - 1 ? currentPhotoIndex + 1 : 0;
+                      setCurrentPhotoIndex(nextIndex);
+                    }}
+                    disabled={currentEventPhotos.length <= 1}
+                  >
+                    <ChevronRight className="h-6 w-6" />
+                  </Button>
+                </div>
+                
+                {/* Top Controls */}
+                <div className="absolute top-4 left-4 right-4 flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                      {currentPhotoIndex + 1} of {currentEventPhotos.length}
+                    </div>
+                    {currentEventPhotos[currentPhotoIndex]?.approved && (
+                      <Badge className="bg-green-600">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Approved
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="bg-black/50 hover:bg-black/70 text-white"
+                      onClick={() => {
+                        const photo = currentEventPhotos[currentPhotoIndex];
+                        const shareUrl = photo.fullUrl || photo.url;
+                        
+                        if (navigator.share) {
+                          navigator.share({
+                            title: 'Event Photo',
+                            text: 'Check out this amazing photo!',
+                            url: shareUrl
+                          }).catch(console.error);
+                        } else {
+                          navigator.clipboard.writeText(shareUrl).then(() => {
+                            toast({
+                              title: "Photo Link Copied!",
+                              description: "Photo link has been copied to clipboard."
+                            });
+                          }).catch(() => {
+                            toast({
+                              title: "Share Photo",
+                              description: "Photo URL: " + shareUrl,
+                              variant: "default"
+                            });
+                          });
+                        }
+                      }}
+                    >
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Share
+                    </Button>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="bg-black/50 hover:bg-black/70 text-white"
+                      onClick={() => {
+                        const photo = currentEventPhotos[currentPhotoIndex];
+                        const link = document.createElement('a');
+                        link.href = photo.fullUrl || photo.url;
+                        link.download = `event-photo-${photo.id}.jpg`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        
+                        toast({
+                          title: "Photo Downloaded",
+                          description: "Photo has been downloaded to your device."
+                        });
+                      }}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </Button>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="bg-black/50 hover:bg-black/70 text-white"
+                      onClick={() => setShowLightbox(false)}
+                    >
+                      <XCircle className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Bottom Info */}
+                <div className="absolute bottom-4 left-4 right-4">
+                  <div className="bg-black/50 text-white p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-4 w-4 ${
+                                i < (currentEventPhotos[currentPhotoIndex]?.rating || 0) 
+                                  ? 'text-yellow-400 fill-current' 
+                                  : 'text-gray-400'
+                              }`}
+                            />
+                          ))}
+                          <span className="text-sm ml-2">
+                            {currentEventPhotos[currentPhotoIndex]?.rating || 0}/5
+                          </span>
+                        </div>
+                        <p className="text-sm">{currentEventPhotos[currentPhotoIndex]?.userFeedback}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Keyboard Navigation Helper */}
+                <div className="absolute bottom-4 right-4">
+                  <div className="bg-black/30 text-white text-xs px-2 py-1 rounded">
+                    Use ← → arrow keys to navigate
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
