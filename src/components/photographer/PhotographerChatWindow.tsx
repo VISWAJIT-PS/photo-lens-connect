@@ -892,7 +892,7 @@ const ChatApp: React.FC = () => {
           </TabsContent>
 
           {/* Tasks Tab */}
-          <TabsContent value="tasks" className="h-full m-0 p-6">
+          <TabsContent value="tasks" className="h-full m-0 p-6 overflow-y-auto">
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Work Tasks</h2>
@@ -1005,7 +1005,7 @@ const ChatApp: React.FC = () => {
           </TabsContent>
 
           {/* Gallery Tab */}
-          <TabsContent value="gallery" className="h-full m-0 p-6">
+          <TabsContent value="gallery" className="h-full m-0 p-6 overflow-y-auto">
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Event Gallery</h2>
@@ -1085,7 +1085,7 @@ const ChatApp: React.FC = () => {
           </TabsContent>
 
           {/* Portfolio Tab */}
-          <TabsContent value="portfolio" className="h-full m-0 p-6">
+          <TabsContent value="portfolio" className="h-full m-0 p-6 overflow-y-auto">
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Portfolio Packages</h2>
@@ -1157,7 +1157,7 @@ const ChatApp: React.FC = () => {
           </TabsContent>
 
           {/* Event Details Tab */}
-          <TabsContent value="event-details" className="h-full m-0 p-6">
+          <TabsContent value="event-details" className="h-full m-0 p-6 overflow-y-auto">
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Event Details</h2>
@@ -1251,7 +1251,7 @@ const ChatApp: React.FC = () => {
           </TabsContent>
 
           {/* Invoice Tab */}
-          <TabsContent value="invoice" className="h-full m-0 p-6">
+          <TabsContent value="invoice" className="h-full m-0 p-6 overflow-y-auto">
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Invoice Management</h2>
@@ -1341,7 +1341,7 @@ const ChatApp: React.FC = () => {
           </TabsContent>
 
           {/* Members Tab */}
-          <TabsContent value="members" className="h-full m-0 p-6">
+          <TabsContent value="members" className="h-full m-0 p-6 overflow-y-auto">
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Team Members</h2>
@@ -1402,7 +1402,7 @@ const ChatApp: React.FC = () => {
           </TabsContent>
 
           {/* Rentals Tab */}
-          <TabsContent value="rentals" className="h-full m-0 p-6">
+          <TabsContent value="rentals" className="h-full m-0 p-6 overflow-y-auto">
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Available Equipment Rentals</h2>
