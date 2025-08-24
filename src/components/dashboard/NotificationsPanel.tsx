@@ -124,7 +124,7 @@ export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, 
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-full sm:max-w-md overflow-auto">
+      <SheetContent className="w-full sm:max-w-md">
         <SheetHeader className="space-y-3">
           <div className="flex items-center justify-between">
             <SheetTitle className="flex items-center">
