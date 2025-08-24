@@ -406,6 +406,18 @@ export function PhotographerBookings() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Bookings Management</h1>
         <div className="flex gap-2">
+          <Button onClick={() => {
+            // Navigate to chat with option to start new conversation
+            navigate('/photographer-dashboard', { 
+              state: { 
+                activeSection: 'chat', 
+                showNewChatDialog: true 
+              } 
+            });
+          }}>
+            <MessageSquare className="h-4 w-4 mr-2" />
+            New Chat
+          </Button>
           <Dialog open={showAddAvailability} onOpenChange={setShowAddAvailability}>
             <DialogTrigger asChild>
               <Button onClick={() => { resetAvailabilityForm(); setShowAddAvailability(true); }}>
