@@ -7,6 +7,8 @@ import { useAuthStore } from '@/stores/auth-store';
 import { OnboardingPopup } from './OnboardingPopup';
 import { WorksTab } from './dashboard/WorksTab';
 import { RentalsTab } from './dashboard/RentalsTab';
+import { EquipmentRentalsTab } from './dashboard/EquipmentRentalsTab';
+import { PhotoSpotsTab } from './dashboard/PhotoSpotsTab';
 import { GalleryTab } from './dashboard/GalleryTab';
 import ChatApp from './dashboard/ChatTab';
 import { NotificationsPanel } from './dashboard/NotificationsPanel';
@@ -149,7 +151,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
           setActiveTab('Book Your Event');
           break;
         case 'rentals':
-          setActiveTab('rentals');
+          setActiveTab('equipment-rentals');
           setWorksFilter(null);
           break;
         default:
@@ -163,7 +165,8 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
 
   const tabs = [
     { id: 'Book Your Event', label: 'Book Your Event', icon: Camera, description: 'Find photographers & videographers' },
-    { id: 'rentals', label: 'Rentals', icon: Package, description: 'Rent equipment & Find Your Photo Spot' },
+    { id: 'equipment-rentals', label: 'Equipment Rentals', icon: Package, description: 'Rent cameras & equipment' },
+    { id: 'photo-spots', label: 'Photo Spots', icon: Images, description: 'Find your photo locations' },
     { id: 'gallery', label: 'Gallery', icon: Images, description: 'View your event albums' },
     { id: 'chat', label: 'Chat', icon: MessageCircle, description: 'Message your service providers' },
   ];
@@ -313,7 +316,8 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
 
           <main className={`flex-1 ${activeTab === 'chat' ? " overflow-y-hidden" : " overflow-y-auto"}`}>
             {activeTab === 'Book Your Event' && <WorksTab onboardingData={onboardingData} filter={worksFilter} />}
-            {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
+            {activeTab === 'equipment-rentals' && <EquipmentRentalsTab onboardingData={onboardingData} />}
+            {activeTab === 'photo-spots' && <PhotoSpotsTab onboardingData={onboardingData} />}
             {activeTab === 'gallery' && <GalleryTab />}
             {activeTab === 'chat' && <ChatApp/>}
             {activeTab === 'settings' && <EcommerceUserSettings />}
@@ -393,7 +397,8 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
         {/* Mobile Content */}
         <main className="pb-20 overflow-y-auto">
           {activeTab === 'Book Your Event' && <WorksTab onboardingData={onboardingData} />}
-          {activeTab === 'rentals' && <RentalsTab onboardingData={onboardingData} />}
+          {activeTab === 'equipment-rentals' && <EquipmentRentalsTab onboardingData={onboardingData} />}
+          {activeTab === 'photo-spots' && <PhotoSpotsTab onboardingData={onboardingData} />}
           {activeTab === 'gallery' && <GalleryTab />}
           {activeTab === 'chat' && (
             <ChatApp 
@@ -405,7 +410,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
         {/* Mobile Bottom Navigation */}
         <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border">
           <div className="grid grid-cols-4 gap-1 p-2">
-            {tabs.map((tab) => {
+            {tabs.slice(0, 4).map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
