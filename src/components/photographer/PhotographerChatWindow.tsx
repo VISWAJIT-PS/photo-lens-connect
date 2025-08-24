@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft, MessageSquare, Images, Receipt, Lock, Award, CheckCircle, XCircle, Eye, Camera, Star, Upload, Package, Plus, Edit, Trash2, Calendar, Clock, FileText, Users, AlertCircle, CheckCheck, DollarSign, UserPlus, ShoppingCart, MapPin } from 'lucide-react';
+import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft, MessageSquare, Images, Receipt, Lock, Award, CheckCircle, XCircle, Eye, Camera, Star, Upload, Package, Plus, Edit, Trash2, Calendar, Clock, FileText, Users, AlertCircle, CheckCheck, MapPin, DollarSign, UserPlus, Zap, PenTool, UserCheck, UserX, Settings, Download } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -17,11 +18,11 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from '../ui/dropdown-menu';
-import { useToast } from '../../hooks/use-toast';
+import { useToast } from '../ui/use-toast';
 
 // Enhanced Chat component with 3 tabs
 const ChatApp: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("gallery"); // Changed default to gallery for testing
+  const [activeTab, setActiveTab] = useState("messages");
   const [conversations, setConversations] = useState([
     {
       id: "conv-1",
@@ -136,6 +137,278 @@ const ChatApp: React.FC = () => {
     }
   ]);
 
+  // Event Details Data
+  const [eventDetails, setEventDetails] = useState({
+    eventName: "Sarah & John Wedding",
+    eventType: "Wedding Photography",
+    client: "Sarah Johnson",
+    date: "2024-02-15",
+    time: "2:00 PM - 10:00 PM",
+    location: "Central Park Conservatory Garden, NYC",
+    venue: {
+      name: "Conservatory Garden",
+      address: "Central Park, 5th Ave & E 105th St, New York, NY 10029",
+      contact: "+1 (212) 310-6600",
+      notes: "Permit required for photography"
+    },
+    timeline: [
+      { time: "2:00 PM", activity: "Bride preparation photos", location: "Plaza Hotel Suite" },
+      { time: "4:00 PM", activity: "First look session", location: "Bethesda Fountain" },
+      { time: "5:00 PM", activity: "Wedding ceremony", location: "Conservatory Garden" },
+      { time: "6:00 PM", activity: "Cocktail hour", location: "Garden Reception Area" },
+      { time: "7:30 PM", activity: "Reception dinner", location: "Main Pavilion" },
+      { time: "9:00 PM", activity: "Dancing & party photos", location: "Dance Floor" }
+    ],
+    requirements: [
+      "2 photographers (main + assistant)",
+      "Drone shots permitted with advance notice",
+      "No flash during ceremony",
+      "Backup equipment required"
+    ],
+    deliverables: [
+      "500+ edited high-resolution photos",
+      "Online gallery within 4 weeks",
+      "USB drive with full resolution images",
+      "20-page wedding album"
+    ],
+    budget: "$2,500",
+    status: "confirmed",
+    notes: "Client prefers natural lighting and candid moments. Special focus on family group photos."
+  });
+
+  // Invoice Data
+  const [invoices, setInvoices] = useState([
+    {
+      id: "INV-2024-001",
+      client: "Sarah Johnson",
+      projectName: "Sarah & John Wedding",
+      issueDate: "2024-01-15",
+      dueDate: "2024-02-01",
+      status: "paid",
+      subtotal: 2500,
+      tax: 200,
+      total: 2700,
+      items: [
+        {
+          description: "Wedding Photography Package - Premium",
+          quantity: 1,
+          rate: 2000,
+          amount: 2000
+        },
+        {
+          description: "Additional Hour Coverage",
+          quantity: 2,
+          rate: 150,
+          amount: 300
+        },
+        {
+          description: "Wedding Album (20 pages)",
+          quantity: 1,
+          rate: 200,
+          amount: 200
+        }
+      ],
+      payments: [
+        {
+          date: "2024-01-20",
+          amount: 1350, // 50% deposit
+          method: "Bank Transfer",
+          reference: "TXN-001"
+        },
+        {
+          date: "2024-02-01",
+          amount: 1350, // Final payment
+          method: "Credit Card",
+          reference: "TXN-002"
+        }
+      ]
+    },
+    {
+      id: "INV-2024-002",
+      client: "Michael Chen",
+      projectName: "Corporate Event Photography",
+      issueDate: "2024-02-10",
+      dueDate: "2024-02-25",
+      status: "pending",
+      subtotal: 800,
+      tax: 64,
+      total: 864,
+      items: [
+        {
+          description: "Corporate Event Photography (4 hours)",
+          quantity: 1,
+          rate: 800,
+          amount: 800
+        }
+      ],
+      payments: []
+    }
+  ]);
+
+  // Team Members Data
+  const [teamMembers, setTeamMembers] = useState([
+    {
+      id: "member-1",
+      name: "Alex Rivera",
+      role: "Assistant Photographer",
+      email: "alex@photoassist.com",
+      phone: "+1 (555) 123-4567",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face",
+      status: "active",
+      joinDate: "2024-01-15",
+      specialties: ["Portrait Photography", "Event Coverage"],
+      equipment: ["Canon EOS R6", "24-70mm f/2.8", "Speedlight"],
+      availability: "full-time",
+      hourlyRate: "$50/hour"
+    },
+    {
+      id: "member-2",
+      name: "Jessica Chen",
+      role: "Video Specialist",
+      email: "jessica@videoteam.com",
+      phone: "+1 (555) 987-6543",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&fit=crop&crop=face",
+      status: "active",
+      joinDate: "2024-02-01",
+      specialties: ["Wedding Videography", "Drone Operations"],
+      equipment: ["Sony FX3", "DJI Mavic 3", "Gimbal Stabilizer"],
+      availability: "weekends",
+      hourlyRate: "$75/hour"
+    },
+    {
+      id: "member-3",
+      name: "David Park",
+      role: "Photo Editor",
+      email: "david@editpro.com",
+      phone: "+1 (555) 456-7890",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face",
+      status: "freelance",
+      joinDate: "2023-12-10",
+      specialties: ["Photo Retouching", "Color Grading", "Album Design"],
+      equipment: ["High-end Workstation", "Wacom Tablet", "Calibrated Monitors"],
+      availability: "remote",
+      hourlyRate: "$40/hour"
+    }
+  ]);
+
+  // Available Rental Equipment Data
+  const [rentalEquipment, setRentalEquipment] = useState([
+    {
+      id: 1,
+      name: "Canon EOS R5",
+      category: "Cameras",
+      price: "$150/day",
+      rating: 4.9,
+      location: "New York, NY",
+      description: "Professional mirrorless camera with 45MP sensor and 8K video recording.",
+      image_url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32",
+      available: true,
+      reviews: 45,
+      specs: ["45MP Full Frame", "8K Video", "5-axis Stabilization"],
+      owner: {
+        name: "Sarah Johnson",
+        avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b3d8?w=64&h=64&fit=crop&crop=face",
+        rating: 4.8,
+        totalRentals: 120
+      }
+    },
+    {
+      id: 2,
+      name: "Sony A7S III",
+      category: "Cameras",
+      price: "$120/day",
+      rating: 4.8,
+      location: "Los Angeles, CA",
+      description: "Full-frame mirrorless perfect for video with excellent low-light performance.",
+      image_url: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd",
+      available: true,
+      reviews: 38,
+      specs: ["12MP Full Frame", "4K Video", "Dual Base ISO"],
+      owner: {
+        name: "Mike Chen",
+        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face",
+        rating: 4.9,
+        totalRentals: 98
+      }
+    },
+    {
+      id: 3,
+      name: "DJI Mavic 3",
+      category: "Drones",
+      price: "$200/day",
+      rating: 4.9,
+      location: "San Francisco, CA",
+      description: "Professional drone with Hasselblad camera and 5.1K video recording.",
+      image_url: "https://images.unsplash.com/photo-1527977966376-1c8408f9f108",
+      available: true,
+      reviews: 62,
+      specs: ["Hasselblad Camera", "5.1K Video", "46min Flight Time"],
+      owner: {
+        name: "Alex Rivera",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face",
+        rating: 4.7,
+        totalRentals: 76
+      }
+    },
+    {
+      id: 4,
+      name: "Godox AD200 Pro",
+      category: "Lighting",
+      price: "$80/day",
+      rating: 4.7,
+      location: "Chicago, IL",
+      description: "Portable flash system with 200Ws power and lithium battery.",
+      image_url: "https://images.unsplash.com/photo-1519638399535-1b036603ac77",
+      available: true,
+      reviews: 29,
+      specs: ["200Ws Power", "Lithium Battery", "TTL Compatible"],
+      owner: {
+        name: "Jessica Liu",
+        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&fit=crop&crop=face",
+        rating: 4.6,
+        totalRentals: 54
+      }
+    },
+    {
+      id: 5,
+      name: "Sigma 85mm f/1.4",
+      category: "Lenses",
+      price: "$60/day",
+      rating: 4.8,
+      location: "Miami, FL",
+      description: "Professional portrait lens with beautiful bokeh and sharp optics.",
+      image_url: "https://images.unsplash.com/photo-1617005082133-548c4dd27f35",
+      available: false,
+      reviews: 33,
+      specs: ["f/1.4 Aperture", "Art Series", "HSM Autofocus"],
+      owner: {
+        name: "Carlos Rodriguez",
+        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=64&h=64&fit=crop&crop=face",
+        rating: 4.5,
+        totalRentals: 42
+      }
+    },
+    {
+      id: 6,
+      name: "Manfrotto Tripod",
+      category: "Accessories",
+      price: "$25/day",
+      rating: 4.6,
+      location: "Boston, MA",
+      description: "Heavy-duty aluminum tripod with fluid head for smooth movements.",
+      image_url: "https://images.unsplash.com/photo-1495707902641-75cac588d2e9",
+      available: true,
+      reviews: 21,
+      specs: ["Aluminum Build", "Fluid Head", "Max Load 8kg"],
+      owner: {
+        name: "Emma Wilson",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&fit=crop&crop=face",
+        rating: 4.4,
+        totalRentals: 38
+      }
+    }
+  ]);
+
   const [messageInput, setMessageInput] = useState("");
   const [selectedConversation, setSelectedConversation] = useState(conversations[0]);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
@@ -143,8 +416,8 @@ const ChatApp: React.FC = () => {
   const [showTaskDialog, setShowTaskDialog] = useState(false);
   const [showFileDialog, setShowFileDialog] = useState(false);
   const [showNewChatDialog, setShowNewChatDialog] = useState(false);
-  const [showInvoiceDialog, setShowInvoiceDialog] = useState(false);
-  const [showMemberDialog, setShowMemberDialog] = useState(false);
+  const [showCreateInvoiceDialog, setShowCreateInvoiceDialog] = useState(false);
+  const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
@@ -216,137 +489,6 @@ const ChatApp: React.FC = () => {
       assignedTo: "You"
     }
   ]);
-
-  // Event details data
-  const [eventDetails, setEventDetails] = useState({
-    "conv-1": {
-      eventName: "Sarah & John Wedding",
-      eventType: "Wedding Photography",
-      eventDate: "2024-02-15",
-      eventTime: "2:00 PM",
-      venue: "Central Park, NYC",
-      duration: "8 hours",
-      guestCount: 150,
-      specialRequests: "Golden hour portraits, family group photos, reception candids",
-      timeline: [
-        { time: "2:00 PM", activity: "Bride preparation photos" },
-        { time: "3:30 PM", activity: "Groom preparation photos" },
-        { time: "5:00 PM", activity: "Ceremony" },
-        { time: "6:00 PM", activity: "Group photos" },
-        { time: "7:00 PM", activity: "Reception" }
-      ],
-      contacts: [
-        { role: "Bride", name: "Sarah Johnson", phone: "+1 (555) 123-4567" },
-        { role: "Groom", name: "John Williams", phone: "+1 (555) 123-4568" },
-        { role: "Wedding Planner", name: "Emily Chen", phone: "+1 (555) 123-4569" }
-      ]
-    }
-  });
-
-  // Invoice data
-  const [invoices, setInvoices] = useState([
-    {
-      id: "INV-001",
-      conversationId: "conv-1",
-      clientName: "Sarah Johnson",
-      eventDate: "2024-02-15",
-      status: "pending",
-      totalAmount: 2500,
-      items: [
-        { description: "Wedding Photography Package", quantity: 1, rate: 2000, amount: 2000 },
-        { description: "Additional Hour Coverage", quantity: 2, rate: 150, amount: 300 },
-        { description: "Rush Editing", quantity: 1, rate: 200, amount: 200 }
-      ],
-      dueDate: "2024-02-20",
-      paymentTerms: "50% deposit required, balance due within 30 days"
-    }
-  ]);
-
-  // Member list data
-  const [projectMembers, setProjectMembers] = useState({
-    "conv-1": [
-      {
-        id: "member-1",
-        name: "Sarah Johnson",
-        role: "Bride",
-        email: "sarah@email.com",
-        phone: "+1 (555) 123-4567",
-        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
-        permissions: ["view photos", "approve edits", "download finals"]
-      },
-      {
-        id: "member-2",
-        name: "John Williams",
-        role: "Groom",
-        email: "john@email.com",
-        phone: "+1 (555) 123-4568",
-        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
-        permissions: ["view photos", "approve edits"]
-      },
-      {
-        id: "member-3",
-        name: "Emily Chen",
-        role: "Wedding Planner",
-        email: "emily@weddingplanner.com",
-        phone: "+1 (555) 123-4569",
-        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-        permissions: ["view timeline", "coordinate schedule"]
-      }
-    ]
-  });
-
-  // Rental equipment data
-  const [availableEquipment, setAvailableEquipment] = useState([
-    {
-      id: "eq-1",
-      name: "Canon EOS R5",
-      category: "Camera Body",
-      dailyRate: 150,
-      available: true,
-      image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=200&h=200&fit=crop",
-      specifications: "45MP Full Frame, 8K Video",
-      accessories: ["Battery Grip", "Extra Batteries", "Memory Cards"]
-    },
-    {
-      id: "eq-2",
-      name: "Canon RF 24-70mm f/2.8L",
-      category: "Lens",
-      dailyRate: 80,
-      available: true,
-      image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=200&h=200&fit=crop",
-      specifications: "Professional zoom lens",
-      accessories: ["Lens Hood", "UV Filter"]
-    },
-    {
-      id: "eq-3",
-      name: "Profoto B10 Plus",
-      category: "Lighting",
-      dailyRate: 120,
-      available: true,
-      image: "https://images.unsplash.com/photo-1516975784-b544c928b50c?w=200&h=200&fit=crop",
-      specifications: "500Ws Monolight",
-      accessories: ["Light Stand", "Softbox", "Reflector"]
-    },
-    {
-      id: "eq-4",
-      name: "DJI Mavic 3 Pro",
-      category: "Drone",
-      dailyRate: 200,
-      available: false,
-      image: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=200&h=200&fit=crop",
-      specifications: "4/3 CMOS Hasselblad Camera",
-      accessories: ["Extra Batteries", "ND Filters", "Carrying Case"]
-    }
-  ]);
-
-  // Debug logging
-  console.log('ChatApp rendering with activeTab:', activeTab);
-  console.log('Available data:', { 
-    conversationsCount: conversations.length, 
-    galleryEventsCount: galleryEvents.length, 
-    portfolioPackagesCount: portfolioPackages.length,
-    availableEquipmentCount: availableEquipment.length 
-  });
 
   const sendMessage = () => {
     if (!messageInput.trim()) return;
@@ -449,16 +591,9 @@ const ChatApp: React.FC = () => {
   };
 
   return (
-    <div className="h-screen min-h-screen w-full bg-background">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full w-full flex flex-col">
-        <div className="border-b border-border px-6 py-4 bg-card">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold">Project Communication Hub</h1>
-            <Button onClick={() => setShowNewChatDialog(true)} size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              New Chat
-            </Button>
-          </div>
+    <div className="h-full bg-background">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+        <div className="border-b border-border px-6 py-4">
           <TabsList className="grid w-full grid-cols-8 max-w-4xl">
             <TabsTrigger value="messages" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
@@ -476,9 +611,9 @@ const ChatApp: React.FC = () => {
               <Package className="h-4 w-4" />
               Portfolio
             </TabsTrigger>
-            <TabsTrigger value="events" className="flex items-center gap-2">
+            <TabsTrigger value="event-details" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              Events
+              Event Details
             </TabsTrigger>
             <TabsTrigger value="invoice" className="flex items-center gap-2">
               <Receipt className="h-4 w-4" />
@@ -489,16 +624,16 @@ const ChatApp: React.FC = () => {
               Members
             </TabsTrigger>
             <TabsTrigger value="rentals" className="flex items-center gap-2">
-              <ShoppingCart className="h-4 w-4" />
+              <PenTool className="h-4 w-4" />
               Rentals
             </TabsTrigger>
           </TabsList>
         </div>
 
-        <div className="flex-1 overflow-hidden w-full">
+        <div className="flex-1 overflow-hidden">
           {/* Messages Tab */}
-          <TabsContent value="messages" className="h-full w-full m-0 data-[state=active]:flex">
-            <div className="flex h-full w-full">
+          <TabsContent value="messages" className="h-full m-0">
+            <div className="flex h-full">
               {/* Enhanced Conversation List */}
               <div className="w-80 border-r border-border bg-card">
                 <div className="p-4 border-b border-border space-y-4">
@@ -757,8 +892,8 @@ const ChatApp: React.FC = () => {
           </TabsContent>
 
           {/* Tasks Tab */}
-          <TabsContent value="tasks" className="h-full w-full m-0 flex flex-col data-[state=active]:flex">
-            <div className="p-6 border-b border-border flex-shrink-0">
+          <TabsContent value="tasks" className="h-full m-0 p-6">
+            <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Work Tasks</h2>
                 <Button onClick={() => setShowTaskDialog(true)}>
@@ -768,7 +903,7 @@ const ChatApp: React.FC = () => {
               </div>
 
               {/* Task Filters */}
-              <div className="flex gap-4 mt-4">
+              <div className="flex gap-4">
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
                   <SelectTrigger className="w-48">
                     <SelectValue placeholder="Filter by status" />
@@ -793,8 +928,7 @@ const ChatApp: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6 min-h-0">
+
               {/* Tasks List */}
               <div className="grid gap-4">
                 {taskList
@@ -871,8 +1005,8 @@ const ChatApp: React.FC = () => {
           </TabsContent>
 
           {/* Gallery Tab */}
-          <TabsContent value="gallery" className="h-full w-full m-0 flex flex-col data-[state=active]:flex">
-            <div className="p-6 border-b border-border flex-shrink-0">
+          <TabsContent value="gallery" className="h-full m-0 p-6">
+            <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Event Gallery</h2>
                 <Button onClick={() => setShowUploadDialog(true)}>
@@ -880,9 +1014,8 @@ const ChatApp: React.FC = () => {
                   Upload Photos
                 </Button>
               </div>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6 min-h-0">
-              <div className="space-y-6">
+
+              <div className="grid gap-6">
                 {galleryEvents.map((event) => (
                   <Card key={event.id}>
                     <CardHeader>
@@ -952,8 +1085,8 @@ const ChatApp: React.FC = () => {
           </TabsContent>
 
           {/* Portfolio Tab */}
-          <TabsContent value="portfolio" className="h-full w-full m-0 flex flex-col data-[state=active]:flex">
-            <div className="p-6 border-b border-border flex-shrink-0">
+          <TabsContent value="portfolio" className="h-full m-0 p-6">
+            <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Portfolio Packages</h2>
                 <Button onClick={() => setShowPackageDialog(true)}>
@@ -961,9 +1094,8 @@ const ChatApp: React.FC = () => {
                   Add Package
                 </Button>
               </div>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6 min-h-0">
-              <div className="space-y-6">
+
+              <div className="grid gap-6">
                 {portfolioPackages.map((pkg) => (
                   <Card key={pkg.id}>
                     <CardHeader>
@@ -1025,404 +1157,316 @@ const ChatApp: React.FC = () => {
           </TabsContent>
 
           {/* Event Details Tab */}
-          <TabsContent value="events" className="h-full w-full m-0 flex flex-col data-[state=active]:flex">
-            <div className="p-6 border-b border-border flex-shrink-0">
+          <TabsContent value="event-details" className="h-full m-0 p-6">
+            <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Event Details</h2>
-                <Button variant="outline">
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit Event
-                </Button>
+                <Badge className={eventDetails.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
+                  {eventDetails.status}
+                </Badge>
               </div>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6 min-h-0">
-              {selectedConversation && eventDetails[selectedConversation.id] && (
-                <div className="grid gap-6">
-                  {/* Event Overview */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Calendar className="h-5 w-5" />
-                        Event Overview
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Event Name</Label>
-                            <p className="text-lg font-semibold">{eventDetails[selectedConversation.id].eventName}</p>
-                          </div>
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Event Type</Label>
-                            <p>{eventDetails[selectedConversation.id].eventType}</p>
-                          </div>
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Date & Time</Label>
-                            <p>{eventDetails[selectedConversation.id].eventDate} at {eventDetails[selectedConversation.id].eventTime}</p>
-                          </div>
-                        </div>
-                        <div className="space-y-4">
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Venue</Label>
-                            <p className="flex items-center gap-2">
-                              <MapPin className="h-4 w-4" />
-                              {eventDetails[selectedConversation.id].venue}
-                            </p>
-                          </div>
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Duration</Label>
-                            <p>{eventDetails[selectedConversation.id].duration}</p>
-                          </div>
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Guest Count</Label>
-                            <p>{eventDetails[selectedConversation.id].guestCount} guests</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="mt-6">
-                        <Label className="text-sm font-medium text-muted-foreground">Special Requests</Label>
-                        <p className="mt-2 p-3 bg-muted rounded-lg">{eventDetails[selectedConversation.id].specialRequests}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
 
-                  {/* Event Timeline */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Clock className="h-5 w-5" />
-                        Event Timeline
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {eventDetails[selectedConversation.id].timeline.map((item, index) => (
-                          <div key={index} className="flex items-center gap-4 p-3 border rounded-lg">
-                            <div className="w-20 text-sm font-medium text-primary">
-                              {item.time}
-                            </div>
-                            <div className="flex-1">
-                              <p>{item.activity}</p>
-                            </div>
-                          </div>
-                        ))}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Basic Information */}
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Calendar className="h-5 w-5" />
+                      Event Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Event Name</Label>
+                        <p className="font-semibold">{eventDetails.eventName}</p>
                       </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Contact Information */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Users className="h-5 w-5" />
-                        Key Contacts
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid gap-4">
-                        {eventDetails[selectedConversation.id].contacts.map((contact, index) => (
-                          <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                            <div>
-                              <p className="font-medium">{contact.name}</p>
-                              <p className="text-sm text-muted-foreground">{contact.role}</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-sm">{contact.phone}</p>
-                              <Button variant="outline" size="sm" className="mt-1">
-                                <Phone className="h-3 w-3 mr-1" />
-                                Call
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Event Type</Label>
+                        <p className="font-semibold">{eventDetails.eventType}</p>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-
-              {(!selectedConversation || !eventDetails[selectedConversation.id]) && (
-                <Card>
-                  <CardContent className="py-12 text-center">
-                    <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No Event Details</h3>
-                    <p className="text-muted-foreground">Select a conversation to view event details</p>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Client</Label>
+                        <p className="font-semibold">{eventDetails.client}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Date & Time</Label>
+                        <p className="font-semibold">{eventDetails.date}</p>
+                        <p className="text-sm text-muted-foreground">{eventDetails.time}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Location</Label>
+                      <p className="font-semibold">{eventDetails.location}</p>
+                    </div>
                   </CardContent>
                 </Card>
-              )}
+
+                {/* Budget & Status */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <DollarSign className="h-5 w-5" />
+                      Budget & Status
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Total Budget</Label>
+                      <p className="text-2xl font-bold text-primary">{eventDetails.budget}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Status</Label>
+                      <Badge className="mt-1">{eventDetails.status}</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Timeline */}
+                <Card className="lg:col-span-3">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Clock className="h-5 w-5" />
+                      Event Timeline
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {eventDetails.timeline.map((item, index) => (
+                        <div key={index} className="flex items-start gap-4 p-3 border rounded-lg">
+                          <div className="flex-shrink-0">
+                            <Badge variant="outline">{item.time}</Badge>
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold">{item.activity}</p>
+                            <p className="text-sm text-muted-foreground">{item.location}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </TabsContent>
 
           {/* Invoice Tab */}
-          <TabsContent value="invoice" className="h-full w-full m-0 flex flex-col data-[state=active]:flex">
-            <div className="p-6 border-b border-border flex-shrink-0">
+          <TabsContent value="invoice" className="h-full m-0 p-6">
+            <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Invoice Management</h2>
-                <Button onClick={() => setShowInvoiceDialog(true)}>
+                <Button onClick={() => setShowCreateInvoiceDialog(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create Invoice
                 </Button>
               </div>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6 min-h-0">
-              {invoices.length > 0 ? (
-                <div className="space-y-6">
-                  {invoices.map((invoice) => (
-                    <Card key={invoice.id}>
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <CardTitle className="flex items-center gap-2">
-                              <Receipt className="h-5 w-5" />
-                              Invoice {invoice.id}
-                            </CardTitle>
-                            <p className="text-muted-foreground">{invoice.clientName} - {invoice.eventDate}</p>
-                          </div>
-                          <div className="text-right">
-                            <Badge variant={invoice.status === 'paid' ? 'default' : invoice.status === 'pending' ? 'secondary' : 'destructive'}>
-                              {invoice.status}
-                            </Badge>
-                            <p className="text-2xl font-bold text-primary mt-1">
-                              ${invoice.totalAmount.toLocaleString()}
-                            </p>
-                          </div>
+
+              <div className="grid gap-6">
+                {invoices.map((invoice) => (
+                  <Card key={invoice.id} className="overflow-hidden">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="flex items-center gap-2">
+                            <Receipt className="h-5 w-5" />
+                            {invoice.id}
+                          </CardTitle>
+                          <p className="text-muted-foreground">{invoice.projectName}</p>
                         </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
+                        <div className="text-right">
+                          <Badge className={invoice.status === 'paid' ? 'bg-green-100 text-green-800' : invoice.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}>
+                            {invoice.status}
+                          </Badge>
+                          <p className="text-2xl font-bold text-primary mt-1">${invoice.total}</p>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Invoice Details */}
+                        <div>
+                          <div className="grid grid-cols-2 gap-4 mb-6">
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Client</Label>
+                              <p className="font-semibold">{invoice.client}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Issue Date</Label>
+                              <p className="font-semibold">{invoice.issueDate}</p>
+                            </div>
+                          </div>
+
                           {/* Invoice Items */}
                           <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Items</Label>
-                            <div className="mt-2 space-y-2">
+                            <h4 className="font-semibold mb-3">Invoice Items</h4>
+                            <div className="space-y-2">
                               {invoice.items.map((item, index) => (
-                                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                                <div key={index} className="flex justify-between items-center p-3 bg-muted rounded-lg">
                                   <div className="flex-1">
                                     <p className="font-medium">{item.description}</p>
                                     <p className="text-sm text-muted-foreground">Qty: {item.quantity} × ${item.rate}</p>
                                   </div>
-                                  <div className="text-right">
-                                    <p className="font-semibold">${item.amount}</p>
-                                  </div>
+                                  <p className="font-semibold">${item.amount}</p>
                                 </div>
                               ))}
                             </div>
                           </div>
-
-                          {/* Invoice Details */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-                            <div>
-                              <Label className="text-sm font-medium text-muted-foreground">Due Date</Label>
-                              <p className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4" />
-                                {invoice.dueDate}
-                              </p>
-                            </div>
-                            <div>
-                              <Label className="text-sm font-medium text-muted-foreground">Payment Terms</Label>
-                              <p>{invoice.paymentTerms}</p>
-                            </div>
-                          </div>
-
-                          {/* Actions */}
-                          <div className="flex items-center gap-2 pt-4">
-                            <Button variant="outline" size="sm">
-                              <Eye className="h-4 w-4 mr-2" />
-                              Preview
-                            </Button>
-                            <Button variant="outline" size="sm">
-                              <Send className="h-4 w-4 mr-2" />
-                              Send to Client
-                            </Button>
-                            <Button variant="outline" size="sm">
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit
-                            </Button>
-                            {invoice.status === 'pending' && (
-                              <Button size="sm">
-                                <DollarSign className="h-4 w-4 mr-2" />
-                                Mark as Paid
-                              </Button>
-                            )}
-                          </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <Card>
-                  <CardContent className="py-12 text-center">
-                    <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No Invoices</h3>
-                    <p className="text-muted-foreground mb-4">Create your first invoice to start billing clients</p>
-                    <Button onClick={() => setShowInvoiceDialog(true)}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create Invoice
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
+
+                        {/* Payment History */}
+                        <div>
+                          <h4 className="font-semibold mb-3">Payment History</h4>
+                          {invoice.payments.length > 0 ? (
+                            <div className="space-y-3">
+                              {invoice.payments.map((payment, index) => (
+                                <div key={index} className="p-3 border rounded-lg">
+                                  <p className="font-medium">${payment.amount}</p>
+                                  <p className="text-sm text-muted-foreground">{payment.date}</p>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8">
+                              <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+                              <p className="text-muted-foreground">No payments received</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </TabsContent>
 
           {/* Members Tab */}
-          <TabsContent value="members" className="h-full w-full m-0 flex flex-col data-[state=active]:flex">
-            <div className="p-6 border-b border-border flex-shrink-0">
+          <TabsContent value="members" className="h-full m-0 p-6">
+            <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Project Members</h2>
-                <Button onClick={() => setShowMemberDialog(true)}>
+                <h2 className="text-2xl font-bold">Team Members</h2>
+                <Button onClick={() => setShowAddMemberDialog(true)}>
                   <UserPlus className="h-4 w-4 mr-2" />
                   Add Member
                 </Button>
               </div>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6 min-h-0">
-              {selectedConversation && projectMembers[selectedConversation.id] && (
-                <div className="grid gap-4">
-                  {projectMembers[selectedConversation.id].map((member) => (
-                    <Card key={member.id}>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            <img
-                              src={member.avatar}
-                              alt={member.name}
-                              className="w-12 h-12 rounded-full"
-                            />
-                            <div>
-                              <h3 className="font-semibold">{member.name}</h3>
-                              <p className="text-sm text-muted-foreground">{member.role}</p>
-                              <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-                                <span>{member.email}</span>
-                                <span>{member.phone}</span>
+
+              <div className="grid gap-6">
+                {teamMembers.map((member) => (
+                  <Card key={member.id}>
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start space-x-4">
+                          <img
+                            src={member.avatar}
+                            alt={member.name}
+                            className="w-16 h-16 rounded-full"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="text-lg font-semibold">{member.name}</h3>
+                              <Badge variant={member.status === 'active' ? 'default' : 'secondary'}>
+                                {member.status}
+                              </Badge>
+                            </div>
+                            <p className="text-muted-foreground mb-2">{member.role}</p>
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Email</Label>
+                                <p>{member.email}</p>
+                              </div>
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Phone</Label>
+                                <p>{member.phone}</p>
                               </div>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Button variant="outline" size="sm">
-                                <MessageSquare className="h-4 w-4 mr-1" />
-                                Message
-                              </Button>
-                              <Button variant="outline" size="sm">
-                                <Phone className="h-4 w-4 mr-1" />
-                                Call
-                              </Button>
-                            </div>
-                            <div className="flex flex-wrap gap-1">
-                              {member.permissions.map((permission, index) => (
-                                <Badge key={index} variant="secondary" className="text-xs">
-                                  {permission}
-                                </Badge>
-                              ))}
-                            </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-primary">{member.hourlyRate}</p>
+                          <div className="flex gap-2 mt-2">
+                            <Button variant="outline" size="sm">
+                              <MessageSquare className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm">
+                              <Edit className="h-4 w-4" />
+                            </Button>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-
-              {(!selectedConversation || !projectMembers[selectedConversation.id]) && (
-                <Card>
-                  <CardContent className="py-12 text-center">
-                    <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No Project Members</h3>
-                    <p className="text-muted-foreground">Select a conversation to view project members</p>
-                  </CardContent>
-                </Card>
-              )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </TabsContent>
 
           {/* Rentals Tab */}
-          <TabsContent value="rentals" className="h-full w-full m-0 flex flex-col data-[state=active]:flex">
-            <div className="p-6 border-b border-border flex-shrink-0">
+          <TabsContent value="rentals" className="h-full m-0 p-6">
+            <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Equipment Rentals</h2>
-                <div className="flex gap-2">
-                  <Select defaultValue="all">
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Filter by category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Equipment</SelectItem>
-                      <SelectItem value="Camera Body">Camera Bodies</SelectItem>
-                      <SelectItem value="Lens">Lenses</SelectItem>
-                      <SelectItem value="Lighting">Lighting</SelectItem>
-                      <SelectItem value="Drone">Drones</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Equipment
-                  </Button>
-                </div>
+                <h2 className="text-2xl font-bold">Available Equipment Rentals</h2>
+                <Select>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Filter by category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="cameras">Cameras</SelectItem>
+                    <SelectItem value="lenses">Lenses</SelectItem>
+                    <SelectItem value="lighting">Lighting</SelectItem>
+                    <SelectItem value="drones">Drones</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6 min-h-0">
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {availableEquipment.map((equipment) => (
-                  <Card key={equipment.id} className={`${!equipment.available ? 'opacity-60' : ''}`}>
-                    <CardContent className="p-6">
-                      <div className="space-y-4">
-                        <div className="relative">
-                          <img
-                            src={equipment.image}
-                            alt={equipment.name}
-                            className="w-full h-32 object-cover rounded-lg"
-                          />
-                          <Badge 
-                            variant={equipment.available ? 'default' : 'secondary'}
-                            className="absolute top-2 right-2"
-                          >
-                            {equipment.available ? 'Available' : 'Rented'}
-                          </Badge>
+                {rentalEquipment.map((item) => (
+                  <Card key={item.id} className="group hover:shadow-lg transition-all duration-300">
+                    <div className="relative">
+                      <img
+                        src={item.image_url}
+                        alt={item.name}
+                        className="w-full h-48 object-cover rounded-t-lg"
+                      />
+                      {!item.available && (
+                        <div className="absolute inset-0 bg-black/50 rounded-t-lg flex items-center justify-center">
+                          <Badge variant="destructive">Not Available</Badge>
                         </div>
-                        
-                        <div>
-                          <h3 className="font-semibold">{equipment.name}</h3>
-                          <p className="text-sm text-muted-foreground">{equipment.category}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{equipment.specifications}</p>
+                      )}
+                      <div className="absolute top-3 right-3">
+                        <Badge variant="secondary">{item.category}</Badge>
+                      </div>
+                    </div>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="font-semibold">{item.name}</h3>
+                        <p className="font-bold text-primary">{item.price}</p>
+                      </div>
+                      
+                      <p className="text-sm text-muted-foreground mb-3">{item.description}</p>
+                      
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="flex items-center">
+                          <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                          <span className="text-sm font-medium">{item.rating}</span>
                         </div>
-                        
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">Daily Rate:</span>
-                            <span className="text-lg font-bold text-primary">${equipment.dailyRate}</span>
-                          </div>
-                          
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Included Accessories:</Label>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {equipment.accessories.map((accessory, index) => (
-                                <Badge key={index} variant="outline" className="text-xs">
-                                  {accessory}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex gap-2">
-                          {equipment.available ? (
-                            <>
-                              <Button size="sm" className="flex-1">
-                                <ShoppingCart className="h-4 w-4 mr-1" />
-                                Rent
-                              </Button>
-                              <Button variant="outline" size="sm">
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </>
-                          ) : (
-                            <Button variant="outline" size="sm" className="flex-1" disabled>
-                              Currently Rented
-                            </Button>
-                          )}
-                        </div>
+                        <span className="text-sm text-muted-foreground">({item.reviews} reviews)</span>
+                      </div>
+
+                      <div className="flex items-center gap-2 mb-3">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">{item.location}</span>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button size="sm" className="flex-1" disabled={!item.available}>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Request Rental
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Eye className="h-4 w-4" />
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -1669,7 +1713,7 @@ const ChatApp: React.FC = () => {
             </div>
             <div>
               <Label>Client Email</Label>
-              <Input type="email" placeholder="client@email.com" />
+              <Input type="email" placeholder="client@example.com" />
             </div>
             <div>
               <Label>Event Type</Label>
@@ -1683,23 +1727,23 @@ const ChatApp: React.FC = () => {
                   <SelectItem value="corporate">Corporate Event</SelectItem>
                   <SelectItem value="family">Family Photography</SelectItem>
                   <SelectItem value="engagement">Engagement Photos</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label>Event Date</Label>
-              <Input type="date" />
-            </div>
-            <div>
               <Label>Initial Message</Label>
-              <Textarea placeholder="Hi! I'm excited to work with you on your upcoming event..." />
+              <Textarea placeholder="Write your initial message to the client..." rows={4} />
             </div>
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setShowNewChatDialog(false)}>
                 Cancel
               </Button>
               <Button onClick={() => {
-                toast({ title: "New conversation started!", description: "You can now chat with your client." });
+                toast({
+                  title: "Conversation Started",
+                  description: "New conversation has been created with the client."
+                });
                 setShowNewChatDialog(false);
               }}>
                 Start Conversation
@@ -1710,12 +1754,12 @@ const ChatApp: React.FC = () => {
       </Dialog>
 
       {/* Create Invoice Dialog */}
-      <Dialog open={showInvoiceDialog} onOpenChange={setShowInvoiceDialog}>
-        <DialogContent className="max-w-2xl">
+      <Dialog open={showCreateInvoiceDialog} onOpenChange={setShowCreateInvoiceDialog}>
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>Create New Invoice</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Client</Label>
@@ -1733,50 +1777,75 @@ const ChatApp: React.FC = () => {
                 </Select>
               </div>
               <div>
-                <Label>Event Date</Label>
+                <Label>Project Name</Label>
+                <Input placeholder="Enter project name..." />
+              </div>
+              <div>
+                <Label>Issue Date</Label>
+                <Input type="date" />
+              </div>
+              <div>
+                <Label>Due Date</Label>
                 <Input type="date" />
               </div>
             </div>
-            
+
             <div>
-              <Label>Invoice Items</Label>
-              <div className="space-y-2">
-                <div className="grid grid-cols-4 gap-2 items-center p-3 border rounded-lg">
-                  <Input placeholder="Description" />
-                  <Input type="number" placeholder="Qty" />
-                  <Input type="number" placeholder="Rate" />
-                  <Input placeholder="Amount" disabled />
+              <Label className="text-lg font-semibold">Invoice Items</Label>
+              <div className="space-y-3 mt-2">
+                <div className="grid grid-cols-12 gap-2 text-sm font-medium text-muted-foreground">
+                  <div className="col-span-5">Description</div>
+                  <div className="col-span-2">Quantity</div>
+                  <div className="col-span-2">Rate</div>
+                  <div className="col-span-2">Amount</div>
+                  <div className="col-span-1">Action</div>
                 </div>
-                <Button variant="outline" size="sm">
+                <div className="grid grid-cols-12 gap-2">
+                  <Input className="col-span-5" placeholder="Service description" />
+                  <Input className="col-span-2" type="number" placeholder="1" />
+                  <Input className="col-span-2" type="number" placeholder="0.00" />
+                  <div className="col-span-2 flex items-center text-sm font-medium">$0.00</div>
+                  <Button variant="outline" size="sm" className="col-span-1">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+                <Button variant="outline" size="sm" className="w-full">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Item
                 </Button>
               </div>
             </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Due Date</Label>
-                <Input type="date" />
-              </div>
-              <div>
-                <Label>Payment Terms</Label>
-                <Input placeholder="e.g., Net 30 days" />
+
+            <div className="border-t pt-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div></div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>Subtotal:</span>
+                    <span className="font-semibold">$0.00</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Tax (8%):</span>
+                    <span className="font-semibold">$0.00</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold border-t pt-2">
+                    <span>Total:</span>
+                    <span className="text-primary">$0.00</span>
+                  </div>
+                </div>
               </div>
             </div>
-            
-            <div>
-              <Label>Notes</Label>
-              <Textarea placeholder="Additional notes or terms..." />
-            </div>
-            
+
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setShowInvoiceDialog(false)}>
+              <Button variant="outline" onClick={() => setShowCreateInvoiceDialog(false)}>
                 Cancel
               </Button>
               <Button onClick={() => {
-                toast({ title: "Invoice created!", description: "Invoice has been generated and saved." });
-                setShowInvoiceDialog(false);
+                toast({
+                  title: "Invoice Created",
+                  description: "New invoice has been created and saved as draft."
+                });
+                setShowCreateInvoiceDialog(false);
               }}>
                 Create Invoice
               </Button>
@@ -1786,57 +1855,78 @@ const ChatApp: React.FC = () => {
       </Dialog>
 
       {/* Add Member Dialog */}
-      <Dialog open={showMemberDialog} onOpenChange={setShowMemberDialog}>
+      <Dialog open={showAddMemberDialog} onOpenChange={setShowAddMemberDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Project Member</DialogTitle>
+            <DialogTitle>Add Team Member</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <Label>Name</Label>
-              <Input placeholder="Enter member name..." />
-            </div>
-            <div>
-              <Label>Email</Label>
-              <Input type="email" placeholder="member@email.com" />
-            </div>
-            <div>
-              <Label>Phone</Label>
-              <Input placeholder="+1 (555) 123-4567" />
-            </div>
-            <div>
-              <Label>Role</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="client">Client</SelectItem>
-                  <SelectItem value="coordinator">Event Coordinator</SelectItem>
-                  <SelectItem value="planner">Wedding Planner</SelectItem>
-                  <SelectItem value="vendor">Vendor</SelectItem>
-                  <SelectItem value="family">Family Member</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Permissions</Label>
-              <div className="space-y-2">
-                {['view photos', 'approve edits', 'download finals', 'view timeline', 'coordinate schedule'].map((permission) => (
-                  <div key={permission} className="flex items-center space-x-2">
-                    <input type="checkbox" id={permission} />
-                    <Label htmlFor={permission} className="text-sm">{permission}</Label>
-                  </div>
-                ))}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Full Name</Label>
+                <Input placeholder="Enter full name..." />
+              </div>
+              <div>
+                <Label>Role</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="assistant">Assistant Photographer</SelectItem>
+                    <SelectItem value="videographer">Video Specialist</SelectItem>
+                    <SelectItem value="editor">Photo Editor</SelectItem>
+                    <SelectItem value="coordinator">Event Coordinator</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Email</Label>
+                <Input type="email" placeholder="member@example.com" />
+              </div>
+              <div>
+                <Label>Phone</Label>
+                <Input type="tel" placeholder="+1 (555) 123-4567" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Hourly Rate</Label>
+                <Input placeholder="$50/hour" />
+              </div>
+              <div>
+                <Label>Availability</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select availability" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="full-time">Full-time</SelectItem>
+                    <SelectItem value="part-time">Part-time</SelectItem>
+                    <SelectItem value="weekends">Weekends only</SelectItem>
+                    <SelectItem value="freelance">Freelance</SelectItem>
+                    <SelectItem value="remote">Remote</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label>Specialties</Label>
+              <Input placeholder="e.g., Portrait Photography, Event Coverage (comma separated)" />
+            </div>
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setShowMemberDialog(false)}>
+              <Button variant="outline" onClick={() => setShowAddMemberDialog(false)}>
                 Cancel
               </Button>
               <Button onClick={() => {
-                toast({ title: "Member added!", description: "New member has been added to the project." });
-                setShowMemberDialog(false);
+                toast({
+                  title: "Member Added",
+                  description: "New team member has been added successfully."
+                });
+                setShowAddMemberDialog(false);
               }}>
                 Add Member
               </Button>
@@ -1849,23 +1939,9 @@ const ChatApp: React.FC = () => {
 };
 
 export function PhotographerChatWindow() {
-  console.log('PhotographerChatWindow component rendering');
-  
-  try {
-    return (
-      <div className="h-screen min-h-screen w-full">
-        <ChatApp />
-      </div>
-    );
-  } catch (error) {
-    console.error('Error in PhotographerChatWindow:', error);
-    return (
-      <div className="h-screen min-h-screen w-full bg-red-100 p-8">
-        <div className="text-red-800">
-          <h2 className="text-xl font-bold mb-4">Component Error</h2>
-          <p>There was an error rendering the component. Please check the console for details.</p>
-        </div>
-      </div>
-    );
-  }
+  return (
+    <div className="h-full">
+      <ChatApp />
+    </div>
+  );
 }
