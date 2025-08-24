@@ -4,7 +4,6 @@ import { Navigation } from "@/components/ui/navigation";
 import { HeroSection } from "@/components/ui/hero-section";
 import { FeaturesSection } from "@/components/ui/features-section";
 import { useAuthStore } from "@/stores/auth-store";
-import { LoadingPage } from "@/components/ui/loading-animations";
 
 const Index = () => {
   const { user, loading } = useAuthStore();
@@ -25,10 +24,16 @@ const Index = () => {
 
   if (loading) {
     return (
-      <LoadingPage 
-        message="Welcome to PhotoLens" 
-        showLogo={true}
-      />
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-pulse">
+            <div className="p-3 bg-gradient-primary rounded-lg inline-block mb-4">
+              <div className="h-8 w-8 bg-primary-foreground rounded"></div>
+            </div>
+          </div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
     );
   }
 

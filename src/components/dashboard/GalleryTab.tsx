@@ -7,9 +7,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { PhotoReviewDialog, Photo } from '@/components/PhotoReviewDialog';
 import { useToast } from '@/components/ui/use-toast';
 import { Search, Plus, Download, Share2, Calendar, MapPin, Camera, Video, Eye, Heart, Star, Award, CheckCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
-import { StaggerContainer, StaggerItem, FadeIn, SlideIn, Interactive, Parallax } from '@/components/ui/motion-wrappers';
-import { galleryVariants, transitions } from '@/lib/motion';
 
 // Mock photo data for review
 const mockPhotos: Photo[] = [
@@ -254,157 +251,110 @@ export const GalleryTab: React.FC = () => {
   };
 
   const renderAlbumCard = (album) => (
-    <motion.div
-      key={album.id}
-      variants={galleryVariants.grid}
-      whileHover={{ y: -8 }}
-      transition={transitions.default}
-    >
-      <Card className="group hover:shadow-medium transition-all duration-300 cursor-pointer overflow-hidden">
-        <div className="relative">
-          <motion.img
-            src={album.coverImage}
-            alt={album.title}
-            className="w-full h-48 object-cover"
-            variants={galleryVariants.photo}
-            initial="hidden"
-            animate="visible"
-            whileHover="hover"
-            loading="lazy"
-          />
-          <motion.div 
-            className="absolute inset-0 bg-black/40 flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            whileHover={{ opacity: 1 }}
-            transition={transitions.fast}
-          >
-            <Dialog>
-              <DialogTrigger asChild>
-                <motion.div
-                  initial={{ scale: 0, opacity: 0 }}
-                  whileHover={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.1, ...transitions.spring }}
-                >
-                  <Interactive>
-                    <Button
-                      variant="secondary"
-                      className="opacity-90"
-                      onClick={() => {
-                        setSelectedAlbum(album);
-                        setModalImages(album.preview ? [...album.preview] : []);
-                      }}
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Album
-                    </Button>
-                  </Interactive>
-                </motion.div>
-              </DialogTrigger>
-            </Dialog>
-          </motion.div>
-          
-          <motion.div 
-            className="absolute top-3 left-3"
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Badge variant={getStatusColor(album.status)}>
-              {album.status === 'processing' ? (
-                <span className="flex items-center gap-1">
-                  <motion.svg 
-                    className="h-3 w-3 mr-1 text-white" 
-                    viewBox="0 0 24 24"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  >
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 11-8 8z" />
-                  </motion.svg>
-                  {getStatusText(album.status)}
-                </span>
-              ) : album.status === 'completed' ? (
-                <span className="flex items-center gap-1">
-                  <motion.svg 
-                    className="h-3 w-3 mr-1 text-white" 
-                    viewBox="0 0 20 20" 
-                    fill="currentColor"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.5, type: "spring" }}
-                  >
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" clipRule="evenodd" />
-                  </motion.svg>
-                  {getStatusText(album.status)}
-                </span>
-              ) : getStatusText(album.status)}
-            </Badge>
-          </motion.div>
-        </div>
-
-        <CardContent className="p-4">
-          <motion.div 
-            className="space-y-3"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <div>
-              <h3 className="font-semibold text-lg">{album.title}</h3>
-              <Badge variant="outline" className="text-xs mt-1">{album.type}</Badge>
-            </div>
-
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <div className="flex items-center">
-                <Calendar className="h-3 w-3 mr-2" />
-                {new Date(album.date).toLocaleDateString()}
-              </div>
-              <div className="flex items-center">
-                <MapPin className="h-3 w-3 mr-2" />
-                {album.location}
-              </div>
-              <div className="flex items-center">
-                <Camera className="h-3 w-3 mr-2" />
-                By {album.photographer}
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4 text-sm">
-              <span className="flex items-center">
-                <Camera className="h-3 w-3 mr-1" />
-                {album.totalPhotos} photos
-              </span>
-              <span className="flex items-center">
-                <Video className="h-3 w-3 mr-1" />
-                {album.totalVideos} videos
-              </span>
-            </div>
-
-            {album.status === 'completed' && (
-              <motion.div 
-                className="flex space-x-2 pt-2"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
+    <Card key={album.id} className="group hover:shadow-medium transition-all duration-300 cursor-pointer">
+      <div className="relative">
+        <img
+          src={album.coverImage}
+          alt={album.title}
+          className="w-full h-48 object-cover rounded-t-lg"
+        />
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-t-lg flex items-center justify-center">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="secondary"
+                className="opacity-90"
+                onClick={() => {
+                  setSelectedAlbum(album);
+                  setModalImages(album.preview ? [...album.preview] : []);
+                }}
               >
-                <Interactive>
-                  <Button variant="outline" size="sm" className="flex-1" onClick={handleButton('Download', `Downloading ${album.title}`)}>
-                    <Download className="h-3 w-3 mr-1" />
-                    Download
-                  </Button>
-                </Interactive>
-                <Interactive>
-                  <Button variant="outline" size="sm" className="flex-1" onClick={handleButton('Share', `Share link copied for ${album.title}`)}>
-                    <Share2 className="h-3 w-3 mr-1" />
-                    Share
-                  </Button>
-                </Interactive>
-              </motion.div>
-            )}
-          </motion.div>
-        </CardContent>
-      </Card>
-    </motion.div>
+                <Eye className="h-4 w-4 mr-2" />
+                View Album
+              </Button>
+            </DialogTrigger>
+          </Dialog>
+        </div>
+        
+        <div className="absolute top-3 left-3">
+          <Badge variant={getStatusColor(album.status)}>
+            {album.status === 'processing' ? (
+              <span className="flex items-center gap-1">
+                <svg className="animate-spin h-3 w-3 mr-1 text-white" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 11-8 8z" />
+                </svg>
+                {getStatusText(album.status)}
+              </span>
+            ) : album.status === 'completed' ? (
+              <span className="flex items-center gap-1">
+                <svg className="h-3 w-3 mr-1 text-white" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" clipRule="evenodd" />
+                </svg>
+                {getStatusText(album.status)}
+              </span>
+            ) : getStatusText(album.status)}
+          </Badge>
+        </div>
+      </div>
+
+      <CardContent className="p-4">
+        <div className="space-y-3">
+          <div>
+            <h3 className="font-semibold text-lg">{album.title}</h3>
+            <Badge variant="outline" className="text-xs mt-1">{album.type}</Badge>
+          </div>
+
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <div className="flex items-center">
+              <Calendar className="h-3 w-3 mr-2" />
+              {new Date(album.date).toLocaleDateString()}
+            </div>
+            <div className="flex items-center">
+              <MapPin className="h-3 w-3 mr-2" />
+              {album.location}
+            </div>
+            <div className="flex items-center">
+              <Camera className="h-3 w-3 mr-2" />
+              By {album.photographer}
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-4 text-sm">
+            <span className="flex items-center">
+              <Camera className="h-3 w-3 mr-1" />
+              {album.totalPhotos} photos
+            </span>
+            <span className="flex items-center">
+              <Video className="h-3 w-3 mr-1" />
+              {album.totalVideos} videos
+            </span>
+          </div>
+
+          {album.status === 'completed' && (
+            <div className="flex space-x-2 pt-2">
+              {/* <Button variant="outline" size="sm" className="flex-1" 
+                onClick={() => {
+                  setSelectedAlbum(album);
+                  handleButton('View Photos', `Opening photo review for ${album.title}`)();
+                }}
+              >
+                <Eye className="h-3 w-3 mr-1" />
+                View Photos
+              </Button> */}
+              <Button variant="outline" size="sm" className="flex-1" onClick={handleButton('Download', `Downloading ${album.title}`)}>
+                <Download className="h-3 w-3 mr-1" />
+                Download
+              </Button>
+              <Button variant="outline" size="sm" className="flex-1" onClick={handleButton('Share', `Share link copied for ${album.title}`)}>
+                <Share2 className="h-3 w-3 mr-1" />
+                Share
+              </Button>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 
   const renderAlbumModal = () => (
@@ -525,137 +475,79 @@ export const GalleryTab: React.FC = () => {
   );
 
   return (
-    <motion.div 
-      className="p-6 space-y-6"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={transitions.default}
-    >
-      {/* Search */}
-      <SlideIn direction="down">
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Search albums..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      {/* <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Your Event Gallery</h2>
+          <p className="text-muted-foreground">View and manage your event photos and videos</p>
         </div>
-      </SlideIn>
+        
+        <Button onClick={handleButton('Upload', 'Open upload dialog (mock)')}>
+          <Plus className="h-4 w-4 mr-2" />
+          Upload Photos
+        </Button>
+      </div> */}
+
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <Input
+          placeholder="Search albums..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+        />
+      </div>
 
       {/* Quick Stats */}
-      <StaggerContainer 
-        className="grid grid-cols-2 md:grid-cols-4 gap-4"
-        staggerChildren={0.1}
-        delayChildren={0.2}
-      >
-        <StaggerItem>
-          <Interactive whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <motion.p 
-                  className="text-2xl font-bold text-primary"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.5, type: "spring" }}
-                >
-                  {eventAlbums.length}
-                </motion.p>
-                <p className="text-sm text-muted-foreground">Total Albums</p>
-              </CardContent>
-            </Card>
-          </Interactive>
-        </StaggerItem>
-        <StaggerItem>
-          <Interactive whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <motion.p 
-                  className="text-2xl font-bold text-primary"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.6, type: "spring" }}
-                >
-                  {eventAlbums.reduce((sum, album) => sum + album.totalPhotos, 0)}
-                </motion.p>
-                <p className="text-sm text-muted-foreground">Total Photos</p>
-              </CardContent>
-            </Card>
-          </Interactive>
-        </StaggerItem>
-        <StaggerItem>
-          <Interactive whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <motion.p 
-                  className="text-2xl font-bold text-primary"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.7, type: "spring" }}
-                >
-                  {eventAlbums.reduce((sum, album) => sum + album.totalVideos, 0)}
-                </motion.p>
-                <p className="text-sm text-muted-foreground">Total Videos</p>
-              </CardContent>
-            </Card>
-          </Interactive>
-        </StaggerItem>
-        <StaggerItem>
-          <Interactive whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <motion.p 
-                  className="text-2xl font-bold text-success"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.8, type: "spring" }}
-                >
-                  {eventAlbums.filter(album => album.status === 'completed').length}
-                </motion.p>
-                <p className="text-sm text-muted-foreground">Ready Albums</p>
-              </CardContent>
-            </Card>
-          </Interactive>
-        </StaggerItem>
-      </StaggerContainer>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold text-primary">{eventAlbums.length}</p>
+            <p className="text-sm text-muted-foreground">Total Albums</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold text-primary">
+              {eventAlbums.reduce((sum, album) => sum + album.totalPhotos, 0)}
+            </p>
+            <p className="text-sm text-muted-foreground">Total Photos</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold text-primary">
+              {eventAlbums.reduce((sum, album) => sum + album.totalVideos, 0)}
+            </p>
+            <p className="text-sm text-muted-foreground">Total Videos</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold text-success">
+              {eventAlbums.filter(album => album.status === 'completed').length}
+            </p>
+            <p className="text-sm text-muted-foreground">Ready Albums</p>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Albums Grid */}
-      <AnimatePresence>
-        <LayoutGroup>
-          <StaggerContainer 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            staggerChildren={0.1}
-            delayChildren={0.4}
-          >
-            {getFilteredAlbums().map(renderAlbumCard)}
-          </StaggerContainer>
-        </LayoutGroup>
-      </AnimatePresence>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {getFilteredAlbums().map(renderAlbumCard)}
+      </div>
 
       {/* No Results */}
-      <AnimatePresence>
-        {getFilteredAlbums().length === 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={transitions.default}
-          >
-            <Card>
-              <CardContent className="py-12 text-center">
-                <motion.div
-                  animate={{ rotate: [0, 10, -10, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  <Camera className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                </motion.div>
-                <p className="text-muted-foreground">No albums found. Your event photos will appear here.</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {getFilteredAlbums().length === 0 && (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <Camera className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">No albums found. Your event photos will appear here.</p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Album Modal */}
       {renderAlbumModal()}
@@ -667,6 +559,6 @@ export const GalleryTab: React.FC = () => {
         photos={mockPhotos}
         title={selectedAlbum?.title || 'Album Photos'}
       />
-    </motion.div>
+    </div>
   );
 };
