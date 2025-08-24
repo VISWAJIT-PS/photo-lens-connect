@@ -98,7 +98,7 @@ const PhotographerDashboard = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 -960 960 960" className="shrink-0 h-7 w-7" fill="#29d9cb"><path d="M180-120q-24.75 0-42.37-17.63Q120-155.25 120-180v-600q0-24.75 17.63-42.38Q155.25-840 180-840h600q24.75 0 42.38 17.62Q840-804.75 840-780v600q0 24.75-17.62 42.37Q804.75-120 780-120zm207-60h393v-600H387z"></path></svg>
                 </Button>
               )}
-              {!sidebarCollapsed && <h1 className="text-xl font-bold">PhotoLens Pro</h1>}
+              {!sidebarCollapsed && <h1 className="text-xl font-bold">PhotoLens</h1>}
             </div>
 
             {/* Only show the right-side collapse button when sidebar is expanded */}
