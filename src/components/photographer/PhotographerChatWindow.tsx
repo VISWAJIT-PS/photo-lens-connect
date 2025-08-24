@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft, MessageSquare, Images, Receipt, Lock, Award, CheckCircle, XCircle, Eye, Camera, Star, Upload, Package, Plus, Edit, Trash2, Calendar, Clock, FileText, Users, AlertCircle, CheckCheck, MapPin, DollarSign, UserPlus, Zap, Wrench, UserCheck, UserX, Settings, Download } from 'lucide-react';
+import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft, MessageSquare, Images, Receipt, Lock, Award, CheckCircle, XCircle, Eye, Camera, Star, Upload, Package, Plus, Edit, Trash2, Calendar, Clock, FileText, Users, AlertCircle, CheckCheck, MapPin, DollarSign, UserPlus, Zap, Wrench, UserCheck, UserX, Settings, Download, ChevronRight } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -20,9 +20,140 @@ import {
 } from '../ui/dropdown-menu';
 import { useToast } from '../ui/use-toast';
 
-// Enhanced Chat component with 3 tabs
+  // Enhanced Chat component with event listing and management
 const ChatApp: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("messages");
+  const [activeTab, setActiveTab] = useState("events");
+  
+  // Event listings - created by photographer or initiated by users
+  const [eventListings, setEventListings] = useState([
+    {
+      id: "event-1",
+      eventName: "Sarah & John Wedding",
+      eventType: "Wedding Photography",
+      eventOwner: "Sarah Johnson",
+      eventOwnerRole: "Bride",
+      eventOwnerEmail: "sarah.johnson@email.com",
+      eventOwnerAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
+      createdBy: "photographer",
+      createdAt: "2024-02-01",
+      eventDate: "2024-02-15",
+      eventTime: "2:00 PM - 10:00 PM",
+      location: "Central Park Conservatory Garden, NYC",
+      status: "active",
+      priority: "high",
+      budget: "$2,500",
+      packageType: "Premium Wedding",
+      assignedTeamMembers: ["member-1", "member-2"],
+      conversationId: "conv-1",
+      hasChat: true,
+      galleryPhotos: 45,
+      approvedPhotos: 42,
+      unreadMessages: 0,
+      lastActivity: "2m ago"
+    },
+    {
+      id: "event-2",
+      eventName: "Corporate Event Photography",
+      eventType: "Corporate Event",
+      eventOwner: "Michael Chen",
+      eventOwnerRole: "Event Manager",
+      eventOwnerEmail: "michael.chen@company.com",
+      eventOwnerAvatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+      createdBy: "user",
+      createdAt: "2024-02-10",
+      eventDate: "2024-02-22",
+      eventTime: "9:00 AM - 6:00 PM",
+      location: "Downtown Convention Center",
+      status: "pending",
+      priority: "medium",
+      budget: "$1,200",
+      packageType: "Corporate Standard",
+      assignedTeamMembers: ["member-3"],
+      conversationId: "conv-2",
+      hasChat: true,
+      galleryPhotos: 0,
+      approvedPhotos: 0,
+      unreadMessages: 2,
+      lastActivity: "15m ago"
+    },
+    {
+      id: "event-3",
+      eventName: "Emma's Portrait Session",
+      eventType: "Portrait Session",
+      eventOwner: "Emma Rodriguez",
+      eventOwnerRole: "Client",
+      eventOwnerEmail: "emma.rodriguez@email.com",
+      eventOwnerAvatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+      createdBy: "user",
+      createdAt: "2024-02-05",
+      eventDate: "2024-02-20",
+      eventTime: "10:00 AM - 12:00 PM",
+      location: "Central Park",
+      status: "completed",
+      priority: "low",
+      budget: "$500",
+      packageType: "Portrait Basic",
+      assignedTeamMembers: [],
+      conversationId: "conv-3",
+      hasChat: true,
+      galleryPhotos: 35,
+      approvedPhotos: 35,
+      unreadMessages: 0,
+      lastActivity: "1h ago"
+    }
+  ]);
+  
+  // Selected event for detailed view
+  const [selectedEvent, setSelectedEvent] = useState(eventListings[0]);
+  
+  // Available photographers and videographers for team assignment
+  const [availableCreators, setAvailableCreators] = useState([
+    {
+      id: "creator-1",
+      name: "Alex Thompson",
+      type: "photographer",
+      specialties: ["Wedding Photography", "Portrait"],
+      rating: 4.9,
+      location: "New York, NY",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face",
+      hourlyRate: "$150/hour",
+      availability: "available"
+    },
+    {
+      id: "creator-2",
+      name: "Maria Garcia",
+      type: "videographer",
+      specialties: ["Wedding Videography", "Corporate Events"],
+      rating: 4.8,
+      location: "New York, NY",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&fit=crop&crop=face",
+      hourlyRate: "$200/hour",
+      availability: "available"
+    },
+    {
+      id: "creator-3",
+      name: "James Wilson",
+      type: "photographer",
+      specialties: ["Corporate Photography", "Event Coverage"],
+      rating: 4.7,
+      location: "New York, NY",
+      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=64&h=64&fit=crop&crop=face",
+      hourlyRate: "$120/hour",
+      availability: "busy"
+    },
+    {
+      id: "creator-4",
+      name: "Lisa Chen",
+      type: "videographer",
+      specialties: ["Drone Operations", "Cinematic Videos"],
+      rating: 4.9,
+      location: "New York, NY",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b3d8?w=64&h=64&fit=crop&crop=face",
+      hourlyRate: "$180/hour",
+      availability: "available"
+    }
+  ]);
+  
   const [conversations, setConversations] = useState([
     {
       id: "conv-1",
@@ -419,9 +550,29 @@ const ChatApp: React.FC = () => {
   const [showCreateInvoiceDialog, setShowCreateInvoiceDialog] = useState(false);
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
   const [showCreateEventDialog, setShowCreateEventDialog] = useState(false);
+  const [showInviteUserDialog, setShowInviteUserDialog] = useState(false);
+  const [showAddTeamMemberDialog, setShowAddTeamMemberDialog] = useState(false);
+  const [showEventDetailsDialog, setShowEventDetailsDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
+  const [eventFilter, setEventFilter] = useState("all"); // all, created-by-me, user-initiated
+  
+  // Create Event Form Data
+  const [createEventForm, setCreateEventForm] = useState({
+    eventName: "",
+    eventType: "",
+    clientName: "",
+    clientEmail: "",
+    eventDate: "",
+    eventTime: "",
+    location: "",
+    venueAddress: "",
+    budget: "",
+    packageType: "",
+    assignedMembers: [] as string[]
+  });
+  
   const { toast } = useToast();
 
   // Work chat specific states
@@ -564,6 +715,114 @@ const ChatApp: React.FC = () => {
     });
   };
 
+  // Event listing helper functions
+  const getFilteredEvents = () => {
+    return eventListings.filter(event => {
+      const matchesSearch = event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           event.eventOwner.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           event.eventType.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = filterStatus === "all" || event.status === filterStatus;
+      const matchesPriority = filterPriority === "all" || event.priority === filterPriority;
+      const matchesEventFilter = eventFilter === "all" || 
+                                (eventFilter === "created-by-me" && event.createdBy === "photographer") ||
+                                (eventFilter === "user-initiated" && event.createdBy === "user");
+      
+      return matchesSearch && matchesStatus && matchesPriority && matchesEventFilter;
+    });
+  };
+
+  const addTeamMemberToEvent = (eventId: string, creatorId: string) => {
+    setEventListings(prev => prev.map(event => {
+      if (event.id === eventId) {
+        const updatedMembers = [...event.assignedTeamMembers];
+        if (!updatedMembers.includes(creatorId)) {
+          updatedMembers.push(creatorId);
+        }
+        return { ...event, assignedTeamMembers: updatedMembers };
+      }
+      return event;
+    }));
+    
+    const creator = availableCreators.find(c => c.id === creatorId);
+    if (creator) {
+      toast({
+        title: "Team Member Added",
+        description: `${creator.name} has been added to the event team.`
+      });
+    }
+  };
+
+  const removeTeamMemberFromEvent = (eventId: string, creatorId: string) => {
+    setEventListings(prev => prev.map(event => {
+      if (event.id === eventId) {
+        return { 
+          ...event, 
+          assignedTeamMembers: event.assignedTeamMembers.filter(id => id !== creatorId)
+        };
+      }
+      return event;
+    }));
+    
+    toast({
+      title: "Team Member Removed",
+      description: "Team member has been removed from the event."
+    });
+  };
+
+  const createNewEvent = (eventData: any) => {
+    const newEvent = {
+      id: `event-${Date.now()}`,
+      eventName: eventData.eventName,
+      eventType: eventData.eventType,
+      eventOwner: eventData.clientName,
+      eventOwnerRole: "Client",
+      eventOwnerEmail: eventData.clientEmail,
+      eventOwnerAvatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face",
+      createdBy: "photographer",
+      createdAt: new Date().toISOString().split('T')[0],
+      eventDate: eventData.eventDate,
+      eventTime: eventData.eventTime,
+      location: eventData.location,
+      status: "pending",
+      priority: "medium",
+      budget: `$${eventData.budget}`,
+      packageType: eventData.packageType || "Custom",
+      assignedTeamMembers: eventData.assignedMembers || [],
+      conversationId: `conv-${Date.now()}`,
+      hasChat: true,
+      galleryPhotos: 0,
+      approvedPhotos: 0,
+      unreadMessages: 0,
+      lastActivity: "now"
+    };
+    
+    setEventListings(prev => [newEvent, ...prev]);
+    setSelectedEvent(newEvent);
+    
+    // Create corresponding conversation
+    const newConversation = {
+      id: newEvent.conversationId,
+      name: eventData.clientName,
+      role: "Client",
+      avatar: newEvent.eventOwnerAvatar,
+      lastMessage: `Event created: ${eventData.eventName}`,
+      timestamp: "now",
+      unreadCount: 0,
+      isOnline: false,
+      bookingId: newEvent.id,
+      eventType: eventData.eventType,
+      projectStatus: "pending",
+      priority: "medium",
+      eventDate: eventData.eventDate,
+      deadline: eventData.eventDate,
+      messageType: "text"
+    };
+    
+    setConversations(prev => [newConversation, ...prev]);
+    
+    return newEvent;
+  };
+
   const getConversationMessages = (conversationId: string) => {
     return workMessages.filter(msg => msg.conversationId === conversationId);
   };
@@ -597,7 +856,7 @@ const ChatApp: React.FC = () => {
               <div className="w-96 border-r border-border bg-card">
                 <div className="p-4 border-b border-border space-y-4">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold">Project Management</h2>
+                    <h2 className="text-lg font-semibold">Quick Access</h2>
                     <Badge variant="secondary">{getFilteredConversations().length}</Badge>
                   </div>
                   
@@ -612,7 +871,7 @@ const ChatApp: React.FC = () => {
                     />
                   </div>
                   
-                  {/* Filters */}
+                  {/* Quick Filters */}
                   <div className="flex gap-2">
                     <Select value={filterStatus} onValueChange={setFilterStatus}>
                       <SelectTrigger className="flex-1">
@@ -639,62 +898,110 @@ const ChatApp: React.FC = () => {
                       </SelectContent>
                     </Select>
                   </div>
-            <Button onClick={() => setShowCreateEventDialog(true)} className="bg-primary hover:bg-primary/90 w-full">
-              <Plus className="h-4 w-4" />
-              New Events
-            </Button>
+                  
+                  {/* Quick Actions */}
+                  <div className="grid grid-cols-1 gap-2">
+                    <Button 
+                      onClick={() => setShowCreateEventDialog(true)} 
+                      variant="outline" 
+                      size="sm"
+                      className="justify-start"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create New Event
+                    </Button>
+                    <Button 
+                      onClick={() => setActiveTab('events')} 
+                      variant="outline" 
+                      size="sm"
+                      className="justify-start"
+                    >
+                      <Calendar className="h-4 w-4 mr-2" />
+                      View All Events
+                    </Button>
+                    <Button 
+                      onClick={() => setActiveTab('messages')} 
+                      variant="outline" 
+                      size="sm"
+                      className="justify-start"
+                    >
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Chat Center
+                    </Button>
+                  </div>
                 </div>
-                
-                
+
+                {/* Event Listings */}
                 <div className="overflow-y-auto">
-                  {getFilteredConversations().map((conv) => (
+                  <div className="p-3">
+                    <h3 className="text-sm font-medium text-muted-foreground mb-3">Event Listings</h3>
+                  </div>
+                  {getFilteredEvents().slice(0, 10).map((event) => (
                     <div
-                      key={conv.id}
-                      onClick={() => setSelectedConversation(conv)}
+                      key={event.id}
+                      onClick={() => {
+                        setSelectedEvent(event);
+                        setActiveTab('events');
+                      }}
                       className={`p-4 border-b border-border cursor-pointer hover:bg-muted/50 ${
-                        selectedConversation?.id === conv.id ? "bg-muted" : ""
+                        selectedEvent?.id === event.id ? "bg-muted" : ""
                       }`}
                     >
                       <div className="flex items-center space-x-3">
                         <div className="relative">
                           <img
-                            src={conv.avatar}
-                            alt={conv.name}
+                            src={event.eventOwnerAvatar}
+                            alt={event.eventOwner}
                             className="w-10 h-10 rounded-full"
                           />
-                          {conv.isOnline && (
-                            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                          )}
+                          <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
+                            event.createdBy === 'photographer' ? 'bg-blue-500' : 'bg-green-500'
+                          }`}></div>
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <p className="font-medium truncate">{conv.name}</p>
+                            <p className="font-medium truncate">{event.eventName}</p>
                             <div className="flex items-center gap-1">
-                              <div className={`w-2 h-2 rounded-full ${getPriorityColor(conv.priority)}`}></div>
-                              {conv.unreadCount > 0 && (
+                              <div className={`w-2 h-2 rounded-full ${getPriorityColor(event.priority)}`}></div>
+                              {event.unreadMessages > 0 && (
                                 <Badge variant="destructive" className="text-xs">
-                                  {conv.unreadCount}
+                                  {event.unreadMessages}
                                 </Badge>
                               )}
                             </div>
                           </div>
                           <div className="flex items-center justify-between">
-                            <p className="text-sm text-muted-foreground truncate">{conv.eventType}</p>
-                            <Badge className={`text-xs ${getStatusColor(conv.projectStatus)}`}>
-                              {conv.projectStatus}
+                            <p className="text-sm text-muted-foreground truncate">{event.eventOwner}</p>
+                            <Badge className={`text-xs ${getStatusColor(event.status)}`}>
+                              {event.status}
                             </Badge>
                           </div>
                           <div className="flex items-center justify-between text-xs text-muted-foreground">
-                            <span>{conv.timestamp}</span>
+                            <span>{event.lastActivity}</span>
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
-                              {conv.eventDate}
+                              {event.eventDate}
                             </span>
                           </div>
                         </div>
                       </div>
                     </div>
                   ))}
+                  
+                  {/* Show More Button if there are more events */}
+                  {getFilteredEvents().length > 10 && (
+                    <div className="p-3">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => setActiveTab('events')}
+                        className="w-full justify-center"
+                      >
+                        View All {getFilteredEvents().length} Events
+                        <ChevronRight className="h-4 w-4 ml-1" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -708,6 +1015,10 @@ const ChatApp: React.FC = () => {
           </div>
           
           <TabsList className="grid w-full grid-cols-8 max-w-4xl">
+            <TabsTrigger value="events" className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Events
+            </TabsTrigger>
             <TabsTrigger value="messages" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
               Chat
@@ -736,14 +1047,298 @@ const ChatApp: React.FC = () => {
               <Users className="h-4 w-4" />
               Members
             </TabsTrigger>
-            <TabsTrigger value="rentals" className="flex items-center gap-2">
-              <Wrench className="h-4 w-4" />
-              Rentals
-            </TabsTrigger>
           </TabsList>
         </div>
 
         <div className="flex-1 overflow-hidden">
+          {/* Events Tab - Primary Tab for Event Listings */}
+          <TabsContent value="events" className="h-full m-0">
+            <div className="h-full flex flex-col">
+              {/* Event Filters and Search */}
+              <div className="p-6 border-b border-border bg-card">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-4">
+                    <h2 className="text-2xl font-bold">Event Listings</h2>
+                    <Badge variant="secondary">{getFilteredEvents().length} Events</Badge>
+                  </div>
+                  <Button onClick={() => setShowCreateEventDialog(true)} className="bg-primary hover:bg-primary/90">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Event
+                  </Button>
+                </div>
+                
+                {/* Search and Filters */}
+                <div className="flex gap-4 items-center">
+                  <div className="relative flex-1 max-w-md">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                    <Input
+                      placeholder="Search events, clients, or event types..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  
+                  <Select value={eventFilter} onValueChange={setEventFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Filter events" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Events</SelectItem>
+                      <SelectItem value="created-by-me">Created by Me</SelectItem>
+                      <SelectItem value="user-initiated">User Initiated</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  <Select value={filterPriority} onValueChange={setFilterPriority}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Filter by priority" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Priority</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="low">Low</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              {/* Event Listings Grid */}
+              <div className="flex-1 p-6 overflow-y-auto">
+                <div className="grid gap-6">
+                  {getFilteredEvents().map((event) => (
+                    <Card key={event.id} className={`cursor-pointer transition-all hover:shadow-md ${
+                      selectedEvent?.id === event.id ? 'ring-2 ring-primary' : ''
+                    }`} onClick={() => setSelectedEvent(event)}>
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start space-x-4 flex-1">
+                            {/* Event Owner Avatar */}
+                            <div className="relative">
+                              <img
+                                src={event.eventOwnerAvatar}
+                                alt={event.eventOwner}
+                                className="w-12 h-12 rounded-full object-cover"
+                              />
+                              <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center text-xs ${
+                                event.createdBy === 'photographer' ? 'bg-blue-500' : 'bg-green-500'
+                              }`}>
+                                {event.createdBy === 'photographer' ? <Camera className="h-2 w-2 text-white" /> : <Users className="h-2 w-2 text-white" />}
+                              </div>
+                            </div>
+                            
+                            {/* Event Details */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <h3 className="text-lg font-semibold text-foreground">{event.eventName}</h3>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <p className="text-muted-foreground">{event.eventOwner}</p>
+                                    <Badge variant="outline" className="text-xs">{event.eventOwnerRole}</Badge>
+                                    <Badge variant="outline" className="text-xs">
+                                      {event.createdBy === 'photographer' ? 'Created by Me' : 'User Initiated'}
+                                    </Badge>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex items-center gap-2">
+                                  <div className={`w-3 h-3 rounded-full ${getPriorityColor(event.priority)}`}></div>
+                                  <Badge className={`${getStatusColor(event.status)}`}>
+                                    {event.status}
+                                  </Badge>
+                                </div>
+                              </div>
+                              
+                              {/* Event Info */}
+                              <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
+                                <div className="flex items-center gap-2">
+                                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                                  <span>{event.eventDate} • {event.eventTime}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                                  <span className="truncate">{event.location}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                                  <span>{event.budget} • {event.packageType}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Clock className="h-4 w-4 text-muted-foreground" />
+                                  <span>Last activity: {event.lastActivity}</span>
+                                </div>
+                              </div>
+                              
+                              {/* Quick Stats */}
+                              <div className="flex items-center gap-6 mt-4 text-sm">
+                                <div className="flex items-center gap-2">
+                                  <Images className="h-4 w-4 text-muted-foreground" />
+                                  <span>{event.galleryPhotos} Photos</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                                  <span>Chat {event.hasChat ? 'Active' : 'Inactive'}</span>
+                                  {event.unreadMessages > 0 && (
+                                    <Badge variant="destructive" className="text-xs">
+                                      {event.unreadMessages}
+                                    </Badge>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Users className="h-4 w-4 text-muted-foreground" />
+                                  <span>{event.assignedTeamMembers.length} Team Members</span>
+                                </div>
+                              </div>
+                              
+                              {/* Team Members Preview */}
+                              {event.assignedTeamMembers.length > 0 && (
+                                <div className="flex items-center gap-2 mt-3">
+                                  <span className="text-sm text-muted-foreground">Team:</span>
+                                  <div className="flex -space-x-2">
+                                    {event.assignedTeamMembers.slice(0, 3).map((memberId) => {
+                                      const creator = availableCreators.find(c => c.id === memberId);
+                                      return creator ? (
+                                        <img
+                                          key={memberId}
+                                          src={creator.avatar}
+                                          alt={creator.name}
+                                          className="w-6 h-6 rounded-full border-2 border-white"
+                                          title={creator.name}
+                                        />
+                                      ) : null;
+                                    })}
+                                    {event.assignedTeamMembers.length > 3 && (
+                                      <div className="w-6 h-6 rounded-full bg-muted border-2 border-white flex items-center justify-center text-xs font-medium">
+                                        +{event.assignedTeamMembers.length - 3}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedEvent(event);
+                                      setShowAddTeamMemberDialog(true);
+                                    }}
+                                    className="h-6 w-6 p-0"
+                                  >
+                                    <Plus className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              )}
+                              
+                              {/* Action Buttons */}
+                              <div className="flex items-center gap-2 mt-4">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActiveTab('messages');
+                                    const conversation = conversations.find(c => c.id === event.conversationId);
+                                    if (conversation) setSelectedConversation(conversation);
+                                  }}
+                                >
+                                  <MessageSquare className="h-4 w-4 mr-1" />
+                                  Chat
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActiveTab('gallery');
+                                  }}
+                                >
+                                  <Images className="h-4 w-4 mr-1" />
+                                  Gallery
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedEvent(event);
+                                    setShowAddTeamMemberDialog(true);
+                                  }}
+                                >
+                                  <Users className="h-4 w-4 mr-1" />
+                                  Team
+                                </Button>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent>
+                                    <DropdownMenuItem onClick={() => {
+                                      setSelectedEvent(event);
+                                      setShowEventDetailsDialog(true);
+                                    }}>
+                                      <Calendar className="h-4 w-4 mr-2" />
+                                      Event Details
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => setActiveTab('invoice')}>
+                                      <Receipt className="h-4 w-4 mr-2" />
+                                      Invoice
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem>
+                                      <Edit className="h-4 w-4 mr-2" />
+                                      Edit Event
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  
+                  {getFilteredEvents().length === 0 && (
+                    <Card>
+                      <CardContent className="p-12 text-center">
+                        <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">No Events Found</h3>
+                        <p className="text-muted-foreground mb-4">
+                          {searchQuery || eventFilter !== 'all' || filterStatus !== 'all' || filterPriority !== 'all'
+                            ? 'No events match your current filters. Try adjusting your search criteria.'
+                            : 'You haven\'t created any events yet. Start by creating your first event.'
+                          }
+                        </p>
+                        <Button onClick={() => setShowCreateEventDialog(true)}>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create Your First Event
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
           {/* Messages Tab */}
           <TabsContent value="messages" className="h-full m-0">
             <div className="flex h-full">
@@ -785,6 +1380,14 @@ const ChatApp: React.FC = () => {
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => setShowInviteUserDialog(true)}
+                            title="Invite user to platform"
+                          >
+                            <UserPlus className="h-4 w-4" />
+                          </Button>
                           <Button variant="ghost" size="sm" onClick={() => setShowTaskDialog(true)}>
                             <Plus className="h-4 w-4" />
                           </Button>
@@ -1962,11 +2565,18 @@ const ChatApp: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>Event Name *</Label>
-                <Input placeholder="e.g., Sarah & John Wedding" />
+                <Input 
+                  placeholder="e.g., Sarah & John Wedding" 
+                  value={createEventForm.eventName}
+                  onChange={(e) => setCreateEventForm(prev => ({ ...prev, eventName: e.target.value }))}
+                />
               </div>
               <div>
                 <Label>Event Type *</Label>
-                <Select>
+                <Select 
+                  value={createEventForm.eventType} 
+                  onValueChange={(value) => setCreateEventForm(prev => ({ ...prev, eventType: value }))}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select event type" />
                   </SelectTrigger>
@@ -1984,19 +2594,36 @@ const ChatApp: React.FC = () => {
               </div>
               <div>
                 <Label>Client Name *</Label>
-                <Input placeholder="Enter client name" />
+                <Input 
+                  placeholder="Enter client name" 
+                  value={createEventForm.clientName}
+                  onChange={(e) => setCreateEventForm(prev => ({ ...prev, clientName: e.target.value }))}
+                />
               </div>
               <div>
                 <Label>Client Email *</Label>
-                <Input type="email" placeholder="client@example.com" />
+                <Input 
+                  type="email" 
+                  placeholder="client@example.com" 
+                  value={createEventForm.clientEmail}
+                  onChange={(e) => setCreateEventForm(prev => ({ ...prev, clientEmail: e.target.value }))}
+                />
               </div>
               <div>
                 <Label>Event Date *</Label>
-                <Input type="date" />
+                <Input 
+                  type="date" 
+                  value={createEventForm.eventDate}
+                  onChange={(e) => setCreateEventForm(prev => ({ ...prev, eventDate: e.target.value }))}
+                />
               </div>
               <div>
                 <Label>Event Time *</Label>
-                <Input type="time" />
+                <Input 
+                  type="time" 
+                  value={createEventForm.eventTime}
+                  onChange={(e) => setCreateEventForm(prev => ({ ...prev, eventTime: e.target.value }))}
+                />
               </div>
             </div>
 
@@ -2006,7 +2633,11 @@ const ChatApp: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <Label>Event Location *</Label>
-                  <Input placeholder="e.g., Central Park Conservatory Garden, NYC" />
+                  <Input 
+                    placeholder="e.g., Central Park Conservatory Garden, NYC" 
+                    value={createEventForm.location}
+                    onChange={(e) => setCreateEventForm(prev => ({ ...prev, location: e.target.value }))}
+                  />
                 </div>
                 <div>
                   <Label>Venue Name</Label>
@@ -2018,7 +2649,11 @@ const ChatApp: React.FC = () => {
                 </div>
                 <div className="md:col-span-2">
                   <Label>Venue Address</Label>
-                  <Input placeholder="Full venue address" />
+                  <Input 
+                    placeholder="Full venue address" 
+                    value={createEventForm.venueAddress}
+                    onChange={(e) => setCreateEventForm(prev => ({ ...prev, venueAddress: e.target.value }))}
+                  />
                 </div>
                 <div className="md:col-span-2">
                   <Label>Venue Notes</Label>
@@ -2033,11 +2668,19 @@ const ChatApp: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label>Total Budget *</Label>
-                  <Input type="number" placeholder="2500" />
+                  <Input 
+                    type="number" 
+                    placeholder="2500" 
+                    value={createEventForm.budget}
+                    onChange={(e) => setCreateEventForm(prev => ({ ...prev, budget: e.target.value }))}
+                  />
                 </div>
                 <div>
                   <Label>Package Type</Label>
-                  <Select>
+                  <Select 
+                    value={createEventForm.packageType} 
+                    onValueChange={(value) => setCreateEventForm(prev => ({ ...prev, packageType: value }))}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select package" />
                     </SelectTrigger>
@@ -2062,6 +2705,50 @@ const ChatApp: React.FC = () => {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+            </div>
+
+            {/* Team Member Assignment */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Assign Team Members</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {teamMembers.map((member) => (
+                  <div key={member.id} className="border rounded-lg p-4 hover:border-primary/50 transition-colors">
+                    <div className="flex items-center space-x-3 mb-3">
+                      <img 
+                        src={member.avatar} 
+                        alt={member.name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                      <div className="flex-1">
+                        <p className="font-medium">{member.name}</p>
+                        <p className="text-sm text-muted-foreground">{member.role}</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 text-primary"
+                        checked={createEventForm.assignedMembers.includes(member.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setCreateEventForm(prev => ({
+                              ...prev,
+                              assignedMembers: [...prev.assignedMembers, member.id]
+                            }));
+                          } else {
+                            setCreateEventForm(prev => ({
+                              ...prev,
+                              assignedMembers: prev.assignedMembers.filter(id => id !== member.id)
+                            }));
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      <p>Specialties: {member.specialties.join(', ')}</p>
+                      <p>Availability: {member.availability}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -2098,13 +2785,541 @@ const ChatApp: React.FC = () => {
                 Cancel
               </Button>
               <Button onClick={() => {
+                // Validate required fields
+                if (!createEventForm.eventName.trim()) {
+                  toast({
+                    title: "Validation Error",
+                    description: "Event name is required.",
+                    variant: "destructive"
+                  });
+                  return;
+                }
+                
+                if (!createEventForm.clientName.trim()) {
+                  toast({
+                    title: "Validation Error",
+                    description: "Client name is required.",
+                    variant: "destructive"
+                  });
+                  return;
+                }
+                
+                if (!createEventForm.clientEmail.trim()) {
+                  toast({
+                    title: "Validation Error",
+                    description: "Client email is required.",
+                    variant: "destructive"
+                  });
+                  return;
+                }
+                
+                if (!createEventForm.eventDate.trim()) {
+                  toast({
+                    title: "Validation Error",
+                    description: "Event date is required.",
+                    variant: "destructive"
+                  });
+                  return;
+                }
+                
+                // Use actual form data from createEventForm state
+                const eventData = {
+                  eventName: createEventForm.eventName.trim(),
+                  eventType: createEventForm.eventType || "Other",
+                  clientName: createEventForm.clientName.trim(),
+                  clientEmail: createEventForm.clientEmail.trim(),
+                  eventDate: createEventForm.eventDate,
+                  eventTime: createEventForm.eventTime || "TBD",
+                  location: createEventForm.location.trim() || "TBD",
+                  budget: createEventForm.budget || "0",
+                  packageType: createEventForm.packageType || "Custom Package",
+                  assignedMembers: createEventForm.assignedMembers
+                };
+                
+                createNewEvent(eventData);
+                setActiveTab('events'); // Switch to events tab to show the new event
                 toast({
                   title: "Event Created",
-                  description: "New event has been created successfully and added to your project list."
+                  description: `Event "${eventData.eventName}" has been created successfully for ${eventData.clientName}.`
+                });
+                
+                // Reset form and close dialog
+                setCreateEventForm({
+                  eventName: "",
+                  eventType: "",
+                  clientName: "",
+                  clientEmail: "",
+                  eventDate: "",
+                  eventTime: "",
+                  location: "",
+                  venueAddress: "",
+                  budget: "",
+                  packageType: "",
+                  assignedMembers: []
                 });
                 setShowCreateEventDialog(false);
               }}>
                 Create Event
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Event Details Dialog */}
+      <Dialog open={showEventDetailsDialog} onOpenChange={setShowEventDetailsDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Event Details: {selectedEvent?.eventName}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedEvent && (
+            <div className="space-y-6">
+              {/* Event Header */}
+              <div className="flex items-start justify-between p-4 bg-muted/50 rounded-lg">
+                <div className="flex items-start gap-4">
+                  <img
+                    src={selectedEvent.eventOwnerAvatar}
+                    alt={selectedEvent.eventOwner}
+                    className="w-16 h-16 rounded-full object-cover"
+                  />
+                  <div>
+                    <h2 className="text-2xl font-bold">{selectedEvent.eventName}</h2>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="outline">{selectedEvent.eventType}</Badge>
+                      <Badge className={getStatusColor(selectedEvent.status)}>{selectedEvent.status}</Badge>
+                      <div className={`w-2 h-2 rounded-full ${getPriorityColor(selectedEvent.priority)}`}></div>
+                      <span className="text-sm capitalize">{selectedEvent.priority} priority</span>
+                    </div>
+                    <p className="text-muted-foreground mt-1">
+                      {selectedEvent.eventOwner} ({selectedEvent.eventOwnerRole}) • {selectedEvent.eventOwnerEmail}
+                    </p>
+                  </div>
+                </div>
+                <Badge variant="outline" className="text-sm">
+                  {selectedEvent.createdBy === 'photographer' ? 'Created by Me' : 'User Initiated'}
+                </Badge>
+              </div>
+              
+              {/* Key Information Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">Date & Time</span>
+                    </div>
+                    <p className="text-sm">{selectedEvent.eventDate}</p>
+                    <p className="text-sm text-muted-foreground">{selectedEvent.eventTime}</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">Location</span>
+                    </div>
+                    <p className="text-sm">{selectedEvent.location}</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <DollarSign className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">Budget</span>
+                    </div>
+                    <p className="text-sm font-semibold">{selectedEvent.budget}</p>
+                    <p className="text-sm text-muted-foreground">{selectedEvent.packageType}</p>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* Progress Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Images className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">Gallery Progress</span>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>Photos Uploaded:</span>
+                        <span className="font-medium">{selectedEvent.galleryPhotos}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Approved Photos:</span>
+                        <span className="font-medium">{selectedEvent.approvedPhotos}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">Communication</span>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>Chat Status:</span>
+                        <span className={`font-medium ${selectedEvent.hasChat ? 'text-green-600' : 'text-red-600'}`}>
+                          {selectedEvent.hasChat ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Unread Messages:</span>
+                        <span className="font-medium">{selectedEvent.unreadMessages}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">Team</span>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>Assigned Members:</span>
+                        <span className="font-medium">{selectedEvent.assignedTeamMembers.length}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Last Activity:</span>
+                        <span className="font-medium">{selectedEvent.lastActivity}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* Team Members */}
+              {selectedEvent.assignedTeamMembers.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Assigned Team Members</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {selectedEvent.assignedTeamMembers.map((memberId) => {
+                      const creator = availableCreators.find(c => c.id === memberId);
+                      return creator ? (
+                        <div key={memberId} className="flex items-center gap-3 p-3 border rounded-lg">
+                          <img
+                            src={creator.avatar}
+                            alt={creator.name}
+                            className="w-10 h-10 rounded-full"
+                          />
+                          <div className="flex-1">
+                            <p className="font-medium">{creator.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {creator.type} • {creator.hourlyRate} • {creator.availability}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Star className="h-3 w-3 text-yellow-500" />
+                            <span className="text-sm">{creator.rating}</span>
+                          </div>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              )}
+              
+              {/* Quick Actions */}
+              <div className="flex flex-wrap gap-2 pt-4 border-t">
+                <Button
+                  onClick={() => {
+                    setActiveTab('messages');
+                    const conversation = conversations.find(c => c.id === selectedEvent.conversationId);
+                    if (conversation) setSelectedConversation(conversation);
+                    setShowEventDetailsDialog(false);
+                  }}
+                >
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Open Chat
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setActiveTab('gallery');
+                    setShowEventDetailsDialog(false);
+                  }}
+                >
+                  <Images className="h-4 w-4 mr-2" />
+                  View Gallery
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowAddTeamMemberDialog(true);
+                    setShowEventDetailsDialog(false);
+                  }}
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Manage Team
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setActiveTab('invoice');
+                    setShowEventDetailsDialog(false);
+                  }}
+                >
+                  <Receipt className="h-4 w-4 mr-2" />
+                  View Invoice
+                </Button>
+              </div>
+              
+              {/* Close Button */}
+              <div className="flex justify-end pt-4 border-t">
+                <Button variant="outline" onClick={() => setShowEventDetailsDialog(false)}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Team Member to Event Dialog */}
+      <Dialog open={showAddTeamMemberDialog} onOpenChange={setShowAddTeamMemberDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Add Team Members to {selectedEvent?.eventName}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedEvent && (
+            <div className="space-y-6">
+              {/* Selected Event Info */}
+              <div className="p-4 bg-muted/50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={selectedEvent.eventOwnerAvatar}
+                    alt={selectedEvent.eventOwner}
+                    className="w-10 h-10 rounded-full"
+                  />
+                  <div>
+                    <h3 className="font-semibold">{selectedEvent.eventName}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {selectedEvent.eventOwner} • {selectedEvent.eventDate} • {selectedEvent.location}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Current Team Members */}
+              {selectedEvent.assignedTeamMembers.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Current Team Members</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {selectedEvent.assignedTeamMembers.map((memberId) => {
+                      const creator = availableCreators.find(c => c.id === memberId);
+                      return creator ? (
+                        <div key={memberId} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={creator.avatar}
+                              alt={creator.name}
+                              className="w-8 h-8 rounded-full"
+                            />
+                            <div>
+                              <p className="font-medium">{creator.name}</p>
+                              <p className="text-sm text-muted-foreground">{creator.type} • {creator.hourlyRate}</p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeTeamMemberFromEvent(selectedEvent.id, memberId)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <UserX className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              )}
+              
+              {/* Available Team Members */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Available Photographers & Videographers</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {availableCreators
+                    .filter(creator => !selectedEvent.assignedTeamMembers.includes(creator.id))
+                    .map((creator) => (
+                    <div key={creator.id} className="border rounded-lg p-4 hover:border-primary/50 transition-colors">
+                      <div className="flex items-start gap-3">
+                        <img
+                          src={creator.avatar}
+                          alt={creator.name}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h4 className="font-semibold">{creator.name}</h4>
+                              <p className="text-sm text-muted-foreground capitalize">{creator.type}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full ${
+                                creator.availability === 'available' ? 'bg-green-500' : 'bg-red-500'
+                              }`}></div>
+                              <span className="text-xs text-muted-foreground capitalize">{creator.availability}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-2">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Star className="h-3 w-3 text-yellow-500" />
+                              <span>{creator.rating}</span>
+                              <span className="text-muted-foreground">•</span>
+                              <span className="text-muted-foreground">{creator.location}</span>
+                            </div>
+                            <p className="text-sm font-medium text-primary mt-1">{creator.hourlyRate}</p>
+                          </div>
+                          
+                          <div className="mt-2">
+                            <p className="text-xs text-muted-foreground">Specialties:</p>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {creator.specialties.map((specialty, index) => (
+                                <Badge key={index} variant="outline" className="text-xs">
+                                  {specialty}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <Button
+                            onClick={() => {
+                              addTeamMemberToEvent(selectedEvent.id, creator.id);
+                            }}
+                            disabled={creator.availability === 'busy'}
+                            className="w-full mt-3"
+                            size="sm"
+                          >
+                            <UserCheck className="h-4 w-4 mr-2" />
+                            {creator.availability === 'busy' ? 'Currently Busy' : 'Add to Team'}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {availableCreators.filter(creator => !selectedEvent.assignedTeamMembers.includes(creator.id)).length === 0 && (
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">All Available Members Added</h3>
+                    <p className="text-muted-foreground">
+                      All available photographers and videographers have been added to this event.
+                    </p>
+                  </div>
+                )}
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-2 pt-4 border-t">
+                <Button variant="outline" onClick={() => setShowAddTeamMemberDialog(false)}>
+                  Close
+                </Button>
+                <Button onClick={() => {
+                  toast({
+                    title: "Team Updated",
+                    description: "Team member assignments have been updated for this event."
+                  });
+                  setShowAddTeamMemberDialog(false);
+                }}>
+                  <Settings className="h-4 w-4 mr-2" />
+                  Done
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Invite User Dialog */}
+      <Dialog open={showInviteUserDialog} onOpenChange={setShowInviteUserDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5" />
+              Invite User to Platform
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>User Name *</Label>
+              <Input placeholder="Enter user's full name" />
+            </div>
+            <div>
+              <Label>Email Address *</Label>
+              <Input type="email" placeholder="user@example.com" />
+            </div>
+            <div>
+              <Label>Phone Number</Label>
+              <Input type="tel" placeholder="+1 (555) 123-4567" />
+            </div>
+            <div>
+              <Label>User Type</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select user type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="client">Client</SelectItem>
+                  <SelectItem value="photographer">Photographer</SelectItem>
+                  <SelectItem value="vendor">Vendor</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Invitation Message</Label>
+              <Textarea 
+                placeholder="Hi! I'd like to invite you to join our photography platform to collaborate on upcoming projects."
+                rows={3}
+              />
+            </div>
+            
+            {/* Information Box */}
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-start gap-2">
+                <Users className="h-4 w-4 text-blue-600 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium text-blue-900">What happens next?</p>
+                  <p className="text-blue-700 mt-1">
+                    The user will receive an email invitation to join the platform. Once they register, 
+                    a chat conversation will be automatically created and you'll be notified.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end space-x-2 pt-4 border-t">
+              <Button variant="outline" onClick={() => setShowInviteUserDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={() => {
+                toast({
+                  title: "Invitation Sent!",
+                  description: "The user has been invited to join the platform. They'll receive an email with instructions."
+                });
+                setShowInviteUserDialog(false);
+              }}>
+                Send Invitation
               </Button>
             </div>
           </div>
