@@ -592,60 +592,9 @@ const ChatApp: React.FC = () => {
   };
 
   return (
-    <div className="h-full bg-background">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-        {/* Header with New Event Button */}
-        <div className="border-b border-border px-6 py-4 bg-card">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold">Project Management</h1>
-            <Button onClick={() => setShowCreateEventDialog(true)} className="bg-primary hover:bg-primary/90">
-              <Plus className="h-4 w-4 mr-2" />
-              New Event
-            </Button>
-          </div>
-          
-          <TabsList className="grid w-full grid-cols-8 max-w-4xl">
-            <TabsTrigger value="messages" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Chat
-            </TabsTrigger>
-            <TabsTrigger value="tasks" className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4" />
-              Tasks
-            </TabsTrigger>
-            <TabsTrigger value="gallery" className="flex items-center gap-2">
-              <Images className="h-4 w-4" />
-              Gallery
-            </TabsTrigger>
-            <TabsTrigger value="portfolio" className="flex items-center gap-2">
-              <Package className="h-4 w-4" />
-              Portfolio
-            </TabsTrigger>
-            <TabsTrigger value="event-details" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              Event Details
-            </TabsTrigger>
-            <TabsTrigger value="invoice" className="flex items-center gap-2">
-              <Receipt className="h-4 w-4" />
-              Invoice
-            </TabsTrigger>
-            <TabsTrigger value="members" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Members
-            </TabsTrigger>
-            <TabsTrigger value="rentals" className="flex items-center gap-2">
-              <Wrench className="h-4 w-4" />
-              Rentals
-            </TabsTrigger>
-          </TabsList>
-        </div>
-
-        <div className="flex-1 overflow-hidden">
-          {/* Messages Tab */}
-          <TabsContent value="messages" className="h-full m-0">
-            <div className="flex h-full">
-              {/* Enhanced Conversation List */}
-              <div className="w-80 border-r border-border bg-card">
+    <div className="h-full bg-background flex">
+      {/* Enhanced Conversation List */}
+              <div className="w-96 border-r border-border bg-card">
                 <div className="p-4 border-b border-border space-y-4">
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold">Work Conversations</h2>
@@ -690,7 +639,12 @@ const ChatApp: React.FC = () => {
                       </SelectContent>
                     </Select>
                   </div>
+            <Button onClick={() => setShowCreateEventDialog(true)} className="bg-primary hover:bg-primary/90 w-full">
+              <Plus className="h-4 w-4" />
+              New Events
+            </Button>
                 </div>
+                
                 
                 <div className="overflow-y-auto">
                   {getFilteredConversations().map((conv) => (
@@ -744,6 +698,55 @@ const ChatApp: React.FC = () => {
                 </div>
               </div>
 
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full w-full flex flex-col">
+        {/* Header with New Event Button */}
+        <div className="border-b border-border px-6 py-4 bg-card">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold">Project Management</h1>
+            
+          </div>
+          
+          <TabsList className="grid w-full grid-cols-8 max-w-4xl">
+            <TabsTrigger value="messages" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Chat
+            </TabsTrigger>
+            <TabsTrigger value="tasks" className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4" />
+              Tasks
+            </TabsTrigger>
+            <TabsTrigger value="gallery" className="flex items-center gap-2">
+              <Images className="h-4 w-4" />
+              Gallery
+            </TabsTrigger>
+            <TabsTrigger value="portfolio" className="flex items-center gap-2">
+              <Package className="h-4 w-4" />
+              Portfolio
+            </TabsTrigger>
+            <TabsTrigger value="event-details" className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Event Details
+            </TabsTrigger>
+            <TabsTrigger value="invoice" className="flex items-center gap-2">
+              <Receipt className="h-4 w-4" />
+              Invoice
+            </TabsTrigger>
+            <TabsTrigger value="members" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Members
+            </TabsTrigger>
+            <TabsTrigger value="rentals" className="flex items-center gap-2">
+              <Wrench className="h-4 w-4" />
+              Rentals
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
+        <div className="flex-1 overflow-hidden">
+          {/* Messages Tab */}
+          <TabsContent value="messages" className="h-full m-0">
+            <div className="flex h-full">
               {/* Enhanced Chat Area */}
               <div className="flex-1 flex flex-col">
                 {selectedConversation && (
