@@ -1419,7 +1419,7 @@ export function PhotographerBookings() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Bookings Management</h1>
         <div className="flex gap-2">
-          <Button onClick={() => {
+          {/* <Button onClick={() => {
             // Navigate to chat with option to start new conversation
             navigate('/photographer-dashboard', { 
               state: { 
@@ -1446,7 +1446,7 @@ export function PhotographerBookings() {
                 Block Date
               </Button>
             </DialogTrigger>
-          </Dialog>
+          </Dialog> */}
         </div>
       </div>
 
