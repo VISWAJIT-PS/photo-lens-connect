@@ -6,7 +6,7 @@ import { PhotographerBookings } from "@/components/photographer/PhotographerBook
 import { PhotographerChatWindow } from "@/components/photographer/PhotographerChatWindow";
 import { PhotographerPortfolio } from "@/components/photographer/PhotographerPortfolio";
 import { PhotographerEquipmentRentals } from "@/components/photographer/PhotographerEquipmentRentals";
-import { PhotographerEarnings } from "@/components/photographer/PhotographerEarnings";
+
 import { PhotographerNotes } from "@/components/photographer/PhotographerNotes";
 import { PhotographerPhotoSpots } from "@/components/photographer/PhotographerPhotoSpots";
 import { PhotographerNotifications, NotificationTrigger } from "@/components/photographer/PhotographerNotifications";
@@ -18,7 +18,7 @@ import {
   Calendar,
   MessageSquare,
   Package,
-  DollarSign,
+
   StickyNote,
   MapPin,
   BellIcon,
@@ -115,7 +115,7 @@ const PhotographerDashboard = () => {
     { id: 'portfolio', label: 'Portfolio', icon: Camera, description: 'Manage your work' },
     { id: 'equipment', label: 'Equipment', icon: Package, description: 'My equipment & rent from others' },
     { id: 'photo-spots', label: 'Photo Spots', icon: MapPin, description: 'My spots & book from others' },
-    { id: 'earnings', label: 'Earnings', icon: DollarSign, description: 'Recent work & earnings' },
+
     { id: 'notes', label: 'Notes', icon: StickyNote, description: 'Notes & reminders' },
   ];
 
@@ -134,8 +134,7 @@ const PhotographerDashboard = () => {
         return <PhotographerEquipmentRentals />;
       case 'photo-spots':
         return <PhotographerPhotoSpots />;
-      case 'earnings':
-        return <PhotographerEarnings />;
+
       case 'notes':
         return <PhotographerNotes />;
       case 'settings':

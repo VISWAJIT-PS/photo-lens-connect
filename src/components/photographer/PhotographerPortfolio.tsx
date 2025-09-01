@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Upload, Edit, Trash2, Eye, Plus, Camera, Star, MapPin, Package, DollarSign, Clock, Users } from 'lucide-react';
+import { Upload, Edit, Trash2, Eye, Plus, Camera, Star, MapPin, Package, DollarSign, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 // Mock portfolio data
@@ -54,7 +54,7 @@ const portfolioPackages = [
     name: "Wedding Essential",
     description: "Complete wedding photography package with all essential services",
     price: 2500,
-    duration: "8 hours",
+
     deliverables: ["500+ edited photos", "Online gallery", "USB drive", "2 photographers"],
     features: ["Engagement session", "Bridal preparation", "Ceremony coverage", "Reception coverage"],
     category: "Wedding",
@@ -66,7 +66,7 @@ const portfolioPackages = [
     name: "Corporate Headshots",
     description: "Professional headshot package for corporate teams",
     price: 800,
-    duration: "2 hours",
+
     deliverables: ["50 edited photos", "High-res files", "LinkedIn optimized versions"],
     features: ["Studio setup", "Professional lighting", "Multiple outfit changes"],
     category: "Portrait",
@@ -78,7 +78,7 @@ const portfolioPackages = [
     name: "Product Showcase",
     description: "E-commerce product photography with multiple angles",
     price: 600,
-    duration: "4 hours",
+
     deliverables: ["100+ product shots", "White background versions", "Lifestyle shots"],
     features: ["Professional lighting setup", "Multiple angles", "Detail shots"],
     category: "Product",
@@ -107,7 +107,6 @@ export function PhotographerPortfolio() {
     name: '',
     description: '',
     price: '',
-    duration: '',
     deliverables: '',
     features: '',
     category: 'Wedding'
@@ -193,7 +192,7 @@ export function PhotographerPortfolio() {
     };
 
     setPackages([...packages, packageData]);
-    setNewPackage({ name: '', description: '', price: '', duration: '', deliverables: '', features: '', category: 'Wedding' });
+    setNewPackage({ name: '', description: '', price: '', deliverables: '', features: '', category: 'Wedding' });
     setShowPackageDialog(false);
     
     toast({
@@ -374,24 +373,14 @@ export function PhotographerPortfolio() {
                       rows={2}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium">Price *</label>
-                      <Input
-                        type="number"
-                        value={newPackage.price}
-                        onChange={(e) => setNewPackage({...newPackage, price: e.target.value})}
-                        placeholder="1500"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">Duration</label>
-                      <Input
-                        value={newPackage.duration}
-                        onChange={(e) => setNewPackage({...newPackage, duration: e.target.value})}
-                        placeholder="6 hours"
-                      />
-                    </div>
+                  <div>
+                    <label className="text-sm font-medium">Price *</label>
+                    <Input
+                      type="number"
+                      value={newPackage.price}
+                      onChange={(e) => setNewPackage({...newPackage, price: e.target.value})}
+                      placeholder="1500"
+                    />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Category</label>
@@ -625,10 +614,7 @@ export function PhotographerPortfolio() {
                       <DollarSign className="h-4 w-4 text-primary" />
                       <span className="font-semibold">${pkg.price}</span>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Clock className="h-4 w-4 text-primary" />
-                      <span>{pkg.duration}</span>
-                    </div>
+
                     <div className="flex items-center space-x-2">
                       <Users className="h-4 w-4 text-primary" />
                       <span>{pkg.bookings} bookings</span>
@@ -733,22 +719,13 @@ export function PhotographerPortfolio() {
                   rows={2}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium">Price</label>
-                  <Input
-                    type="number"
-                    value={editingPackage.price}
-                    onChange={(e) => setEditingPackage({...editingPackage, price: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Duration</label>
-                  <Input
-                    value={editingPackage.duration}
-                    onChange={(e) => setEditingPackage({...editingPackage, duration: e.target.value})}
-                  />
-                </div>
+              <div>
+                <label className="text-sm font-medium">Price</label>
+                <Input
+                  type="number"
+                  value={editingPackage.price}
+                  onChange={(e) => setEditingPackage({...editingPackage, price: e.target.value})}
+                />
               </div>
               <div>
                 <label className="text-sm font-medium">Category</label>

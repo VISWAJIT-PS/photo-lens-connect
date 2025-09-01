@@ -111,31 +111,155 @@ export const PhotoSpotsTab: React.FC<PhotoSpotsTabProps> = ({ onboardingData }) 
   const [availabilityFilter, setAvailabilityFilter] = useState('available');
   const [selectedEventSpace, setSelectedEventSpace] = useState<any>(null);
   const [showEventSpaceDialog, setShowEventSpaceDialog] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    category: '',
+    price: '',
+    description: '',
+    location: '',
+    image_url: '',
+    specs: '',
+    available: true
+  });
+  const [items, setItems] = useState(eventSpaces);
   const { toast } = useToast();
 
   const getFilteredItems = () => {
-    let items = eventSpaces;
-
+    let filtered = items;
     if (categoryFilter && categoryFilter !== 'all-categories') {
-      items = items.filter(item => item.category === categoryFilter);
+      filtered = filtered.filter(item => item.category === categoryFilter);
     }
-
     if (searchQuery) {
-      items = items.filter(item =>
+      filtered = filtered.filter(item =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
     if (availabilityFilter === 'available') {
-      items = items.filter(item => item.available);
+      filtered = filtered.filter(item => item.available);
     }
+    return filtered;
+  };
 
-    return items;
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      category: '',
+      price: '',
+      description: '',
+      location: '',
+      image_url: '',
+      specs: '',
+      available: true
+    });
+  };
+
+  const handleAddPhotoSpot = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newSpot = {
+      id: Date.now(),
+      name: formData.name,
+      category: formData.category,
+      price: formData.price,
+      description: formData.description,
+      location: formData.location,
+      image_url: formData.image_url || 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+      available: formData.available,
+      rating: 0,
+      reviews: 0,
+      specs: formData.specs.split(',').map(s => s.trim()).filter(s => s.length > 0)
+    };
+    setItems(prev => [...prev, newSpot]);
+    toast({
+      title: 'Photo Spot Added',
+      description: `${newSpot.name} has been added.`
+    });
+    setShowAddModal(false);
+    resetForm();
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 relative">
+      {/* Floating Add Photo Spot Button (FAB) */}
+      <button
+        className="fixed bottom-8 right-8 z-50 bg-primary text-primary-foreground rounded-full shadow-lg p-0 w-16 h-16 flex items-center justify-center hover:bg-primary/90 transition-colors"
+        style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }}
+        onClick={() => { resetForm(); setShowAddModal(true); }}
+        aria-label="Add Photo Spot"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+      </button>
+
+      {/* Add Photo Spot Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+            <h2 className="text-xl font-semibold mb-4">Add New Photo Spot</h2>
+            <form onSubmit={handleAddPhotoSpot} className="space-y-4">
+              <input
+                className="w-full border p-2 rounded"
+                placeholder="Spot Name"
+                value={formData.name}
+                onChange={e => setFormData(f => ({ ...f, name: e.target.value }))}
+                required
+              />
+              <select
+                className="w-full border p-2 rounded"
+                value={formData.category}
+                onChange={e => setFormData(f => ({ ...f, category: e.target.value }))}
+                required
+              >
+                <option value="">Select Category</option>
+                {categories.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <input
+                className="w-full border p-2 rounded"
+                placeholder="Price per Day"
+                value={formData.price}
+                onChange={e => setFormData(f => ({ ...f, price: e.target.value }))}
+                required
+              />
+              <input
+                className="w-full border p-2 rounded"
+                placeholder="Location"
+                value={formData.location}
+                onChange={e => setFormData(f => ({ ...f, location: e.target.value }))}
+                required
+              />
+              <input
+                className="w-full border p-2 rounded"
+                placeholder="Image URL"
+                value={formData.image_url}
+                onChange={e => setFormData(f => ({ ...f, image_url: e.target.value }))}
+              />
+              <textarea
+                className="w-full border p-2 rounded"
+                placeholder="Description"
+                value={formData.description}
+                onChange={e => setFormData(f => ({ ...f, description: e.target.value }))}
+                required
+              />
+              <input
+                className="w-full border p-2 rounded"
+                placeholder="Specs (comma separated)"
+                value={formData.specs}
+                onChange={e => setFormData(f => ({ ...f, specs: e.target.value }))}
+              />
+              <div className="flex justify-end gap-2 mt-4">
+                <Button type="button" variant="outline" onClick={() => setShowAddModal(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Add Photo Spot
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {/* Filters */}
       <div className="flex flex-wrap gap-4 p-4 bg-card rounded-lg border border-border">
         <div className="flex-1 min-w-64">
