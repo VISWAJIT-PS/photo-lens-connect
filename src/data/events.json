@@ -1,0 +1,34 @@
+{
+  "events": [
+    {
+      "id": "wedding-2024-001",
+      "name": "Sarah & John's Wedding",
+      "date": "2024-01-15",
+      "location": "Grand Ballroom, Downtown Hotel",
+      "description": "An elegant wedding celebration with 150 guests",
+      "totalPhotos": 245,
+      "registeredUsers": 23,
+      "status": "active"
+    },
+    {
+      "id": "corporate-2024-002",
+      "name": "TechCorp Annual Conference",
+      "date": "2024-02-20",
+      "location": "Convention Center",
+      "description": "Annual technology conference with keynote speakers",
+      "totalPhotos": 180,
+      "registeredUsers": 45,
+      "status": "completed"
+    },
+    {
+      "id": "birthday-2024-003",
+      "name": "Emma's 30th Birthday",
+      "date": "2024-03-10",
+      "location": "Riverside Restaurant",
+      "description": "Surprise birthday party celebration",
+      "totalPhotos": 95,
+      "registeredUsers": 18,
+      "status": "active"
+    }
+  ]
+}
