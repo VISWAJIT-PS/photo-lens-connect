@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Upload, Edit, Trash2, Eye, Plus, Camera, Star, MapPin, Package, DollarSign, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Dropzone, DropzoneContent, DropzoneEmptyState } from '@/components/dropzone';
+import { useSupabaseUpload } from '@/hooks/use-supabase-upload';
 
 // Mock portfolio data
 const portfolioPhotos = [
@@ -113,23 +115,35 @@ export function PhotographerPortfolio() {
   });
   const { toast } = useToast();
 
+  // File upload hook for image uploads
+  const uploadHook = useSupabaseUpload({
+    bucketName: 'photos',
+    allowedMimeTypes: ['image/*'],
+    maxFileSize: 10 * 1024 * 1024, // 10MB
+  });
+
   const filteredPhotos = selectedCategory === "All" 
     ? photos 
     : photos.filter(photo => photo.category === selectedCategory);
 
   const handleUploadPhoto = () => {
-    if (!newPhoto.title || !newPhoto.url) {
+    if (!newPhoto.title || uploadHook.files.length === 0) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields and select a photo",
         variant: "destructive"
       });
       return;
     }
 
+    // Use the first file's preview URL as the photo URL
+    const selectedFile = uploadHook.files[0];
+    const photoUrl = selectedFile.preview || '';
+
     const photo = {
       id: Date.now(),
       ...newPhoto,
+      url: photoUrl,
       tags: newPhoto.tags.split(',').map(tag => tag.trim()),
       uploadDate: new Date().toISOString().split('T')[0],
       views: 0,
@@ -138,6 +152,7 @@ export function PhotographerPortfolio() {
 
     setPhotos([...photos, photo]);
     setNewPhoto({ title: '', description: '', category: 'Wedding', tags: '', url: '' });
+    uploadHook.setFiles([]); // Clear the uploaded files
     setShowUploadDialog(false);
     
     toast({
@@ -279,7 +294,13 @@ export function PhotographerPortfolio() {
             Preview Portfolio
           </Button>
           {activeTab === "photos" ? (
-            <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
+            <Dialog open={showUploadDialog} onOpenChange={(open) => {
+              setShowUploadDialog(open);
+              if (!open) {
+                // Clear files when dialog is closed
+                uploadHook.setFiles([]);
+              }
+            }}>
               <DialogTrigger asChild>
                 <Button>
                   <Upload className="h-4 w-4 mr-2" />
@@ -287,18 +308,17 @@ export function PhotographerPortfolio() {
                 </Button>
               </DialogTrigger>
               {/* ... existing photo upload dialog content ... */}
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-lg">
               <DialogHeader>
                 <DialogTitle>Upload New Photo</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium">Photo URL</label>
-                  <Input
-                    value={newPhoto.url}
-                    onChange={(e) => setNewPhoto({...newPhoto, url: e.target.value})}
-                    placeholder="Enter image URL"
-                  />
+                  <label className="text-sm font-medium">Photo Upload</label>
+                  <Dropzone {...uploadHook}>
+                    <DropzoneContent />
+                    <DropzoneEmptyState />
+                  </Dropzone>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Title</label>

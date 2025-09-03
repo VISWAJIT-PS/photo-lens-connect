@@ -1412,7 +1412,7 @@ const ChatApp: React.FC = () => {
                                       <MoreVertical className="h-4 w-4" />
                                     </Button>
                                   </DropdownMenuTrigger>
-                                  <DropdownMenuContent>
+                                  <DropdownMenuContent className='bg-white dark:bg-secondary' align="end">
                                     <DropdownMenuItem onClick={() => {
                                       setSelectedEvent(event);
                                       setShowEventDetailsDialog(true);
