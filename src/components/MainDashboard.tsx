@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Camera, Package, Images, MessageCircle, Bell, Heart, Settings, User, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Camera, Package, Images, MessageCircle, Bell, Heart, Settings, User, LogOut, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import { OnboardingPopup } from './OnboardingPopup';
 import { WorksTab } from './dashboard/WorksTab';
@@ -11,9 +11,10 @@ import { EquipmentRentalsTab } from './dashboard/EquipmentRentalsTab';
 import { PhotoSpotsTab } from './dashboard/PhotoSpotsTab';
 import { GalleryTab } from './dashboard/GalleryTab';
 import ChatApp from './dashboard/ChatTab';
+import MyEventsTab from './dashboard/MyEventsTab';
 import { NotificationsPanel } from './dashboard/NotificationsPanel';
 import { FavoritesPanel } from './dashboard/FavoritesPanel';
-import  EcommerceUserSettings  from './SettingsPage';
+import EcommerceUserSettings from './SettingsPage';
 import { cn } from '@/lib/utils';
 
 interface OnboardingData {
@@ -168,6 +169,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
     { id: 'equipment-rentals', label: 'Equipment Rentals', icon: Package, description: 'Rent cameras & equipment' },
     { id: 'photo-spots', label: 'Photo Spots', icon: Images, description: 'Find your photo locations' },
     { id: 'gallery', label: 'Gallery', icon: Images, description: 'View your event albums' },
+    { id: 'my-events', label: 'My Events', icon: Calendar, description: 'Manage your event registrations' },
     { id: 'chat', label: 'Chat', icon: MessageCircle, description: 'Message your service providers' },
   ];
 
@@ -319,6 +321,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
             {activeTab === 'equipment-rentals' && <EquipmentRentalsTab onboardingData={onboardingData} />}
             {activeTab === 'photo-spots' && <PhotoSpotsTab onboardingData={onboardingData} />}
             {activeTab === 'gallery' && <GalleryTab />}
+            {activeTab === 'my-events' && <MyEventsTab />}
             {activeTab === 'chat' && <ChatApp/>}
             {activeTab === 'settings' && <EcommerceUserSettings />}
           </main>
@@ -400,6 +403,7 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
           {activeTab === 'equipment-rentals' && <EquipmentRentalsTab onboardingData={onboardingData} />}
           {activeTab === 'photo-spots' && <PhotoSpotsTab onboardingData={onboardingData} />}
           {activeTab === 'gallery' && <GalleryTab />}
+          {activeTab === 'my-events' && <MyEventsTab />}
           {activeTab === 'chat' && (
             <ChatApp 
             />
@@ -409,8 +413,8 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ defaultTab = 'Book
 
         {/* Mobile Bottom Navigation */}
         <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border">
-          <div className="grid grid-cols-4 gap-1 p-2">
-            {tabs.slice(0, 4).map((tab) => {
+          <div className="grid grid-cols-5 gap-1 p-2">
+            {tabs.slice(0, 5).map((tab) => {
               const Icon = tab.icon;
               return (
                 <button

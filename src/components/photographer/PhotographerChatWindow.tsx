@@ -1,10 +1,10 @@
 import React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft, MessageSquare, Images, Receipt, Lock, Award, CheckCircle, XCircle, Eye, Camera, Star, Upload, Package, Plus, Edit, Trash2, Calendar, Clock, FileText, Users, AlertCircle, CheckCheck, MapPin, DollarSign, UserPlus, Zap, Wrench, UserCheck, UserX, Settings, Download, ChevronRight, ChevronLeft, Share2 } from 'lucide-react';
+import { Search, Send, Paperclip, Phone, Video, MoreVertical, Smile, ArrowLeft, MessageSquare, Images, Receipt, Lock, Award, CheckCircle, XCircle, Eye, Camera, Star, Upload, Package, Plus, Edit, Trash2, Calendar, Clock, FileText, Users, AlertCircle, CheckCheck, MapPin, DollarSign, UserPlus, Zap, Wrench, UserCheck, UserX, Settings, Download, ChevronRight, ChevronLeft, Share2, Users2, BarChart3, PieChart, Activity, TrendingUp, Heart, Info } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -103,8 +103,95 @@ const ChatApp: React.FC = () => {
     }
   ]);
   
-  // Selected event for detailed view
   const [selectedEvent, setSelectedEvent] = useState(eventListings[0]);
+  
+  // Admin Dashboard Data Structures
+  const [selectedEventForAnalytics, setSelectedEventForAnalytics] = useState<string>("");
+  const [eventAnalytics, setEventAnalytics] = useState<any>(null);
+  const [eventUsers, setEventUsers] = useState<any[]>([]);
+
+  // Enhanced event analytics data
+  const [eventAnalyticsData, setEventAnalyticsData] = useState({
+    [eventListings[0].id]: {
+      totalRegistrations: 45,
+      totalPhotosUploaded: 180,
+      totalMatchesFound: 42,
+      averageMatchConfidence: 87,
+      userDemographics: {
+        ageGroups: {
+          "18-25": 12,
+          "26-35": 18,
+          "36-45": 10,
+          "46-55": 4,
+          "55+": 1
+        },
+        genderDistribution: {
+          male: 22,
+          female: 20,
+          other: 3
+        }
+      },
+      popularTags: [
+        { tag: "wedding", count: 45 },
+        { tag: "portrait", count: 32 },
+        { tag: "ceremony", count: 28 },
+        { tag: "reception", count: 25 },
+        { tag: "family", count: 18 }
+      ],
+      engagementMetrics: {
+        photosDownloaded: 156,
+        photosShared: 89,
+        favoritesMarked: 67,
+        averageSessionTime: "12m 34s"
+      },
+      registrationTrends: [
+        { date: "2024-01-15", count: 5 },
+        { date: "2024-01-16", count: 8 },
+        { date: "2024-01-17", count: 12 },
+        { date: "2024-01-18", count: 15 },
+        { date: "2024-01-19", count: 5 }
+      ]
+    }
+  });
+
+  // Enhanced user data
+  const [eventUsersData, setEventUsersData] = useState({
+    [eventListings[0].id]: [
+      {
+        id: "user-1",
+        name: "Sarah Johnson",
+        whatsappNumber: "+1234567890",
+        phoneNumber: "+1234567890",
+        registrationDate: "2024-01-15T10:00:00Z",
+        status: "completed",
+        photosUploaded: 25,
+        matchesFound: 23,
+        lastActivity: "2024-01-20T14:30:00Z"
+      },
+      {
+        id: "user-2",
+        name: "Michael Chen",
+        whatsappNumber: "+1234567891",
+        phoneNumber: "+1234567891",
+        registrationDate: "2024-01-16T09:15:00Z",
+        status: "completed",
+        photosUploaded: 18,
+        matchesFound: 16,
+        lastActivity: "2024-01-19T16:45:00Z"
+      },
+      {
+        id: "user-3",
+        name: "Emma Rodriguez",
+        whatsappNumber: "+1234567892",
+        phoneNumber: "+1234567892",
+        registrationDate: "2024-01-17T11:30:00Z",
+        status: "pending",
+        photosUploaded: 12,
+        matchesFound: 3,
+        lastActivity: "2024-01-18T13:20:00Z"
+      }
+    ]
+  });
   
   // Available photographers and videographers for team assignment
   const [availableCreators, setAvailableCreators] = useState([
@@ -827,6 +914,14 @@ const ChatApp: React.FC = () => {
     }
   }, [showLightbox, currentPhotoIndex, currentEventPhotos.length]);
 
+  // Handle event selection for analytics
+  useEffect(() => {
+    if (selectedEventForAnalytics) {
+      setEventAnalytics(eventAnalyticsData[selectedEventForAnalytics] || null);
+      setEventUsers(eventUsersData[selectedEventForAnalytics] || []);
+    }
+  }, [selectedEventForAnalytics, eventAnalyticsData, eventUsersData]);
+
   const getFilteredConversations = () => {
     return conversations.filter(conv => {
       const matchesSearch = conv.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1137,7 +1232,7 @@ const ChatApp: React.FC = () => {
             
           </div>
           
-          <TabsList className="grid w-full grid-cols-8 max-w-4xl">
+          <TabsList className="grid w-full grid-cols-9 max-w-6xl">
             <TabsTrigger value="events" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
               Events
@@ -1159,8 +1254,8 @@ const ChatApp: React.FC = () => {
               Portfolio
             </TabsTrigger>
             <TabsTrigger value="event-details" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              Event Details
+              <Info className="h-4 w-4" />
+              Details
             </TabsTrigger>
             <TabsTrigger value="invoice" className="flex items-center gap-2">
               <Receipt className="h-4 w-4" />
@@ -1169,6 +1264,10 @@ const ChatApp: React.FC = () => {
             <TabsTrigger value="members" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Members
+            </TabsTrigger>
+            <TabsTrigger value="user" className="flex items-center gap-2">
+              <Users2 className="h-4 w-4" />
+              User
             </TabsTrigger>
           </TabsList>
         </div>
@@ -2180,77 +2279,753 @@ const ChatApp: React.FC = () => {
             </div>
           </TabsContent>
 
-          {/* Rentals Tab */}
-          <TabsContent value="rentals" className="h-full m-0 p-6 overflow-y-auto">
+          {/* User Tab - Analytics Dashboard */}
+          <TabsContent value="user" className="h-full m-0 p-6 overflow-y-auto">
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Available Equipment Rentals</h2>
-                <Select>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Filter by category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    <SelectItem value="cameras">Cameras</SelectItem>
-                    <SelectItem value="lenses">Lenses</SelectItem>
-                    <SelectItem value="lighting">Lighting</SelectItem>
-                    <SelectItem value="drones">Drones</SelectItem>
-                  </SelectContent>
-                </Select>
+                <h2 className="text-2xl font-bold">Analytics Dashboard</h2>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">
+                    Last updated: {new Date().toLocaleDateString()}
+                  </Badge>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {rentalEquipment.map((item) => (
-                  <Card key={item.id} className="group hover:shadow-lg transition-all duration-300">
-                    <div className="relative">
-                      <img
-                        src={item.image_url}
-                        alt={item.name}
-                        className="w-full h-48 object-cover rounded-t-lg"
+              {/* Event Selection for Detailed Analytics */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Event Analytics</CardTitle>
+                  <CardDescription>
+                    Select an event to view detailed analytics and user data
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Select value={selectedEventForAnalytics} onValueChange={setSelectedEventForAnalytics}>
+                    <SelectTrigger className="w-full md:w-96">
+                      <SelectValue placeholder="Select an event to analyze" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {eventListings.map((event) => (
+                        <SelectItem key={event.id} value={event.id}>
+                          {event.eventName} - {event.eventDate}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </CardContent>
+              </Card>
+
+              {/* Overview Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-6">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Total Events</CardTitle>
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{eventListings.length}</div>
+                    <p className="text-xs text-muted-foreground">
+                      +{eventListings.filter(e => e.status === 'active').length} active
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Event Registrations</CardTitle>
+                    <UserPlus className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {eventListings.reduce((sum, e) => sum + (e.createdBy === 'user' ? 1 : 0), 0)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      User-initiated events
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Total Clients</CardTitle>
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {new Set(eventListings.map(e => e.eventOwner)).size}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Unique clients served
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Photos Managed</CardTitle>
+                    <Images className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {eventListings.reduce((sum, e) => sum + e.galleryPhotos, 0)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {eventListings.reduce((sum, e) => sum + e.approvedPhotos, 0)} approved
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Photo Status</CardTitle>
+                    <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {Math.round((eventListings.reduce((sum, e) => sum + e.approvedPhotos, 0) / 
+                        Math.max(eventListings.reduce((sum, e) => sum + e.galleryPhotos, 0), 1)) * 100)}%
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Approval rate
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      ${eventListings.reduce((sum, e) => sum + parseInt(e.budget.replace('$', '').replace(',', '')), 0)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Total project value
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Face Search Users</CardTitle>
+                    <Search className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {eventListings.filter(e => e.eventType.toLowerCase().includes('face') || e.eventType.toLowerCase().includes('search')).length}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Users registered for face search
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Event Performance */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Event Status Distribution</CardTitle>
+                    <CardDescription>Current status of all events</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {['active', 'pending', 'completed'].map(status => {
+                        const count = eventListings.filter(e => e.status === status).length;
+                        const percentage = (count / eventListings.length) * 100;
+                        return (
+                          <div key={status} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-3 h-3 rounded-full ${
+                                status === 'active' ? 'bg-green-500' :
+                                status === 'pending' ? 'bg-yellow-500' : 'bg-blue-500'
+                              }`}></div>
+                              <span className="text-sm capitalize">{status}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-20 bg-muted rounded-full h-2">
+                                <div
+                                  className={`h-2 rounded-full ${
+                                    status === 'active' ? 'bg-green-500' :
+                                    status === 'pending' ? 'bg-yellow-500' : 'bg-blue-500'
+                                  }`}
+                                  style={{ width: `${percentage}%` }}
+                                />
+                              </div>
+                              <span className="text-sm font-medium w-8">{count}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Priority Distribution</CardTitle>
+                    <CardDescription>Events by priority level</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {['high', 'medium', 'low'].map(priority => {
+                        const count = eventListings.filter(e => e.priority === priority).length;
+                        const percentage = (count / eventListings.length) * 100;
+                        return (
+                          <div key={priority} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-3 h-3 rounded-full ${
+                                priority === 'high' ? 'bg-red-500' :
+                                priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                              }`}></div>
+                              <span className="text-sm capitalize">{priority}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-20 bg-muted rounded-full h-2">
+                                <div
+                                  className={`h-2 rounded-full ${
+                                    priority === 'high' ? 'bg-red-500' :
+                                    priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                                  }`}
+                                  style={{ width: `${percentage}%` }}
+                                />
+                              </div>
+                              <span className="text-sm font-medium w-8">{count}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Photo Status Distribution */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Photo Status Distribution</CardTitle>
+                  <CardDescription>Detailed breakdown of photo statuses across all events</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Uploaded Photos */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Upload className="h-4 w-4 text-blue-500" />
+                        <span className="font-medium">Uploaded Photos</span>
+                      </div>
+                      <div className="text-2xl font-bold text-blue-600">
+                        {eventListings.reduce((sum, e) => sum + e.galleryPhotos, 0)}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Total photos uploaded by clients
+                      </p>
+                    </div>
+
+                    {/* Approved Photos */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <span className="font-medium">Approved Photos</span>
+                      </div>
+                      <div className="text-2xl font-bold text-green-600">
+                        {eventListings.reduce((sum, e) => sum + e.approvedPhotos, 0)}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Photos approved for delivery
+                      </p>
+                    </div>
+
+                    {/* Pending Photos */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-yellow-500" />
+                        <span className="font-medium">Pending Review</span>
+                      </div>
+                      <div className="text-2xl font-bold text-yellow-600">
+                        {eventListings.reduce((sum, e) => sum + e.galleryPhotos - e.approvedPhotos, 0)}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Photos awaiting approval
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Approval Progress Bar */}
+                  <div className="mt-6 pt-6 border-t">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Overall Approval Progress</span>
+                      <span className="text-sm text-muted-foreground">
+                        {Math.round((eventListings.reduce((sum, e) => sum + e.approvedPhotos, 0) / 
+                          Math.max(eventListings.reduce((sum, e) => sum + e.galleryPhotos, 0), 1)) * 100)}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-3">
+                      <div
+                        className="bg-green-500 h-3 rounded-full transition-all duration-300"
+                        style={{
+                          width: `${Math.round((eventListings.reduce((sum, e) => sum + e.approvedPhotos, 0) / 
+                            Math.max(eventListings.reduce((sum, e) => sum + e.galleryPhotos, 0), 1)) * 100)}%`
+                        }}
                       />
-                      {!item.available && (
-                        <div className="absolute inset-0 bg-black/50 rounded-t-lg flex items-center justify-center">
-                          <Badge variant="destructive">Not Available</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* User Registration & Photo Analytics */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>User Registration Trends</CardTitle>
+                    <CardDescription>Event registrations by source</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                          <div>
+                            <p className="font-medium">User-Initiated Events</p>
+                            <p className="text-sm text-muted-foreground">Client registrations</p>
+                          </div>
                         </div>
-                      )}
-                      <div className="absolute top-3 right-3">
-                        <Badge variant="secondary">{item.category}</Badge>
+                        <div className="text-right">
+                          <p className="text-lg font-bold">
+                            {eventListings.filter(e => e.createdBy === 'user').length}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {Math.round((eventListings.filter(e => e.createdBy === 'user').length / eventListings.length) * 100)}% of total
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                          <div>
+                            <p className="font-medium">Photographer-Created</p>
+                            <p className="text-sm text-muted-foreground">Direct bookings</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold">
+                            {eventListings.filter(e => e.createdBy === 'photographer').length}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {Math.round((eventListings.filter(e => e.createdBy === 'photographer').length / eventListings.length) * 100)}% of total
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="pt-4 border-t">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Conversion Rate</span>
+                          <span className="font-medium">
+                            {eventListings.length > 0 ? 
+                              Math.round((eventListings.filter(e => e.status === 'completed').length / eventListings.length) * 100) : 0
+                            }%
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-semibold">{item.name}</h3>
-                        <p className="font-bold text-primary">{item.price}</p>
-                      </div>
-                      
-                      <p className="text-sm text-muted-foreground mb-3">{item.description}</p>
-                      
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="flex items-center">
-                          <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                          <span className="text-sm font-medium">{item.rating}</span>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Photo Upload Patterns</CardTitle>
+                    <CardDescription>Photo statistics by event type</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {Object.entries(
+                        eventListings.reduce((acc, event) => {
+                          if (!acc[event.eventType]) {
+                            acc[event.eventType] = { photos: 0, approved: 0, events: 0 };
+                          }
+                          acc[event.eventType].photos += event.galleryPhotos;
+                          acc[event.eventType].approved += event.approvedPhotos;
+                          acc[event.eventType].events += 1;
+                          return acc;
+                        }, {} as Record<string, { photos: number; approved: number; events: number }>)
+                      ).map(([type, stats]) => (
+                        <div key={type} className="p-3 border rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium">{type}</span>
+                            <Badge variant="outline">{stats.events} events</Badge>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <p className="text-muted-foreground">Photos</p>
+                              <p className="font-semibold">{stats.photos}</p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground">Approved</p>
+                              <p className="font-semibold text-green-600">
+                                {stats.approved} ({stats.photos > 0 ? Math.round((stats.approved / stats.photos) * 100) : 0}%)
+                              </p>
+                            </div>
+                          </div>
                         </div>
-                        <span className="text-sm text-muted-foreground">({item.reviews} reviews)</span>
-                      </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
 
-                      <div className="flex items-center gap-2 mb-3">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">{item.location}</span>
-                      </div>
+              {/* Detailed Event Analytics - Only show when event is selected */}
+              {selectedEventForAnalytics && eventAnalytics && (
+                <>
+                  {/* Event-Specific Analytics Header */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <BarChart3 className="h-5 w-5" />
+                        Detailed Analytics for {eventListings.find(e => e.id === selectedEventForAnalytics)?.eventName}
+                      </CardTitle>
+                      <CardDescription>
+                        Comprehensive analytics for the selected event
+                      </CardDescription>
+                    </CardHeader>
+                  </Card>
 
-                      <div className="flex gap-2">
-                        <Button size="sm" className="flex-1" disabled={!item.available}>
-                          <Plus className="h-4 w-4 mr-2" />
-                          Request Rental
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                  {/* Event-Specific Stats */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Event Registrations</CardTitle>
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{eventAnalytics.totalRegistrations}</div>
+                        <p className="text-xs text-muted-foreground">
+                          Users registered for this event
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Photos Uploaded</CardTitle>
+                        <Images className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{eventAnalytics.totalPhotosUploaded}</div>
+                        <p className="text-xs text-muted-foreground">
+                          Photos uploaded by users
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Matches Found</CardTitle>
+                        <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{eventAnalytics.totalMatchesFound}</div>
+                        <p className="text-xs text-muted-foreground">
+                          Face matches identified
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Avg Match Confidence</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{eventAnalytics.averageMatchConfidence}%</div>
+                        <p className="text-xs text-muted-foreground">
+                          Average confidence score
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Demographics */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Age Distribution</CardTitle>
+                        <CardDescription>User demographics by age group</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {Object.entries(eventAnalytics.userDemographics.ageGroups).map(([age, count]: [string, any]) => (
+                            <div key={age} className="flex items-center justify-between">
+                              <span className="text-sm">{age} years</span>
+                              <div className="flex items-center gap-2">
+                                <div className="w-20 bg-muted rounded-full h-2">
+                                  <div
+                                    className="bg-primary h-2 rounded-full"
+                                    style={{
+                                      width: `${(count / eventAnalytics.totalRegistrations) * 100}%`
+                                    }}
+                                  />
+                                </div>
+                                <span className="text-sm font-medium w-8">{count}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Gender Distribution</CardTitle>
+                        <CardDescription>User demographics by gender</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {Object.entries(eventAnalytics.userDemographics.genderDistribution).map(([gender, count]: [string, any]) => (
+                            <div key={gender} className="flex items-center justify-between">
+                              <span className="text-sm capitalize">{gender}</span>
+                              <div className="flex items-center gap-2">
+                                <div className="w-20 bg-muted rounded-full h-2">
+                                  <div
+                                    className="bg-primary h-2 rounded-full"
+                                    style={{
+                                      width: `${(count / eventAnalytics.totalRegistrations) * 100}%`
+                                    }}
+                                  />
+                                </div>
+                                <span className="text-sm font-medium w-8">{count}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Popular Tags */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Popular Tags</CardTitle>
+                      <CardDescription>Most used tags in event photos</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-2">
+                        {eventAnalytics.popularTags.map((tagData: any) => (
+                          <Badge key={tagData.tag} variant="secondary" className="px-3 py-1">
+                            {tagData.tag} ({tagData.count})
+                          </Badge>
+                        ))}
                       </div>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
+
+                  {/* Engagement Metrics */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Photos Downloaded</CardTitle>
+                        <Download className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{eventAnalytics.engagementMetrics.photosDownloaded}</div>
+                        <p className="text-xs text-muted-foreground">
+                          Photos downloaded by users
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Photos Shared</CardTitle>
+                        <Share2 className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{eventAnalytics.engagementMetrics.photosShared}</div>
+                        <p className="text-xs text-muted-foreground">
+                          Photos shared on social media
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Favorites Marked</CardTitle>
+                        <Heart className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{eventAnalytics.engagementMetrics.favoritesMarked}</div>
+                        <p className="text-xs text-muted-foreground">
+                          Photos marked as favorite
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Avg Session Time</CardTitle>
+                        <Activity className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{eventAnalytics.engagementMetrics.averageSessionTime}</div>
+                        <p className="text-xs text-muted-foreground">
+                          Average time spent per user
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Registration Trends */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Registration Trends</CardTitle>
+                      <CardDescription>Daily registration count over time</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {eventAnalytics.registrationTrends.map((trend: any, index: number) => (
+                          <div key={index} className="flex items-center justify-between">
+                            <span className="text-sm">
+                              {new Date(trend.date).toLocaleDateString()}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-32 bg-muted rounded-full h-2">
+                                <div
+                                  className="bg-primary h-2 rounded-full"
+                                  style={{
+                                    width: `${(trend.count / Math.max(...eventAnalytics.registrationTrends.map((t: any) => t.count))) * 100}%`
+                                  }}
+                                />
+                              </div>
+                              <span className="text-sm font-medium w-8">{trend.count}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Registered Users List */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Registered Users</CardTitle>
+                      <CardDescription>
+                        {eventUsers.length} users registered for this event
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {eventUsers.map((user) => (
+                          <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+                            <div className="space-y-1">
+                              <p className="font-medium">{user.name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {user.whatsappNumber} • {user.phoneNumber}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Registered: {new Date(user.registrationDate).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className="text-right space-y-1">
+                              <Badge variant={user.status === 'completed' ? 'default' : 'secondary'}>
+                                {user.status}
+                              </Badge>
+                              <p className="text-sm">
+                                {user.photosUploaded} photos • {user.matchesFound} matches
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Last active: {new Date(user.lastActivity).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
+
+              {/* Team Performance */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Team Performance</CardTitle>
+                  <CardDescription>Overview of team member assignments</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {teamMembers.map((member) => (
+                      <div key={member.id} className="p-4 border rounded-lg">
+                        <div className="flex items-center gap-3 mb-3">
+                          <img
+                            src={member.avatar}
+                            alt={member.name}
+                            className="w-10 h-10 rounded-full"
+                          />
+                          <div>
+                            <p className="font-medium">{member.name}</p>
+                            <p className="text-sm text-muted-foreground">{member.role}</p>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Status:</span>
+                            <Badge variant={member.status === 'active' ? 'default' : 'secondary'}>
+                              {member.status}
+                            </Badge>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span>Rate:</span>
+                            <span className="font-medium">{member.hourlyRate}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span>Availability:</span>
+                            <span className={`font-medium ${
+                              member.availability === 'full-time' ? 'text-green-600' :
+                              member.availability === 'part-time' ? 'text-yellow-600' : 'text-blue-600'
+                            }`}>
+                              {member.availability}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Event Type Distribution */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Event Types</CardTitle>
+                  <CardDescription>Distribution of event types handled</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {Object.entries(
+                      eventListings.reduce((acc, event) => {
+                        acc[event.eventType] = (acc[event.eventType] || 0) + 1;
+                        return acc;
+                      }, {} as Record<string, number>)
+                    ).map(([type, count]) => {
+                      const percentage = (count / eventListings.length) * 100;
+                      return (
+                        <div key={type} className="flex items-center justify-between">
+                          <span className="text-sm">{type}</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-32 bg-muted rounded-full h-2">
+                              <div
+                                className="bg-primary h-2 rounded-full"
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </div>
+                            <span className="text-sm font-medium w-8">{count}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
         </div>

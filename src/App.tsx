@@ -13,6 +13,10 @@ import NotFound from "./pages/NotFound";
 import AccountDashboard from "./pages/AccountDashboard";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import UserDashboard from "./pages/UserDashboard";
+import EventRegistration from "./pages/EventRegistration";
+import EventWaiting from "./pages/EventWaiting";
+import EventResults from "./pages/EventResults";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const AuthRefreshHandler = () => {
   const refreshSession = useAuthStore((state) => state.refreshSession);
@@ -72,6 +76,10 @@ const App = () => (
           />
           <Route path="/profile/:type/:id" element={<ProfilePage />} />
           <Route path="/chat/:conversationId?" element={<ChatWrapper />} />
+          <Route path="/event/:eventId/register" element={<EventRegistration />} />
+          <Route path="/event/:eventId/waiting" element={<EventWaiting />} />
+          <Route path="/event/:eventId/results" element={<EventResults />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

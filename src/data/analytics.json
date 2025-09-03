@@ -1,0 +1,126 @@
+{
+  "wedding-2024-001": {
+    "totalRegistrations": 23,
+    "totalPhotosUploaded": 89,
+    "totalMatchesFound": 156,
+    "averageMatchConfidence": 78.5,
+    "topMatchingPhotos": [
+      "photo-003",
+      "photo-006",
+      "photo-001"
+    ],
+    "userDemographics": {
+      "ageGroups": {
+        "18-25": 5,
+        "26-35": 12,
+        "36-45": 4,
+        "46+": 2
+      },
+      "genderDistribution": {
+        "male": 10,
+        "female": 11,
+        "other": 2
+      }
+    },
+    "engagementMetrics": {
+      "photosDownloaded": 67,
+      "photosShared": 23,
+      "favoritesMarked": 45,
+      "averageSessionTime": "8m 32s"
+    },
+    "registrationTrends": [
+      { "date": "2024-01-10", "count": 3 },
+      { "date": "2024-01-11", "count": 5 },
+      { "date": "2024-01-12", "count": 7 },
+      { "date": "2024-01-13", "count": 4 },
+      { "date": "2024-01-14", "count": 4 }
+    ],
+    "popularTags": [
+      { "tag": "reception", "count": 15 },
+      { "tag": "dance", "count": 12 },
+      { "tag": "family", "count": 10 },
+      { "tag": "ceremony", "count": 8 },
+      { "tag": "dinner", "count": 6 }
+    ]
+  },
+  "corporate-2024-002": {
+    "totalRegistrations": 45,
+    "totalPhotosUploaded": 135,
+    "totalMatchesFound": 203,
+    "averageMatchConfidence": 82.1,
+    "topMatchingPhotos": [
+      "corp-001"
+    ],
+    "userDemographics": {
+      "ageGroups": {
+        "18-25": 8,
+        "26-35": 25,
+        "36-45": 10,
+        "46+": 2
+      },
+      "genderDistribution": {
+        "male": 28,
+        "female": 15,
+        "other": 2
+      }
+    },
+    "engagementMetrics": {
+      "photosDownloaded": 89,
+      "photosShared": 34,
+      "favoritesMarked": 67,
+      "averageSessionTime": "12m 15s"
+    },
+    "registrationTrends": [
+      { "date": "2024-02-15", "count": 12 },
+      { "date": "2024-02-16", "count": 15 },
+      { "date": "202-02-17", "count": 10 },
+      { "date": "2024-02-18", "count": 8 }
+    ],
+    "popularTags": [
+      { "tag": "presentation", "count": 18 },
+      { "tag": "networking", "count": 14 },
+      { "tag": "corporate", "count": 12 },
+      { "tag": "keynote", "count": 9 }
+    ]
+  },
+  "birthday-2024-003": {
+    "totalRegistrations": 18,
+    "totalPhotosUploaded": 54,
+    "totalMatchesFound": 73,
+    "averageMatchConfidence": 75.8,
+    "topMatchingPhotos": [
+      "bday-001"
+    ],
+    "userDemographics": {
+      "ageGroups": {
+        "18-25": 12,
+        "26-35": 4,
+        "36-45": 1,
+        "46+": 1
+      },
+      "genderDistribution": {
+        "male": 7,
+        "female": 10,
+        "other": 1
+      }
+    },
+    "engagementMetrics": {
+      "photosDownloaded": 42,
+      "photosShared": 28,
+      "favoritesMarked": 31,
+      "averageSessionTime": "6m 45s"
+    },
+    "registrationTrends": [
+      { "date": "2024-03-05", "count": 5 },
+      { "date": "2024-03-06", "count": 7 },
+      { "date": "2024-03-07", "count": 4 },
+      { "date": "2024-03-08", "count": 2 }
+    ],
+    "popularTags": [
+      { "tag": "birthday", "count": 16 },
+      { "tag": "surprise", "count": 12 },
+      { "tag": "party", "count": 10 },
+      { "tag": "celebration", "count": 8 }
+    ]
+  }
+}
