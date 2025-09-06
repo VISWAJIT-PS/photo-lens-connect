@@ -83,7 +83,47 @@ src/
 
 ## 🌍 Deployment
 
-This project is configured for deployment on Lovable. Simply click the "Publish" button to deploy your changes.
+### Vercel Configuration
+
+This project is configured for deployment on Vercel with proper SPA routing support:
+
+1. **vercel.json**: Handles client-side routing for all routes
+2. **_redirects**: Backup configuration for SPA routing
+3. **Build Command**: `npm run build`
+4. **Output Directory**: `dist`
+
+### Route Configuration
+
+The following routes are configured and should work on Vercel:
+- `/event/:eventId/register` - Event registration page
+- `/event/:eventId/waiting` - Event waiting/results page  
+- `/event/:eventId/results` - Event results page
+- `/admin/dashboard` - Admin dashboard
+- All other application routes
+
+### Troubleshooting 404 Errors
+
+If you encounter 404 errors on Vercel:
+1. Ensure `vercel.json` is in the root directory
+2. Check that `_redirects` exists in the `public/` directory
+3. Verify the build output includes all necessary files
+4. Test routes locally with `npm run preview`
+
+## 💻 Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build locally
+npm run preview
+```
 
 ## 📋 Roadmap
 
