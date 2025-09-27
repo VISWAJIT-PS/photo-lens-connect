@@ -27,6 +27,31 @@ const ChatApp: React.FC = () => {
   // Event listings - created by photographer or initiated by users
   const [eventListings, setEventListings] = useState([
     {
+      id: "event-4",
+      eventName: "Farzan's Bachelor Party",
+      eventType: "Event Photography",
+      eventOwner: "Farzan Shibu",
+      eventOwnerRole: "Groom",
+      eventOwnerEmail: "farzan.netlens@gmail.com",
+      eventOwnerAvatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+      createdBy: "user",
+      createdAt: "2024-02-01",
+      eventDate: "2025-10-25",
+      eventTime: "2:00 PM - 10:00 PM",
+      location: "Seattle, WA",
+      status: "pending",
+      priority: "high",
+      budget: "$2,500",
+      packageType: "Custom",
+      assignedTeamMembers: ["member-1", "member-2"],
+      conversationId: "conv-5",
+      hasChat: true,
+      galleryPhotos: 45,
+      approvedPhotos: 42,
+      unreadMessages: 0,
+      lastActivity: "2m ago"
+    },
+    {
       id: "event-1",
       eventName: "Sarah & John Wedding",
       eventType: "Wedding Photography",
@@ -189,6 +214,17 @@ const ChatApp: React.FC = () => {
         photosUploaded: 12,
         matchesFound: 3,
         lastActivity: "2024-01-18T13:20:00Z"
+      },
+      {
+        id: "user-4",
+        name: "Farzan Shibu",
+        whatsappNumber: "+1234567892",
+        phoneNumber: "+1234567892",
+        registrationDate: "2024-01-17T11:30:00Z",
+        status: "pending",
+        photosUploaded: 12,
+        matchesFound: 3,
+        lastActivity: "2024-01-18T13:20:00Z"
       }
     ]
   });
@@ -238,6 +274,17 @@ const ChatApp: React.FC = () => {
       avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b3d8?w=64&h=64&fit=crop&crop=face",
       hourlyRate: "$180/hour",
       availability: "available"
+    },
+    {
+      id: "creator-5",
+      name: "Farzan Chen",
+      type: "videographer",
+      specialties: ["Drone Operations", "Cinematic Videos"],
+      rating: 4.9,
+      location: "New York, NY",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b3d8?w=64&h=64&fit=crop&crop=face",
+      hourlyRate: "$180/hour",
+      availability: "available"
     }
   ]);
   
@@ -258,6 +305,23 @@ const ChatApp: React.FC = () => {
       eventDate: "2024-02-15",
       deadline: "2024-02-20",
       messageType: "text"
+    },
+    {
+      id: "conv-5",
+      name: "Farzan shibu",
+      role: "Client",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+      lastMessage: "",
+      timestamp: "15m ago",
+      unreadCount: 2,
+      isOnline: false,
+      bookingId: "CORP-2024-003",
+      eventType: "Corporate Event",
+      projectStatus: "pending",
+      priority: "medium",
+      eventDate: "2025-10-25",
+      deadline: "2025-10-30",
+      messageType: "document"
     },
     {
       id: "conv-2",
@@ -309,10 +373,177 @@ const ChatApp: React.FC = () => {
       eventDate: "2024-03-05",
       deadline: "2024-02-28",
       messageType: "text"
+    },
+    {
+      id: "conv-5",
+      name: "farzan shibu",
+      role: "Colleague",
+      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
+      lastMessage: "Can we collaborate on the tech conference?",
+      timestamp: "2h ago",
+      unreadCount: 1,
+      isOnline: true,
+      bookingId: "WED-2024-005",
+      eventType: "Collaboration",
+      projectStatus: "discussion",
+      priority: "medium",
+      eventDate: "2025-10-25",
+      deadline: "2025-10-30",
+      messageType: "text"
     }
   ]);
 
   const [galleryEvents, setGalleryEvents] = useState([
+    {
+      id: "event-4",
+      eventName: "Farzan's Bachelor Party",
+      customer: "Farzan Shibu",
+      eventDate: "2025-10-25",
+      uploadedPhotos: 45,
+      approvedPhotos: 42,
+      averageRating: 4.8,
+      photos: [
+        {
+          id: "photo-1",
+          url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&h=800&fit=crop",
+          rating: 5,
+          approved: true,
+          userFeedback: "Absolutely beautiful shot!"
+        },
+        {
+          id: "photo-2",
+          url: "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?w=1200&h=800&fit=crop",
+          rating: 4,
+          approved: true,
+          userFeedback: "Love this one!"
+        },
+        {
+          id: "photo-3",
+          url: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=1200&h=800&fit=crop",
+          rating: 5,
+          approved: true,
+          userFeedback: "Perfect ceremony moment!"
+        },
+        {
+          id: "photo-4",
+          url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&h=800&fit=crop",
+          rating: 4,
+          approved: true,
+          userFeedback: "Beautiful venue shot!"
+        },
+        {
+          id: "photo-5",
+          url: "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=1200&h=800&fit=crop",
+          rating: 5,
+          approved: true,
+          userFeedback: "Amazing couple portrait!"
+        },
+        {
+          id: "photo-6",
+          url: "https://images.unsplash.com/photo-1594736797933-d0bc2a7f7121?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1594736797933-d0bc2a7f7121?w=1200&h=800&fit=crop",
+          rating: 4,
+          approved: true,
+          userFeedback: "Great candid moment!"
+        },
+        {
+          id: "photo-7",
+          url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=1200&h=800&fit=crop",
+          rating: 5,
+          approved: true,
+          userFeedback: "Stunning reception photo!"
+        },
+        {
+          id: "photo-8",
+          url: "https://images.unsplash.com/photo-1545291730-faff8ca1d4b0?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1545291730-faff8ca1d4b0?w=1200&h=800&fit=crop",
+          rating: 4,
+          approved: true,
+          userFeedback: "Beautiful ring details!"
+        }
+      ]
+    },
+    {
+      id: "event-3",
+      eventName: "Sarah & John Wedding",
+      customer: "Sarah Johnson",
+      eventDate: "2024-02-15",
+      uploadedPhotos: 45,
+      approvedPhotos: 42,
+      averageRating: 4.8,
+      photos: [
+        {
+          id: "photo-1",
+          url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&h=800&fit=crop",
+          rating: 5,
+          approved: true,
+          userFeedback: "Absolutely beautiful shot!"
+        },
+        {
+          id: "photo-2",
+          url: "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?w=1200&h=800&fit=crop",
+          rating: 4,
+          approved: true,
+          userFeedback: "Love this one!"
+        },
+        {
+          id: "photo-3",
+          url: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=1200&h=800&fit=crop",
+          rating: 5,
+          approved: true,
+          userFeedback: "Perfect ceremony moment!"
+        },
+        {
+          id: "photo-4",
+          url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&h=800&fit=crop",
+          rating: 4,
+          approved: true,
+          userFeedback: "Beautiful venue shot!"
+        },
+        {
+          id: "photo-5",
+          url: "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=1200&h=800&fit=crop",
+          rating: 5,
+          approved: true,
+          userFeedback: "Amazing couple portrait!"
+        },
+        {
+          id: "photo-6",
+          url: "https://images.unsplash.com/photo-1594736797933-d0bc2a7f7121?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1594736797933-d0bc2a7f7121?w=1200&h=800&fit=crop",
+          rating: 4,
+          approved: true,
+          userFeedback: "Great candid moment!"
+        },
+        {
+          id: "photo-7",
+          url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=1200&h=800&fit=crop",
+          rating: 5,
+          approved: true,
+          userFeedback: "Stunning reception photo!"
+        },
+        {
+          id: "photo-8",
+          url: "https://images.unsplash.com/photo-1545291730-faff8ca1d4b0?w=400&h=300&fit=crop",
+          fullUrl: "https://images.unsplash.com/photo-1545291730-faff8ca1d4b0?w=1200&h=800&fit=crop",
+          rating: 4,
+          approved: true,
+          userFeedback: "Beautiful ring details!"
+        }
+      ]
+    },
     {
       id: "event-1",
       eventName: "Sarah & John Wedding",
@@ -762,6 +993,17 @@ const ChatApp: React.FC = () => {
 
   // Work chat specific states
   const [workMessages, setWorkMessages] = useState([
+    {
+      id: "msg-4",
+      conversationId: "conv-5",
+      sender: "Farzan shibu",
+      senderType: "client",
+      content: "Hi Viswajit P S, I'd like to book the custom package for $25000. Please confirm.",
+      timestamp: "10:30 AM",
+      type: "text",
+      isRead: true,
+      attachments: []
+    },
     {
       id: "msg-1",
       conversationId: "conv-1",

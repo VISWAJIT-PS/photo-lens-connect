@@ -707,6 +707,22 @@ const mockCalendarBookings = [
     price: '$650',
     notes: 'Traditional celebration, multiple outfit changes',
     createdBy: 'user'
+  },
+  {
+    id: 17,
+    date: '2025-10-24',
+    time: '12:00',
+    endTime: '15:00',
+    client: 'Farzan Shibu',
+    type: 'Farzan Shibu bacholer party',
+    status: 'pending',
+    color: 'bg-yellow-500',
+    email: 'sophie.martinez@email.com',
+    phone: '+1 (555) 999-0000',
+    package: 'Farzan Shibu bacholer party',
+    price: '$25000',
+    notes: 'Traditional celebration, multiple outfit changes',
+    createdBy: 'user'
   }
 ];
 

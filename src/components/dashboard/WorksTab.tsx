@@ -39,7 +39,7 @@ interface BaseCreator {
 const photographers: BaseCreator[] = [
   {
     id: 'p1',
-    name: 'David Park',
+    name: 'Viswajit P S',
   specialization: ['Nature & Landscape', 'Travel', 'Outdoor Weddings'],
     rating: 4.9,
     reviews: 93,

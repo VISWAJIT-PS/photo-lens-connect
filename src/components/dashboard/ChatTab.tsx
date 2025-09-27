@@ -66,6 +66,121 @@ const initialChatData: ChatAppData = {
   currentUserId: "user-1",
   conversations: [
     {
+      id: "conv-5",
+      name: "Farzan Shibu",
+      role: "Wedding Photographer",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
+      lastMessage: "Perfect! I'll bring the backup camera as well.",
+      timestamp: "2m ago",
+      unreadCount: 0,
+      isOnline: true,
+      bookingId: "WED-2024-005",
+      gallery: [
+        {
+          id: "photo-1",
+          url: "https://images.unsplash.com/photo-1606800052052-a08af7148866?w=800",
+          thumbnail: "https://images.unsplash.com/photo-1606800052052-a08af7148866?w=300",
+          caption: "Ceremony entrance",
+          uploadedBy: "sarah-1",
+          uploadDate: "2024-01-15",
+          status: "editors_choice"
+        },
+        {
+          id: "photo-2",
+          url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800",
+          thumbnail: "https://images.unsplash.com/photo-1519741497674-611481863552?w=300",
+          caption: "First dance",
+          uploadedBy: "sarah-1",
+          uploadDate: "2024-01-15",
+          status: "approved"
+        },
+        {
+          id: "photo-3",
+          url: "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?w=800",
+          thumbnail: "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?w=300",
+          caption: "Wedding cake",
+          uploadedBy: "sarah-1",
+          uploadDate: "2024-01-15",
+          status: "not_approved"
+        }
+      ],
+      invoice: {
+        id: "inv-001",
+        bookingId: "WED-2024-001",
+        amount: 2500,
+        status: "paid",
+        dueDate: "2024-01-20",
+        services: ["Wedding Photography", "Photo Editing", "Digital Gallery"],
+        issueDate: "2024-01-10"
+      },
+      messages: [
+        {
+          id: "msg-1",
+          senderId: "sarah-1",
+          content: "Hi! I wanted to confirm the details for your wedding shoot next weekend.",
+          timestamp: "10:30 AM",
+          type: "text",
+          status: "read"
+        },
+        {
+          id: "msg-2",
+          senderId: "user-1",
+          content: "Yes, absolutely! The ceremony starts at 2 PM at Central Park.",
+          timestamp: "10:32 AM",
+          type: "text",
+          status: "read"
+        },
+        {
+          id: "msg-3",
+          senderId: "sarah-1",
+          content: "Perfect! I'll arrive at 1:30 PM to set up. Should I bring the backup camera as well?",
+          timestamp: "10:33 AM",
+          type: "text",
+          status: "read"
+        },
+        {
+          id: "msg-4",
+          senderId: "user-1",
+          content: "That would be great! Better to be prepared. Will you also capture the reception?",
+          timestamp: "10:35 AM",
+          type: "text",
+          status: "read"
+        },
+        {
+          id: "msg-5",
+          senderId: "sarah-1",
+          content: "Absolutely! I'll stay until 9 PM as discussed. The golden hour shots will be beautiful.",
+          timestamp: "10:36 AM",
+          type: "text",
+          status: "read"
+        },
+        {
+          id: "msg-6",
+          senderId: "user-1",
+          content: "Amazing! Can't wait to see the photos. When should we expect the edited gallery?",
+          timestamp: "10:38 AM",
+          type: "text",
+          status: "read"
+        },
+        {
+          id: "msg-7",
+          senderId: "sarah-1",
+          content: "I'll have the full gallery ready within 2 weeks. You'll get a preview within 48 hours!",
+          timestamp: "10:40 AM",
+          type: "text",
+          status: "read"
+        },
+        {
+          id: "msg-8",
+          senderId: "sarah-1",
+          content: "Perfect! I'll bring the backup camera as well.",
+          timestamp: "10:42 AM",
+          type: "text",
+          status: "delivered"
+        }
+      ]
+    },
+    {
       id: "conv-1",
       name: "Sarah Johnson",
       role: "Wedding Photographer",
