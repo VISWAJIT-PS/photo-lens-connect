@@ -254,13 +254,13 @@ const PhotographerDashboard = () => {
             <div className="flex items-center justify-end w-full gap-4">
               <div className="flex items-center space-x-4">
                 {/* Create Event Button */}
-                <Button 
+                {/* <Button 
                   onClick={() => setShowCreateEventDialog(true)}
                   className="bg-primary hover:bg-primary/90"
                 >
                   <CalendarPlus className="h-4 w-4 mr-2" />
                   Create Event
-                </Button>
+                </Button> */}
                 
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center">
