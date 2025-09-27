@@ -2081,7 +2081,7 @@ const ChatApp: React.FC = () => {
                 </Card>
 
                 {/* Budget & Status */}
-                <Card>
+                {/* <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <DollarSign className="h-5 w-5" />
@@ -2098,7 +2098,7 @@ const ChatApp: React.FC = () => {
                       <Badge className="mt-1">{eventDetails.status}</Badge>
                     </div>
                   </CardContent>
-                </Card>
+                </Card> */}
 
                 {/* Timeline */}
                 <Card className="lg:col-span-3">
@@ -3374,14 +3374,14 @@ const ChatApp: React.FC = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div></div>
                 <div className="space-y-2">
-                  <div className="flex justify-between">
+                  {/* <div className="flex justify-between">
                     <span>Subtotal:</span>
                     <span className="font-semibold">$0.00</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Tax (8%):</span>
                     <span className="font-semibold">$0.00</span>
-                  </div>
+                  </div> */}
                   <div className="flex justify-between text-lg font-bold border-t pt-2">
                     <span>Total:</span>
                     <span className="text-primary">$0.00</span>
@@ -3865,7 +3865,7 @@ const ChatApp: React.FC = () => {
                   </CardContent>
                 </Card>
                 
-                <Card>
+                {/* <Card>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -3873,6 +3873,24 @@ const ChatApp: React.FC = () => {
                     </div>
                     <p className="text-sm font-semibold">{selectedEvent.budget}</p>
                     <p className="text-sm text-muted-foreground">{selectedEvent.packageType}</p>
+                  </CardContent>
+                </Card> */}
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Images className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">Gallery Progress</span>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>Photos Uploaded:</span>
+                        <span className="font-medium">{selectedEvent.galleryPhotos}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Approved Photos:</span>
+                        <span className="font-medium">{selectedEvent.approvedPhotos}</span>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
