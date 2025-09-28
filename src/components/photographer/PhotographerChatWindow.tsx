@@ -49,7 +49,7 @@ const ChatApp: React.FC = () => {
       galleryPhotos: 45,
       approvedPhotos: 42,
       unreadMessages: 0,
-      lastActivity: "2m ago"
+      lastActivity: "2m ago" 
     },
     {
       id: "event-1",
