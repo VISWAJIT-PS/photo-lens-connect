@@ -1,8 +1,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { type FileError, type FileRejection, useDropzone } from 'react-dropzone'
-
-const supabase = []
+import { supabase } from '@/integrations/supabase/client'
+import { compressImage, validateImageFile, ImageCompressionOptions } from '@/lib/image-optimization'
 
 interface FileWithPreview extends File {
   preview?: string
@@ -48,6 +48,22 @@ type UseSupabaseUploadOptions = {
    * When set to false, an error is thrown if the object already exists. Defaults to `false`
    */
   upsert?: boolean
+  /**
+   * Enable automatic image compression for image files
+   */
+  enableImageOptimization?: boolean
+  /**
+   * Image compression options
+   */
+  imageCompressionOptions?: ImageCompressionOptions
+  /**
+   * Callback for upload progress updates
+   */
+  onProgress?: (progress: number, fileName: string) => void
+  /**
+   * Callback for individual file upload completion
+   */
+  onFileComplete?: (fileName: string, success: boolean, error?: string) => void
 }
 
 type UseSupabaseUploadReturn = ReturnType<typeof useSupabaseUpload>
@@ -61,6 +77,10 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
     maxFiles = 1,
     cacheControl = 3600,
     upsert = false,
+    enableImageOptimization = false,
+    imageCompressionOptions = {},
+    onProgress,
+    onFileComplete,
   } = options
 
   const [files, setFiles] = useState<FileWithPreview[]>([])
@@ -126,34 +146,75 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
 
     const responses = await Promise.all(
       filesToUpload.map(async (file) => {
-      //   const { error } = await supabase.storage
-      //     .from(bucketName)
-      //     .upload(!!path ? `${path}/${file.name}` : file.name, file, {
-      //       cacheControl: cacheControl.toString(),
-      //       upsert,
-      //     })
-      //   if (error) {
-      //     return { name: file.name, message: error.message }
-      //   } else {
-      //     return { name: file.name, message: undefined }
-      //   }
-      // 
-      }
-      )
+        try {
+          let fileToUpload = file
+          const filePath = !!path ? `${path}/${file.name}` : file.name
+
+          // Apply image optimization if enabled and file is an image
+          if (enableImageOptimization && file.type.startsWith('image/')) {
+            try {
+              // Validate image file first
+              const validation = validateImageFile(file)
+              if (!validation.isValid) {
+                return { name: file.name, message: validation.error }
+              }
+
+              onProgress?.(10, file.name)
+              const compressedFile = await compressImage(file, {
+                ...imageCompressionOptions,
+                onProgress: (progress) => onProgress?.(10 + (progress * 0.4), file.name)
+              })
+              onProgress?.(50, file.name)
+
+              // Create a new FileWithPreview object with the compressed file
+              const fileWithPreview: FileWithPreview = Object.assign(compressedFile, {
+                preview: (file as FileWithPreview).preview,
+                errors: (file as FileWithPreview).errors || []
+              })
+
+              fileToUpload = fileWithPreview
+            } catch (compressionError) {
+              console.warn('Image compression failed, uploading original:', compressionError)
+            }
+          }
+
+          onProgress?.(60, file.name)
+
+          const { data, error } = await supabase.storage
+            .from(bucketName)
+            .upload(filePath, fileToUpload, {
+              cacheControl: cacheControl.toString(),
+              upsert,
+            })
+
+          if (error) {
+            onFileComplete?.(file.name, false, error.message)
+            return { name: file.name, message: error.message }
+          } else {
+            onProgress?.(100, file.name)
+            onFileComplete?.(file.name, true)
+            return { name: file.name, message: undefined, path: data?.path }
+          }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Upload failed'
+          onFileComplete?.(file.name, false, errorMessage)
+          return { name: file.name, message: errorMessage }
+        }
+      })
     )
 
-    // const responseErrors = responses.filter((x) => x.message !== undefined)
-    // // if there were errors previously, this function tried to upload the files again so we should clear/overwrite the existing errors.
-    // setErrors(responseErrors)
+    const responseErrors = responses.filter((x) => x.message !== undefined)
+    // if there were errors previously, this function tried to upload the files again so we should clear/overwrite the existing errors.
+    setErrors(responseErrors)
 
-    // const responseSuccesses = responses.filter((x) => x.message === undefined)
-    // const newSuccesses = Array.from(
-    //   new Set([...successes, ...responseSuccesses.map((x) => x.name)])
-    // )
-    // setSuccesses(newSuccesses)
+    const responseSuccesses = responses.filter((x) => x.message === undefined)
+    const newSuccesses = Array.from(
+      new Set([...successes, ...responseSuccesses.map((x) => x.name)])
+    )
+    setSuccesses(newSuccesses)
 
     setLoading(false)
-  }, [files, path, bucketName, errors, successes])
+  }, [files, path, bucketName, errors, successes, cacheControl, upsert, enableImageOptimization, imageCompressionOptions, onProgress, onFileComplete])
 
   useEffect(() => {
     if (files.length === 0) {

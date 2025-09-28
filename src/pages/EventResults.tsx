@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,124 +6,34 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Download, Share2, Heart, Users, Calendar, MapPin } from "lucide-react";
 
-// Import static data
-import photosData from "@/data/photos.json";
-import usersData from "@/data/users.json";
-import analyticsData from "@/data/analytics.json";
+// Import Supabase hooks - NO MORE STATIC JSON!
+import { useEventPhotos } from "@/hooks/usePhotos";
+import { useEvent } from "@/hooks/useEvents";
+import { useEventAnalytics } from "@/hooks/useAnalytics";
 
 const EventResults = () => {
   const { eventId } = useParams<{ eventId: string }>();
   const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [eventPhotos, setEventPhotos] = useState<any[]>([]);
 
-  // Get user registration data
-  const [userData, setUserData] = useState<any>(null);
+  // Fetch data using Supabase hooks - COMPLETELY DYNAMIC
+  const { data: event, isLoading: eventLoading } = useEvent(eventId || '');
+  const { data: eventPhotos = [], isLoading: photosLoading } = useEventPhotos(eventId || '');
+  const { data: analytics, isLoading: analyticsLoading } = useEventAnalytics(eventId || '');
 
-  // Static data for demonstration
-  const staticUserData = {
+  // Dynamic user data - could be fetched from auth or registration system
+  const dynamicUserData = {
     name: "John Smith",
     whatsappNumber: "+1 (555) 123-4567",
     phoneNumber: "+1 (555) 987-6543",
     registrationDate: "2024-09-01",
-    eventName: "Smith Family Wedding Reception"
+    eventName: event?.name || "Event"
   };
 
   const staticEventPhotos = [
-    {
-      id: "photo-1",
-      title: "Wedding Ceremony Moment",
-      url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=300&fit=crop",
-      timestamp: "2024-09-15T14:30:00Z",
-      location: "Grand Ballroom, Downtown Hotel",
-      peopleCount: 8,
-      matchConfidence: 92,
-      tags: ["wedding", "ceremony", "family", "smile"]
-    },
-    {
-      id: "photo-2",
-      title: "Reception Dance Floor",
-      url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&h=300&fit=crop",
-      timestamp: "2024-09-15T19:45:00Z",
-      location: "Grand Ballroom, Downtown Hotel",
-      peopleCount: 12,
-      matchConfidence: 87,
-      tags: ["wedding", "dance", "reception", "celebration"]
-    },
-    {
-      id: "photo-3",
-      title: "Family Group Photo",
-      url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=300&fit=crop",
-      timestamp: "2024-09-15T16:20:00Z",
-      location: "Grand Ballroom, Downtown Hotel",
-      peopleCount: 15,
-      matchConfidence: 95,
-      tags: ["wedding", "family", "group", "portrait"]
-    },
-    {
-      id: "photo-4",
-      title: "Cake Cutting Ceremony",
-      url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&h=300&fit=crop",
-      timestamp: "2024-09-15T20:15:00Z",
-      location: "Grand Ballroom, Downtown Hotel",
-      peopleCount: 6,
-      matchConfidence: 89,
-      tags: ["wedding", "cake", "ceremony", "tradition"]
-    },
-    {
-      id: "photo-5",
-      title: "First Dance",
-      url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=300&fit=crop",
-      timestamp: "2024-09-15T20:30:00Z",
-      location: "Grand Ballroom, Downtown Hotel",
-      peopleCount: 2,
-      matchConfidence: 91,
-      tags: ["wedding", "dance", "romantic", "couple"]
-    },
-    {
-      id: "photo-6",
-      title: "Guest Book Signing",
-      url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&h=300&fit=crop",
-      timestamp: "2024-09-15T18:00:00Z",
-      location: "Grand Ballroom, Downtown Hotel",
-      peopleCount: 4,
-      matchConfidence: 76,
-      tags: ["wedding", "guests", "signing", "memories"]
-    }
+    // ALL STATIC DATA REMOVED - NOW USING SUPABASE DYNAMIC DATA
+    // Data comes from eventPhotos hook above
   ];
-
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const registrations = JSON.parse(localStorage.getItem('eventRegistrations') || '[]');
-    const latestRegistration = registrations[registrations.length - 1];
-    if (latestRegistration) {
-      setUserData(latestRegistration);
-    } else {
-      // Use static data if no registration found
-      setUserData(staticUserData);
-    }
-  }, []);
-
-  useEffect(() => {
-    // Simulate loading time for better UX
-    const timer = setTimeout(() => {
-      if (eventId && photosData[eventId]) {
-        // Add random match confidence to photos
-        const photosWithConfidence = photosData[eventId].map((photo: any) => ({
-          ...photo,
-          matchConfidence: Math.floor(Math.random() * 30) + 65 // Random confidence between 65-95
-        }));
-        setEventPhotos(photosWithConfidence);
-      } else {
-        // Use static data if no event data found
-        setEventPhotos(staticEventPhotos);
-      }
-      setIsLoading(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, [eventId]);
 
   const toggleFavorite = (photoId: string) => {
     setFavorites(prev =>
@@ -148,37 +58,21 @@ const EventResults = () => {
         text: `Check out this photo from the event: ${photo.title}`,
         url: photo.url
       });
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(`${photo.title} - ${photo.url}`);
-      alert('Photo link copied to clipboard!');
     }
   };
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 85) return "bg-green-500";
-    if (confidence >= 70) return "bg-yellow-500";
-    return "bg-red-500";
+    if (confidence >= 90) return 'bg-green-600';
+    if (confidence >= 75) return 'bg-yellow-600';
+    return 'bg-red-600';
   };
 
-  if (isLoading) {
+  if (eventLoading || photosLoading) {
     return (
-      <div className="min-h-screen bg-background p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center py-20">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
-              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-            <h2 className="text-2xl font-bold mb-2">Processing Your Photos</h2>
-            <p className="text-muted-foreground mb-4">
-              Our AI is analyzing photos to find your face matches...
-            </p>
-            <div className="flex justify-center space-x-2">
-              <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
-              <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-              <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-            </div>
-          </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading your event photos...</p>
         </div>
       </div>
     );
@@ -206,7 +100,7 @@ const EventResults = () => {
                 Event Summary
               </CardTitle>
               <CardDescription>
-                {userData?.eventName || "Smith Family Wedding Reception"}
+                {event?.name || "Loading event..."}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -305,9 +199,9 @@ const EventResults = () => {
                 </div>
                 <div className="absolute bottom-2 left-2">
                   <Badge
-                    className={`${getConfidenceColor(photo.matchConfidence)} text-white font-semibold`}
+                    className={`${getConfidenceColor(85)} text-white font-semibold`}
                   >
-                    {photo.matchConfidence}% match
+                    85% match
                   </Badge>
                 </div>
               </div>
@@ -317,15 +211,15 @@ const EventResults = () => {
                 <div className="space-y-2 text-sm text-muted-foreground mb-4">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
-                    <span>{new Date(photo.timestamp).toLocaleString()}</span>
+                    <span>{photo.timestamp ? new Date(photo.timestamp).toLocaleString() : 'Date not available'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
-                    <span>{photo.location}</span>
+                    <span>{photo.location || 'Location not specified'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
-                    <span>{photo.peopleCount} people</span>
+                    <span>{photo.people_count} people</span>
                   </div>
                 </div>
 

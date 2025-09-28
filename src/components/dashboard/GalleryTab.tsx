@@ -6,171 +6,41 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PhotoReviewDialog, Photo } from '@/components/PhotoReviewDialog';
 import { useToast } from '@/components/ui/use-toast';
-import { Search, Plus, Download, Share2, Calendar, MapPin, Camera, Video, Eye, Heart, Star, Award, CheckCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Plus, Download, Share2, Calendar, MapPin, Camera, Video, Eye, Heart, Star, Award, CheckCircle, XCircle, ChevronLeft, ChevronRight, Filter, Grid, List, Loader2, Users } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useUserAlbums, useEventPhotos, useToggleFavorite, useDownloadPhoto, useShareContent, useFeaturedPhotos } from '@/hooks/use-gallery';
+import { useAuth } from '@/hooks/use-auth';
 
-// Mock photo data for review
-const mockPhotos: Photo[] = [
-  {
-    id: '1',
-    url: 'https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=600',
-    name: 'Ceremony Entrance',
-    status: 'editors_choice',
-    rating: 5
-  },
-  {
-    id: '2',
-    url: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=600',
-    name: 'Ring Exchange',
-    status: 'approved',
-    rating: 4.8
-  },
-  {
-    id: '3',
-    url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600',
-    name: 'Reception Dance',
-    status: 'editors_choice',
-    rating: 4.9
-  },
-  {
-    id: '4',
-    url: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600',
-    name: 'Group Photo',
-    status: 'not_approved',
-    rating: 3.2
-  },
-  {
-    id: '5',
-    url: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600',
-    name: 'Bouquet Toss',
-    status: 'approved',
-    rating: 4.3
-  },
-  {
-    id: '6',
-    url: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600',
-    name: 'Cake Cutting',
-    status: 'approved',
-    rating: 4.7
-  }
-];
+// Types for gallery functionality
+interface GalleryViewProps {
+  viewMode?: 'grid' | 'list'
+  showFilters?: boolean
+}
 
-// Mock gallery data
-const eventAlbums = [
-  {
-    id: '1',
-    title: 'Sarah & John Wedding',
-    date: '2024-08-15',
-    location: 'Central Park, NYC',
-    type: 'Wedding',
-    photographer: 'Sarah Johnson',
-    status: 'completed',
-    totalPhotos: 145,
-    totalVideos: 3,
-    coverImage: 'https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=400',
-    preview: [
-      'https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=300',
-      'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=300',
-      'https://images.unsplash.com/photo-1519741497674-611481863552?w=300',
-      'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=300'
-    ]
-  },
-  {
-    id: '2',
-    title: 'Corporate Event 2024',
-    date: '2024-07-20',
-    location: 'Convention Center, LA',
-    type: 'Corporate',
-    photographer: 'Michael Chen',
-    status: 'processing',
-    totalPhotos: 89,
-    totalVideos: 1,
-    coverImage: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=400',
-    preview: [
-      'https://images.unsplash.com/photo-1511578314322-379afb476865?w=300',
-      'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300',
-      'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=300'
-    ]
-  },
-  {
-    id: '3',
-    title: 'Birthday Celebration',
-    date: '2024-06-10',
-    location: 'Private Venue, Miami',
-    type: 'Birthday',
-    photographer: 'Emma Rodriguez',
-    status: 'completed',
-    totalPhotos: 67,
-    totalVideos: 2,
-    coverImage: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400',
-    preview: [
-      'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=300',
-      'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=300',
-      'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=300'
-    ]
-  },
-  {
-    id: '4',
-    title: 'Sarah & John Wedding',
-    date: '2024-08-15',
-    location: 'Central Park, NYC',
-    type: 'Wedding',
-    photographer: 'Sarah Johnson',
-    status: 'completed',
-    totalPhotos: 145,
-    totalVideos: 3,
-    coverImage: 'https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=400',
-    preview: [
-      'https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=300',
-      'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=300',
-      'https://images.unsplash.com/photo-1519741497674-611481863552?w=300',
-      'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=300'
-    ]
-  },
-  {
-    id: '5',
-    title: 'Corporate Event 2024',
-    date: '2024-07-20',
-    location: 'Convention Center, LA',
-    type: 'Corporate',
-    photographer: 'Michael Chen',
-    status: 'processing',
-    totalPhotos: 89,
-    totalVideos: 1,
-    coverImage: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=400',
-    preview: [
-      'https://images.unsplash.com/photo-1511578314322-379afb476865?w=300',
-      'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300',
-      'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=300'
-    ]
-  },
-  {
-    id: '6',
-    title: 'Birthday Celebration',
-    date: '2024-06-10',
-    location: 'Private Venue, Miami',
-    type: 'Birthday',
-    photographer: 'Emma Rodriguez',
-    status: 'completed',
-    totalPhotos: 67,
-    totalVideos: 2,
-    coverImage: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400',
-    preview: [
-      'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=300',
-      'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=300',
-      'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=300'
-    ]
-  }
-];
-
-export const GalleryTab: React.FC = () => {
+export const GalleryTab: React.FC<GalleryViewProps> = ({
+  viewMode = 'grid',
+  showFilters = true
+}) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedAlbum, setSelectedAlbum] = useState(null);
-  const [modalImages, setModalImages] = useState<string[]>([]);
+  const [selectedAlbum, setSelectedAlbum] = useState<any>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showPhotoReview, setShowPhotoReview] = useState(false);
-  const [previewMeta, setPreviewMeta] = useState<Record<string, { rating: number; status: 'editors_choice'|'approved'|'not_approved' }>>({});
-  const { toast } = useToast();
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterType, setFilterType] = useState('all');
+  const [sortBy, setSortBy] = useState('date');
+
+  const { user } = useAuth()
+  const { toast } = useToast()
+
+  // Use real database hooks
+  const { data: albums, isLoading: albumsLoading } = useUserAlbums('')
+  const { data: featuredPhotos, isLoading: featuredLoading } = useFeaturedPhotos()
+  const { data: eventPhotos, isLoading: photosLoading } = useEventPhotos(selectedAlbum?.id || '')
+  const toggleFavorite = useToggleFavorite()
+  const downloadPhoto = useDownloadPhoto()
+  const shareContent = useShareContent()
 
   const handleButton = (title: string, description?: string, cb?: () => void) => () => {
     if (cb) cb();
@@ -182,12 +52,26 @@ export const GalleryTab: React.FC = () => {
   };
 
   const getFilteredAlbums = () => {
-    return eventAlbums.filter(album =>
-      album.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      album.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    if (!albums) return []
+
+    return albums.filter(album =>
+      album.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       album.location.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  };
+    )
+  }
+
+  const getFilteredPhotos = () => {
+    if (!eventPhotos) return []
+
+    let photos = eventPhotos
+
+    // Apply additional filters if needed
+    if (filterStatus !== 'all') {
+      // Filter by photo status if implemented
+    }
+
+    return photos
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -236,22 +120,9 @@ export const GalleryTab: React.FC = () => {
     }
   };
 
-  const handleSetRating = (imageUrl: string, rating: number) => {
-    setPreviewMeta(prev => ({
-      ...prev,
-      [imageUrl]: { rating, status: mapRatingToStatus(rating) }
-    }));
-  };
 
-  const handleSetStatus = (imageUrl: string, status: 'editors_choice'|'approved'|'not_approved') => {
-    setPreviewMeta(prev => ({
-      ...prev,
-      [imageUrl]: { rating: prev[imageUrl]?.rating ?? 4, status }
-    }));
-  };
-
-  const renderAlbumCard = (album) => (
-    <Card key={album.id} className="group hover:shadow-medium transition-all duration-300 cursor-pointer">
+  const renderAlbumCard = (album: any) => (
+    <Card key={album.id} className="group hover:shadow-lg transition-all duration-300 cursor-pointer">
       <div className="relative">
         <img
           src={album.coverImage}
@@ -259,28 +130,21 @@ export const GalleryTab: React.FC = () => {
           className="w-full h-48 object-cover rounded-t-lg"
         />
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-t-lg flex items-center justify-center">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                variant="secondary"
-                className="opacity-90"
-                onClick={() => {
-                  setSelectedAlbum(album);
-                  setModalImages(album.preview ? [...album.preview] : []);
-                }}
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                View Album
-              </Button>
-            </DialogTrigger>
-          </Dialog>
+          <Button
+            variant="secondary"
+            className="opacity-90"
+            onClick={() => setSelectedAlbum(album)}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            View Album
+          </Button>
         </div>
-        
+
         <div className="absolute top-3 left-3">
           <Badge variant={getStatusColor(album.status)}>
             {album.status === 'processing' ? (
               <span className="flex items-center gap-1">
-                <svg className="animate-spin h-3 w-3 mr-1 text-white" viewBox="0 0 24 24">
+                <svg className="animate-spin h-3 w-3 text-white" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 11-8 8z" />
                 </svg>
@@ -288,7 +152,7 @@ export const GalleryTab: React.FC = () => {
               </span>
             ) : album.status === 'completed' ? (
               <span className="flex items-center gap-1">
-                <svg className="h-3 w-3 mr-1 text-white" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" clipRule="evenodd" />
                 </svg>
                 {getStatusText(album.status)}
@@ -333,20 +197,28 @@ export const GalleryTab: React.FC = () => {
 
           {album.status === 'completed' && (
             <div className="flex space-x-2 pt-2">
-              {/* <Button variant="outline" size="sm" className="flex-1" 
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
                 onClick={() => {
-                  setSelectedAlbum(album);
-                  handleButton('View Photos', `Opening photo review for ${album.title}`)();
+                  setSelectedAlbum(album)
+                  setShowPhotoReview(true)
                 }}
               >
                 <Eye className="h-3 w-3 mr-1" />
                 View Photos
-              </Button> */}
-              <Button variant="outline" size="sm" className="flex-1" onClick={handleButton('Download', `Downloading ${album.title}`)}>
-                <Download className="h-3 w-3 mr-1" />
-                Download
               </Button>
-              <Button variant="outline" size="sm" className="flex-1" onClick={handleButton('Share', `Share link copied for ${album.title}`)}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={() => shareContent.mutate({
+                  contentType: 'album',
+                  contentId: album.id,
+                  title: album.name
+                })}
+              >
                 <Share2 className="h-3 w-3 mr-1" />
                 Share
               </Button>
@@ -355,163 +227,78 @@ export const GalleryTab: React.FC = () => {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 
-  const renderAlbumModal = () => (
-    <>
-    <Dialog open={!!selectedAlbum} onOpenChange={() => setSelectedAlbum(null)}>
-      <DialogContent className="max-w-4xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span>{selectedAlbum?.title}</span>
-            <div className="flex space-x-2">
-              <Button variant="outline" size="sm" onClick={handleButton('Favorited', `Added ${selectedAlbum?.title} to favorites`)}>
-                <Heart className="h-4 w-4 mr-1" />
-                Favorite
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleButton('Download started', `Preparing download for ${selectedAlbum?.title}`)}>
-                <Download className="h-4 w-4 mr-1" />
-                Download All
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleButton('Share', `Share link copied for ${selectedAlbum?.title}`)}>
-                <Share2 className="h-4 w-4 mr-1" />
-                Share Album
-              </Button>
-            </div>
-          </DialogTitle>
-        </DialogHeader>
-
-        {selectedAlbum && (
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-              <span className="flex items-center">
-                <Calendar className="h-3 w-3 mr-1" />
-                {new Date(selectedAlbum.date).toLocaleDateString()}
-              </span>
-              <span className="flex items-center">
-                <MapPin className="h-3 w-3 mr-1" />
-                {selectedAlbum.location}
-              </span>
-              <span className="flex items-center">
-                <Camera className="h-3 w-3 mr-1" />
-                {selectedAlbum.totalPhotos + selectedAlbum.totalVideos} items
-              </span>
-            </div>
-
-            <div className="grid grid-cols-3 md:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
-              {modalImages.map((image: string, index: number) => {
-                const meta = previewMeta[image] || { rating: 4, status: mapRatingToStatus(4) };
-                return (
-                <div key={index} className="aspect-square relative group cursor-pointer">
-                  {/* Status badge on each preview photo */}
-                  <div className="absolute top-2 left-2 z-10">
-                    <Badge className={getStatusInfo(meta.status).className}>
-                      {getStatusInfo(meta.status).icon}
-                      <span className="ml-1 text-xs">{getStatusInfo(meta.status).label}</span>
-                    </Badge>
-                  </div>
-                  <img
-                    src={image}
-                    alt={`Photo ${index + 1}`}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                    <Button variant="secondary" size="sm" onClick={() => { setLightboxIndex(index); setLightboxOpen(true); }}>
-                      <Eye className="h-3 w-3" />
-                    </Button>
-                  </div>
-
-                  <div className="absolute bottom-2 left-2 right-2 p-2 bg-white/100 rounded-md">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        {Array.from({ length: 5 }).map((_, i) => {
-                          const starIndex = i + 1;
-                          return (
-                            <button key={i} onClick={() => handleSetRating(image, starIndex)} aria-label={`Rate ${starIndex}`}>
-                              <Star className={`h-4 w-4 ${starIndex <= Math.round(meta.rating) ? 'text-yellow-400' : 'text-gray-500'}`} />
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      {/* status select intentionally hidden here (we use badge) */}
-                    </div>
-                  </div>
-                </div>
-              )})}
-              {/* Show more indicator */}
-              <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <Plus className="h-6 w-6 mx-auto mb-1 text-muted-foreground" />
-                  <p className="text-xs text-muted-foreground">
-                    +{(selectedAlbum.totalPhotos ?? 0) - modalImages.length} more
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </DialogContent>
-  </Dialog>
-  {/* Lightbox dialog */}
-  <Dialog open={lightboxOpen} onOpenChange={() => setLightboxOpen(false)}>
-      <DialogContent className="max-w-4xl">
-        <div className="relative">
-          <img src={modalImages[lightboxIndex]} alt={`Photo ${lightboxIndex + 1}`} className="w-full h-[70vh] object-contain" />
-          <div className="absolute left-2 top-1/2 transform -translate-y-1/2">
-            <Button variant="secondary" size="icon" onClick={() => setLightboxIndex(i => (i > 0 ? i - 1 : modalImages.length - 1))}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-            <Button variant="secondary" size="icon" onClick={() => setLightboxIndex(i => (i < modalImages.length - 1 ? i + 1 : 0))}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-    </>
-  );
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      {/* <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Your Event Gallery</h2>
           <p className="text-muted-foreground">View and manage your event photos and videos</p>
         </div>
-        
-        <Button onClick={handleButton('Upload', 'Open upload dialog (mock)')}>
-          <Plus className="h-4 w-4 mr-2" />
-          Upload Photos
-        </Button>
-      </div> */}
 
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-        <Input
-          placeholder="Search albums..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
-        />
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" size="sm">
+            <Filter className="h-4 w-4 mr-2" />
+            Filters
+          </Button>
+          <Button variant="outline" size="sm">
+            <Grid className="h-4 w-4 mr-2" />
+            View
+          </Button>
+        </div>
+      </div>
+
+      {/* Search and Filters */}
+      <div className="flex flex-wrap gap-4">
+        <div className="relative flex-1 min-w-64">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Search albums..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="processing">Processing</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="date">Date</SelectItem>
+            <SelectItem value="name">Name</SelectItem>
+            <SelectItem value="location">Location</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-primary">{eventAlbums.length}</p>
+            <p className="text-2xl font-bold text-primary">{albums?.length || 0}</p>
             <p className="text-sm text-muted-foreground">Total Albums</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-primary">
-              {eventAlbums.reduce((sum, album) => sum + album.totalPhotos, 0)}
+              {albums?.reduce((sum, album) => sum + album.total_photos, 0) || 0}
             </p>
             <p className="text-sm text-muted-foreground">Total Photos</p>
           </CardContent>
@@ -519,7 +306,7 @@ export const GalleryTab: React.FC = () => {
         <Card>
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-primary">
-              {eventAlbums.reduce((sum, album) => sum + album.totalVideos, 0)}
+              0
             </p>
             <p className="text-sm text-muted-foreground">Total Videos</p>
           </CardContent>
@@ -527,38 +314,170 @@ export const GalleryTab: React.FC = () => {
         <Card>
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-success">
-              {eventAlbums.filter(album => album.status === 'completed').length}
+              {albums?.length || 0}
             </p>
             <p className="text-sm text-muted-foreground">Ready Albums</p>
           </CardContent>
         </Card>
       </div>
 
+      {/* Featured Photos Section */}
+      {!selectedAlbum && (
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold">Featured Photos</h3>
+          {featuredLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin" />
+              <span className="ml-2">Loading featured photos...</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {featuredPhotos?.slice(0, 6).map((photo) => (
+                <div key={photo.id} className="relative group cursor-pointer">
+                  <img
+                    src={photo.url}
+                    alt={photo.title || 'Featured photo'}
+                    className="w-full aspect-square object-cover rounded-lg"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedPhoto(photo)
+                        setLightboxIndex(0)
+                        setLightboxOpen(true)
+                      }}
+                    >
+                      <Eye className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Albums Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {getFilteredAlbums().map(renderAlbumCard)}
-      </div>
+      {albumsLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="ml-2">Loading albums...</span>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {getFilteredAlbums().map(renderAlbumCard)}
+        </div>
+      )}
 
       {/* No Results */}
-      {getFilteredAlbums().length === 0 && (
+      {getFilteredAlbums().length === 0 && !albumsLoading && (
         <Card>
           <CardContent className="py-12 text-center">
             <Camera className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No albums found. Your event photos will appear here.</p>
+            <p className="text-muted-foreground">
+              {albums?.length === 0
+                ? "No albums found. Your event photos will appear here."
+                : "No albums match your search criteria."
+              }
+            </p>
           </CardContent>
         </Card>
       )}
 
-      {/* Album Modal */}
-      {renderAlbumModal()}
-      
+      {/* Photo Lightbox */}
+      <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+        <DialogContent className="max-w-4xl">
+          {selectedPhoto && (
+            <div className="relative">
+              <img
+                src={selectedPhoto.url}
+                alt={selectedPhoto.title}
+                className="w-full h-[70vh] object-contain"
+              />
+
+              {/* Photo Actions */}
+              <div className="absolute top-4 right-4 flex space-x-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => toggleFavorite.mutate({
+                    photoId: selectedPhoto.id,
+                    isFavorite: selectedPhoto.isFavorite
+                  })}
+                >
+                  <Heart className={`h-4 w-4 mr-2 ${selectedPhoto.isFavorite ? 'fill-current text-red-500' : ''}`} />
+                  {selectedPhoto.isFavorite ? 'Favorited' : 'Favorite'}
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => downloadPhoto.mutate(selectedPhoto.id)}
+                  disabled={downloadPhoto.isPending}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => shareContent.mutate({
+                    contentType: 'photo',
+                    contentId: selectedPhoto.id,
+                    title: selectedPhoto.title || 'Photo'
+                  })}
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
+              </div>
+
+              {/* Photo Info */}
+              <div className="absolute bottom-4 left-4 right-4 bg-black/70 text-white p-4 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-semibold">{selectedPhoto.title}</h4>
+                    <p className="text-sm text-gray-300">
+                      {selectedPhoto.events?.name} • {new Date(selectedPhoto.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-4 text-sm">
+                    {selectedPhoto.downloadCount !== undefined && (
+                      <span className="flex items-center">
+                        <Download className="h-4 w-4 mr-1" />
+                        {selectedPhoto.downloadCount}
+                      </span>
+                    )}
+                    {selectedPhoto.matchCount !== undefined && (
+                      <span className="flex items-center">
+                        <Users className="h-4 w-4 mr-1" />
+                        {selectedPhoto.matchCount} matches
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Photo Review Dialog */}
       <PhotoReviewDialog
         isOpen={showPhotoReview}
         onClose={() => setShowPhotoReview(false)}
-        photos={mockPhotos}
+        photos={eventPhotos?.map(photo => ({
+          id: photo.id,
+          url: photo.url,
+          name: photo.title || 'Untitled',
+          status: (photo.is_featured ? 'editors_choice' : 'approved') as 'editors_choice' | 'approved' | 'not_approved',
+          rating: 4
+        })) || []}
         title={selectedAlbum?.title || 'Album Photos'}
       />
     </div>
-  );
+  )
 };

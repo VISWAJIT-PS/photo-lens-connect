@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,27 +17,24 @@ import {
   Activity
 } from "lucide-react";
 
-// Import static data
-import eventsData from "@/data/events.json";
-import analyticsData from "@/data/analytics.json";
-import usersData from "@/data/users.json";
+// Import Supabase hooks
+import { useEvents } from "@/hooks/useEvents";
+import { useCompleteEventAnalytics } from "@/hooks/useAnalytics";
+import { useEventUsers } from "@/hooks/useUsers";
 
 const AdminDashboard = () => {
   const [selectedEvent, setSelectedEvent] = useState<string>("");
-  const [eventAnalytics, setEventAnalytics] = useState<any>(null);
-  const [eventUsers, setEventUsers] = useState<any[]>([]);
+  
+  // Fetch data using Supabase hooks
+  const { data: events = [], isLoading: eventsLoading } = useEvents();
+  const { analytics, demographics, trends, tags, isLoading: analyticsLoading } = useCompleteEventAnalytics(selectedEvent);
+  const { data: eventUsers = [], isLoading: usersLoading } = useEventUsers(selectedEvent);
 
-  useEffect(() => {
-    if (selectedEvent) {
-      setEventAnalytics(analyticsData[selectedEvent] || null);
-      setEventUsers(usersData[selectedEvent] || []);
-    }
-  }, [selectedEvent]);
-
-  const totalEvents = eventsData.events.length;
-  const totalRegistrations = eventsData.events.reduce((sum, event) => sum + event.registeredUsers, 0);
-  const totalPhotos = eventsData.events.reduce((sum, event) => sum + event.totalPhotos, 0);
-  const activeEvents = eventsData.events.filter(event => event.status === 'active').length;
+  // Calculate totals from Supabase data
+  const totalEvents = events.length;
+  const totalRegistrations = events.reduce((sum, event) => sum + event.registered_users, 0);
+  const totalPhotos = events.reduce((sum, event) => sum + event.total_photos, 0);
+  const activeEvents = events.filter(event => event.status === 'active').length;
 
   const StatCard = ({ title, value, description, icon: Icon, trend }: any) => (
     <Card>
@@ -110,22 +107,26 @@ const AdminDashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Select value={selectedEvent} onValueChange={setSelectedEvent}>
-              <SelectTrigger className="w-full md:w-96">
-                <SelectValue placeholder="Select an event to analyze" />
-              </SelectTrigger>
-              <SelectContent>
-                {eventsData.events.map((event) => (
-                  <SelectItem key={event.id} value={event.id}>
-                    {event.name} - {event.date}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {eventsLoading ? (
+              <div>Loading events...</div>
+            ) : (
+              <Select value={selectedEvent} onValueChange={setSelectedEvent}>
+                <SelectTrigger className="w-full md:w-96">
+                  <SelectValue placeholder="Select an event to analyze" />
+                </SelectTrigger>
+                <SelectContent>
+                  {events.map((event) => (
+                    <SelectItem key={event.id} value={event.id}>
+                      {event.name} - {event.date}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </CardContent>
         </Card>
 
-        {selectedEvent && eventAnalytics && (
+        {selectedEvent && analytics && (
           <Tabs defaultValue="overview" className="space-y-6">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -135,104 +136,85 @@ const AdminDashboard = () => {
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard
-                  title="Event Registrations"
-                  value={eventAnalytics.totalRegistrations}
-                  description="Users registered for this event"
-                  icon={Users}
-                />
-                <StatCard
-                  title="Photos Uploaded"
-                  value={eventAnalytics.totalPhotosUploaded}
-                  description="Photos uploaded by users"
-                  icon={Camera}
-                />
-                <StatCard
-                  title="Matches Found"
-                  value={eventAnalytics.totalMatchesFound}
-                  description="Face matches identified"
-                  icon={BarChart3}
-                />
-                <StatCard
-                  title="Avg Match Confidence"
-                  value={`${eventAnalytics.averageMatchConfidence}%`}
-                  description="Average confidence score"
-                  icon={TrendingUp}
-                />
-              </div>
-
-              {/* Demographics */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Age Distribution</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {Object.entries(eventAnalytics.userDemographics.ageGroups).map(([age, count]: [string, any]) => (
-                        <div key={age} className="flex items-center justify-between">
-                          <span className="text-sm">{age} years</span>
-                          <div className="flex items-center gap-2">
-                            <div className="w-20 bg-muted rounded-full h-2">
-                              <div
-                                className="bg-primary h-2 rounded-full"
-                                style={{
-                                  width: `${(count / eventAnalytics.totalRegistrations) * 100}%`
-                                }}
-                              />
-                            </div>
-                            <span className="text-sm font-medium w-8">{count}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Gender Distribution</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {Object.entries(eventAnalytics.userDemographics.genderDistribution).map(([gender, count]: [string, any]) => (
-                        <div key={gender} className="flex items-center justify-between">
-                          <span className="text-sm capitalize">{gender}</span>
-                          <div className="flex items-center gap-2">
-                            <div className="w-20 bg-muted rounded-full h-2">
-                              <div
-                                className="bg-primary h-2 rounded-full"
-                                style={{
-                                  width: `${(count / eventAnalytics.totalRegistrations) * 100}%`
-                                }}
-                              />
-                            </div>
-                            <span className="text-sm font-medium w-8">{count}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Popular Tags */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Popular Tags</CardTitle>
-                  <CardDescription>Most used tags in event photos</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {eventAnalytics.popularTags.map((tagData: any) => (
-                      <Badge key={tagData.tag} variant="secondary" className="px-3 py-1">
-                        {tagData.tag} ({tagData.count})
-                      </Badge>
-                    ))}
+              {analyticsLoading ? (
+                <div>Loading analytics...</div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <StatCard
+                      title="Event Registrations"
+                      value={analytics?.total_registrations || 0}
+                      description="Users registered for this event"
+                      icon={Users}
+                    />
+                    <StatCard
+                      title="Photos Uploaded"
+                      value={analytics?.total_photos_uploaded || 0}
+                      description="Photos uploaded by users"
+                      icon={Camera}
+                    />
+                    <StatCard
+                      title="Matches Found"
+                      value={analytics?.total_matches_found || 0}
+                      description="Face matches identified"
+                      icon={BarChart3}
+                    />
+                    <StatCard
+                      title="Avg Match Confidence"
+                      value={`${analytics?.average_match_confidence || 0}%`}
+                      description="Average confidence score"
+                      icon={TrendingUp}
+                    />
                   </div>
-                </CardContent>
-              </Card>
+
+                  {/* Demographics */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Age Distribution</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {demographics?.map((demo) => (
+                            <div key={demo.age_group} className="flex items-center justify-between">
+                              <span className="text-sm">{demo.age_group} years</span>
+                              <div className="flex items-center gap-2">
+                                <div className="w-20 bg-muted rounded-full h-2">
+                                  <div
+                                    className="bg-primary h-2 rounded-full"
+                                    style={{
+                                      width: `${(demo.count / (analytics?.total_registrations || 1)) * 100}%`
+                                    }}
+                                  />
+                                </div>
+                                <span className="text-sm font-medium w-8">{demo.count}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Popular Tags</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {tags?.slice(0, 5).map((tag) => (
+                            <div key={tag.tag} className="flex items-center justify-between">
+                              <span className="text-sm">{tag.tag}</span>
+                              <Badge variant="secondary" className="px-2 py-1">
+                                {tag.count}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </>
+              )}
             </TabsContent>
 
             <TabsContent value="users" className="space-y-6">
@@ -245,62 +227,70 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {eventUsers.map((user) => (
-                      <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="space-y-1">
-                          <p className="font-medium">{user.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {user.whatsappNumber} • {user.phoneNumber}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Registered: {new Date(user.registrationDate).toLocaleDateString()}
-                          </p>
+                    {usersLoading ? (
+                      <div>Loading users...</div>
+                    ) : (
+                      eventUsers.map((user) => (
+                        <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div className="space-y-1">
+                            <p className="font-medium">{user.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {user.whatsapp_number} • {user.phone_number}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Registered: {new Date(user.registration_date).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="text-right space-y-1">
+                            <Badge variant={user.status === 'completed' ? 'default' : 'secondary'}>
+                              {user.status}
+                            </Badge>
+                            <p className="text-sm">
+                              {user.photos_uploaded} photos • {user.matches_found} matches
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Last active: {new Date(user.last_activity).toLocaleDateString()}
+                            </p>
+                          </div>
                         </div>
-                        <div className="text-right space-y-1">
-                          <Badge variant={user.status === 'completed' ? 'default' : 'secondary'}>
-                            {user.status}
-                          </Badge>
-                          <p className="text-sm">
-                            {user.photosUploaded} photos • {user.matchesFound} matches
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Last active: {new Date(user.lastActivity).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
 
             <TabsContent value="engagement" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard
-                  title="Photos Downloaded"
-                  value={eventAnalytics.engagementMetrics.photosDownloaded}
-                  description="Photos downloaded by users"
-                  icon={Download}
-                />
-                <StatCard
-                  title="Photos Shared"
-                  value={eventAnalytics.engagementMetrics.photosShared}
-                  description="Photos shared on social media"
-                  icon={Share2}
-                />
-                <StatCard
-                  title="Favorites Marked"
-                  value={eventAnalytics.engagementMetrics.favoritesMarked}
-                  description="Photos marked as favorite"
-                  icon={Heart}
-                />
-                <StatCard
-                  title="Avg Session Time"
-                  value={eventAnalytics.engagementMetrics.averageSessionTime}
-                  description="Average time spent per user"
-                  icon={Activity}
-                />
-              </div>
+              {analyticsLoading ? (
+                <div>Loading engagement data...</div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <StatCard
+                    title="Photos Downloaded"
+                    value={analytics?.photos_downloaded || 0}
+                    description="Photos downloaded by users"
+                    icon={Download}
+                  />
+                  <StatCard
+                    title="Photos Shared"
+                    value={analytics?.photos_shared || 0}
+                    description="Photos shared on social media"
+                    icon={Share2}
+                  />
+                  <StatCard
+                    title="Favorites Marked"
+                    value={analytics?.favorites_marked || 0}
+                    description="Photos marked as favorite"
+                    icon={Heart}
+                  />
+                  <StatCard
+                    title="Avg Session Time"
+                    value={analytics?.average_session_time || 'N/A'}
+                    description="Average time spent per user"
+                    icon={Activity}
+                  />
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="trends" className="space-y-6">
@@ -313,17 +303,17 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {eventAnalytics.registrationTrends.map((trend: any, index: number) => (
+                    {trends?.map((trend, index) => (
                       <div key={index} className="flex items-center justify-between">
-                        <span className="text-sm">
+                        <span className="text-sm">{new Date(trend.date).toLocaleDateString()}</span>
                           {new Date(trend.date).toLocaleDateString()}
-                        </span>
+                        <span className="text-sm">{new Date(trend.date).toLocaleDateString()}</span>
                         <div className="flex items-center gap-2">
                           <div className="w-32 bg-muted rounded-full h-2">
                             <div
                               className="bg-primary h-2 rounded-full"
                               style={{
-                                width: `${(trend.count / Math.max(...eventAnalytics.registrationTrends.map((t: any) => t.count))) * 100}%`
+                                width: `${(trend.count / Math.max(...(trends?.map(t => t.count) || [1]))) * 100}%`
                               }}
                             />
                           </div>

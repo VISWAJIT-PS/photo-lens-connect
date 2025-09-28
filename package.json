@@ -9,7 +9,19 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "serve": "vite preview --host 0.0.0.0 --port 4173"
+    "serve": "vite preview --host 0.0.0.0 --port 4173",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:status": "supabase status",
+    "supabase:reset": "supabase db reset",
+    "db:migrate": "supabase migration up",
+    "db:reset": "supabase db reset",
+    "fix:migration": "tsx scripts/fix-migration-error.ts",
+    "migrate:complete": "tsx scripts/complete-migration.ts",
+    "migrate:json": "tsx scripts/migrate-json-to-supabase.ts",
+    "test:migration": "tsx scripts/test-migration.ts",
+    "generate:types": "supabase gen types typescript --local > src/integrations/supabase/types.ts",
+    "generate:types:remote": "supabase gen types typescript --project-id jmozptzjskyvzfghrtlw > src/integrations/supabase/types.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -43,6 +55,7 @@
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.57.0",
     "@tanstack/react-query": "^5.83.0",
+    "browser-image-compression": "^2.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

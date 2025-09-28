@@ -4,10 +4,12 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Search, Filter, MapPin, Star, DollarSign, ShoppingCart, Heart, Plus, Minus } from 'lucide-react';
+import { Search, Filter, MapPin, Star, DollarSign, ShoppingCart, Heart, Plus, Minus, Loader2, Calendar, Clock } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ProductDetailsDialog } from '@/components/ProductDetailsDialog';
 import { useToast } from '@/hooks/use-toast';
+import { useRentals } from '@/hooks/use-rentals';
+import { useCart } from '@/hooks/use-cart';
 
 interface OnboardingData {
   eventDate: Date | undefined;
@@ -19,89 +21,7 @@ interface EquipmentRentalsTabProps {
   onboardingData: OnboardingData | null;
 }
 
-// Mock rental data
-const rentalItems = [
-  {
-    id: 1,
-    name: "Canon EOS R5",
-    category: "Cameras",
-    price: "$150/day",
-    rating: 4.9,
-    location: "New York, NY",
-    description: "Professional mirrorless camera with 45MP sensor and 8K video recording.",
-    image_url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32",
-    available: true,
-    reviews: 45,
-    specs: ["45MP Full Frame", "8K Video", "5-axis Stabilization"]
-  },
-  {
-    id: 2,
-    name: "Sony A7S III",
-    category: "Cameras",
-    price: "$120/day",
-    rating: 4.8,
-    location: "Los Angeles, CA",
-    description: "Full-frame mirrorless perfect for video with excellent low-light performance.",
-    image_url: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd",
-    available: true,
-    reviews: 38,
-    specs: ["12MP Full Frame", "4K Video", "Dual Base ISO"]
-  },
-  {
-    id: 3,
-    name: "DJI Mavic 3",
-    category: "Drones",
-    price: "$200/day",
-    rating: 4.9,
-    location: "San Francisco, CA",
-    description: "Professional drone with Hasselblad camera and 5.1K video recording.",
-    image_url: "https://images.unsplash.com/photo-1527977966376-1c8408f9f108",
-    available: true,
-    reviews: 62,
-    specs: ["Hasselblad Camera", "5.1K Video", "46min Flight Time"]
-  },
-  {
-    id: 4,
-    name: "Godox AD200 Pro",
-    category: "Lighting",
-    price: "$80/day",
-    rating: 4.7,
-    location: "Chicago, IL",
-    description: "Portable flash system with 200Ws power and lithium battery.",
-    image_url: "https://images.unsplash.com/photo-1519638399535-1b036603ac77",
-    available: true,
-    reviews: 29,
-    specs: ["200Ws Power", "Lithium Battery", "TTL Compatible"]
-  },
-  {
-    id: 5,
-    name: "Sigma 85mm f/1.4",
-    category: "Lenses",
-    price: "$60/day",
-    rating: 4.8,
-    location: "Miami, FL",
-    description: "Professional portrait lens with beautiful bokeh and sharp optics.",
-    image_url: "https://images.unsplash.com/photo-1617005082133-548c4dd27f35",
-    available: false,
-    reviews: 33,
-    specs: ["f/1.4 Aperture", "Art Series", "HSM Autofocus"]
-  },
-  {
-    id: 6,
-    name: "Manfrotto Tripod",
-    category: "Accessories",
-    price: "$25/day",
-    rating: 4.6,
-    location: "Boston, MA",
-    description: "Heavy-duty aluminum tripod with fluid head for smooth movements.",
-    image_url: "https://images.unsplash.com/photo-1495707902641-75cac588d2e9",
-    available: true,
-    reviews: 21,
-    specs: ["Aluminum Build", "Fluid Head", "Max Load 8kg"]
-  }
-];
-
-const categories = ['Cameras', 'Lenses', 'Lighting', 'Drones', 'Accessories'];
+const categories = ['Cameras', 'Lenses', 'Lighting', 'Drones', 'Accessories', 'Audio', 'Stabilizers', 'Other'];
 
 export const EquipmentRentalsTab: React.FC<EquipmentRentalsTabProps> = ({ onboardingData }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -109,65 +29,92 @@ export const EquipmentRentalsTab: React.FC<EquipmentRentalsTabProps> = ({ onboar
   const [priceFilter, setPriceFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [availabilityFilter, setAvailabilityFilter] = useState('available');
-  const [cart, setCart] = useState<{[key: number]: number}>({});
   const [showCart, setShowCart] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [showProductDialog, setShowProductDialog] = useState(false);
+  const [rentalDate, setRentalDate] = useState('');
+  const [returnDate, setReturnDate] = useState('');
   const { toast } = useToast();
 
-  const getFilteredItems = () => {
-    let items = rentalItems;
+  // Use the cart hook
+  const {
+    cartItems,
+    addToCart,
+    updateCartItem,
+    removeFromCart,
+    clearCart,
+    getCartSummary,
+    isLoading: cartLoading
+  } = useCart();
 
-    if (categoryFilter && categoryFilter !== 'all-categories') {
-      items = items.filter(item => item.category === categoryFilter);
-    }
+  // Use the rentals hook with filters
+  const { data: rentals, isLoading, error } = useRentals({
+    category: categoryFilter || undefined,
+    location: locationFilter || undefined,
+    available: availabilityFilter === 'available' ? true : undefined,
+  });
+
+  const getFilteredItems = () => {
+    if (!rentals) return [];
+
+    let items = rentals;
 
     if (searchQuery) {
       items = items.filter(item =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase())
+        item.description?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    if (availabilityFilter === 'available') {
-      items = items.filter(item => item.available);
-    }
-
-    return items;
-  };
-
-  const addToCart = (itemId: number) => {
-    setCart(prev => ({
-      ...prev,
-      [itemId]: (prev[itemId] || 0) + 1
+    return items.map(rental => ({
+      id: rental.id,
+      name: rental.name,
+      category: rental.category,
+      price: rental.price,
+      rating: rental.rating || 0,
+      location: rental.location,
+      description: rental.description || '',
+      image_url: rental.image_url || '',
+      available: rental.available || false,
+      reviews: 0, // Would need to add reviews field to rentals table
+      specs: [], // Would need to add specs field to rentals table
     }));
   };
 
-  const removeFromCart = (itemId: number) => {
-    setCart(prev => {
-      const newCart = { ...prev };
-      if (newCart[itemId] > 1) {
-        newCart[itemId]--;
-      } else {
-        delete newCart[itemId];
-      }
-      return newCart;
+  // Handle adding item to cart with date selection
+  const handleAddToCart = (itemId: number) => {
+    if (!rentalDate || !returnDate) {
+      toast({
+        title: 'Select Dates',
+        description: 'Please select rental and return dates',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    addToCart({
+      rentalId: itemId,
+      quantity: 1,
+      rentalDate,
+      returnDate
     });
   };
 
-  const getTotalItems = () => {
-    return Object.values(cart).reduce((sum, count) => sum + count, 0);
+  // Get cart item quantity for a specific rental
+  const getCartItemQuantity = (rentalId: number) => {
+    const cartItem = cartItems.find(item => item.rental_id === rentalId);
+    return cartItem?.quantity || 0;
   };
 
   return (
     <div className="p-6 space-y-6">
       {/* Cart Button */}
-      {getTotalItems() > 0 && (
+      {getCartSummary().totalItems > 0 && (
         <Button className="fixed bottom-[2%] right-[2%] z-[60]" onClick={() => setShowCart(true)}>
           <ShoppingCart className="h-4 w-4 mr-2" />
           View Cart
           <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center">
-            {getTotalItems()}
+            {getCartSummary().totalItems}
           </Badge>
         </Button>
       )}
@@ -225,11 +172,40 @@ export const EquipmentRentalsTab: React.FC<EquipmentRentalsTabProps> = ({ onboar
           </SelectContent>
         </Select>
 
+        {/* Date Selection */}
+        <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <Input
+              type="date"
+              className="w-40"
+              placeholder="Rental Date"
+              value={rentalDate}
+              onChange={(e) => setRentalDate(e.target.value)}
+              min={new Date().toISOString().split('T')[0]}
+            />
+          </div>
+          <span className="text-muted-foreground">to</span>
+          <div className="flex items-center space-x-1">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <Input
+              type="date"
+              className="w-40"
+              placeholder="Return Date"
+              value={returnDate}
+              onChange={(e) => setReturnDate(e.target.value)}
+              min={rentalDate || new Date().toISOString().split('T')[0]}
+            />
+          </div>
+        </div>
+
         <Button variant="outline" onClick={() => {
           setSearchQuery('');
           setCategoryFilter('all-categories');
           setPriceFilter('');
           setLocationFilter('');
+          setRentalDate('');
+          setReturnDate('');
         }}>
           <Filter className="h-4 w-4 mr-2" />
           Clear Filters
@@ -258,8 +234,14 @@ export const EquipmentRentalsTab: React.FC<EquipmentRentalsTabProps> = ({ onboar
       </div>
 
       {/* Equipment Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {getFilteredItems().map((item) => (
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="ml-2">Loading equipment...</span>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {getFilteredItems().map((item) => (
           <Card key={item.id} className="group hover:shadow-medium transition-all duration-300 cursor-pointer"
                 onClick={() => {
                   setSelectedProduct({...item, images: [item.image_url]});
@@ -326,26 +308,46 @@ export const EquipmentRentalsTab: React.FC<EquipmentRentalsTabProps> = ({ onboar
               </div>
 
               <div className="flex items-center space-x-2">
-                {cart[item.id] ? (
+                {getCartItemQuantity(item.id) > 0 ? (
                   <div className="flex items-center space-x-2 flex-1">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        removeFromCart(item.id);
+                        const cartItem = cartItems.find(ci => ci.rental_id === item.id);
+                        if (cartItem) {
+                          if (cartItem.quantity > 1) {
+                            updateCartItem({
+                              cartItemId: cartItem.id.toString(),
+                              quantity: cartItem.quantity - 1,
+                              rentalDate: cartItem.rental_date,
+                              returnDate: cartItem.return_date
+                            });
+                          } else {
+                            removeFromCart(cartItem.id.toString());
+                          }
+                        }
                       }}
                       className="h-8 w-8 p-0"
                     >
                       <Minus className="h-3 w-3" />
                     </Button>
-                    <span className="font-medium">{cart[item.id]}</span>
+                    <span className="font-medium">{getCartItemQuantity(item.id)}</span>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        addToCart(item.id);
+                        const cartItem = cartItems.find(ci => ci.rental_id === item.id);
+                        if (cartItem) {
+                          updateCartItem({
+                            cartItemId: cartItem.id.toString(),
+                            quantity: cartItem.quantity + 1,
+                            rentalDate: cartItem.rental_date,
+                            returnDate: cartItem.return_date
+                          });
+                        }
                       }}
                       className="h-8 w-8 p-0"
                       disabled={!item.available}
@@ -354,11 +356,12 @@ export const EquipmentRentalsTab: React.FC<EquipmentRentalsTabProps> = ({ onboar
                     </Button>
                   </div>
                 ) : (
-                  <Button variant="secondary"
+                  <Button
+                    variant="secondary"
                     onClick={(e) => {
-                    e.stopPropagation();
-                    addToCart(item.id);
-                  }}
+                      e.stopPropagation();
+                      handleAddToCart(item.id);
+                    }}
                     disabled={!item.available}
                     className="flex-1"
                     size="sm"
@@ -371,10 +374,11 @@ export const EquipmentRentalsTab: React.FC<EquipmentRentalsTabProps> = ({ onboar
             </CardContent>
           </Card>
         ))}
-      </div>
+        </div>
+      )}
 
       {/* No Results */}
-      {getFilteredItems().length === 0 && (
+      {getFilteredItems().length === 0 && !isLoading && (
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-muted-foreground">No equipment found. Try adjusting your filters.</p>
@@ -386,34 +390,43 @@ export const EquipmentRentalsTab: React.FC<EquipmentRentalsTabProps> = ({ onboar
       <Dialog open={showCart} onOpenChange={setShowCart}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Cart</DialogTitle>
+            <DialogTitle>Equipment Cart</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
-            {Object.keys(cart).length === 0 ? (
+            {cartItems.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-muted-foreground">Your cart is empty.</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {Object.entries(cart).map(([idStr, qty]) => {
-                  const id = Number(idStr);
-                  const item = rentalItems.find(i => i.id === id);
+                {cartItems.map((cartItem) => {
+                  const item = getFilteredItems().find(i => i.id === cartItem.rental_id);
                   if (!item) return null;
 
-                  const priceNum = Number((item.price || '').replace(/[^0-9.]/g, '')) || 0;
                   return (
-                    <div key={id} className="flex items-center justify-between p-3 border rounded-md">
+                    <div key={cartItem.id} className="flex items-center justify-between p-3 border rounded-md">
                       <div className="flex items-center space-x-3">
                         <img src={item.image_url} alt={item.name} className="w-16 h-12 object-cover rounded" />
                         <div>
                           <div className="font-medium">{item.name}</div>
                           <div className="text-sm text-muted-foreground">{item.category}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(cartItem.rental_date).toLocaleDateString()} - {new Date(cartItem.return_date).toLocaleDateString()}
+                          </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-medium">${(priceNum * qty).toFixed(2)}</div>
-                        <div className="text-sm text-muted-foreground">{qty} x ${priceNum.toFixed(2)}</div>
+                        <div className="font-medium">${cartItem.total_price.toFixed(2)}</div>
+                        <div className="text-sm text-muted-foreground">Qty: {cartItem.quantity}</div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFromCart(cartItem.id.toString())}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          Remove
+                        </Button>
                       </div>
                     </div>
                   );
@@ -422,22 +435,21 @@ export const EquipmentRentalsTab: React.FC<EquipmentRentalsTabProps> = ({ onboar
                 <div className="flex items-center justify-between pt-4 border-t">
                   <div className="text-lg font-semibold">Total</div>
                   <div className="text-lg font-bold">
-                    ${Object.entries(cart).reduce((sum, [idStr, qty]) => {
-                      const id = Number(idStr);
-                      const item = rentalItems.find(i => i.id === id);
-                      const priceNum = item ? Number((item.price || '').replace(/[^0-9.]/g, '')) || 0 : 0;
-                      return sum + priceNum * qty;
-                    }, 0).toFixed(2)}
+                    ${getCartSummary().totalPrice.toFixed(2)}
                   </div>
                 </div>
 
                 <div className="flex justify-end space-x-2">
                   <Button variant="outline" onClick={() => setShowCart(false)}>Continue Shopping</Button>
                   <Button onClick={() => {
-                    setCart({});
+                    clearCart();
                     setShowCart(false);
-                    toast({ title: 'Checkout complete', description: 'This is mock data — no payment was processed.' });
-                  }}>Checkout</Button>
+                    toast({ title: 'Cart cleared', description: 'All items have been removed from your cart.' });
+                  }}>Clear Cart</Button>
+                  <Button onClick={() => {
+                    // TODO: Implement booking flow
+                    toast({ title: 'Booking', description: 'Booking functionality will be implemented next.' });
+                  }}>Proceed to Booking</Button>
                 </div>
               </div>
             )}
@@ -451,7 +463,7 @@ export const EquipmentRentalsTab: React.FC<EquipmentRentalsTabProps> = ({ onboar
         isOpen={showProductDialog}
         onClose={() => setShowProductDialog(false)}
         onAddToCart={(productId) => {
-          addToCart(productId);
+          handleAddToCart(productId);
           toast({
             title: "Added to Cart",
             description: `${selectedProduct?.name} has been added to your cart.`,

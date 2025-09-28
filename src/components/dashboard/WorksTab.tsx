@@ -5,8 +5,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Filter, MapPin, Clock, DollarSign, Settings, Edit, LocateIcon } from 'lucide-react';
+import { Search, Filter, MapPin, Clock, DollarSign, Settings, Edit, LocateIcon, Loader2 } from 'lucide-react';
 import { CreatorCard } from '../CreatorCard';
+import { usePhotographers } from '@/hooks/use-photographers';
 
 interface OnboardingData {
   eventDate: Date | undefined;
@@ -33,92 +34,13 @@ interface BaseCreator {
   experience_years: number;
   availability: string;
   type: 'photographer' | 'videographer' | 'event_team';
+  user_id?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
-// Mock data (kept small for the demo)
-const photographers: BaseCreator[] = [
-  {
-    id: 'p1',
-    name: 'Viswajit P S',
-  specialization: ['Nature & Landscape', 'Travel', 'Outdoor Weddings'],
-    rating: 4.9,
-    reviews: 93,
-    price: '$600-$1,200',
-    location: 'Seattle, WA',
-    image_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
-    bio: 'Passionate about capturing the beauty of nature and stunning landscapes.',
-    portfolio_count: 67,
-    experience_years: 7,
-    availability: 'Available',
-    type: 'photographer',
-  },
-  {
-    id: 'p2',
-    name: 'Sarah Johnson',
-  specialization: ['Wedding Photography', 'Candid', 'Editorial'],
-    rating: 4.9,
-    reviews: 127,
-    price: '$2,500-$5,000',
-    location: 'New York, NY',
-    image_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb',
-    bio: 'Award-winning wedding photographer with 8 years of experience capturing beautiful moments.',
-    portfolio_count: 45,
-    experience_years: 8,
-    availability: 'Booked',
-    type: 'photographer',
-  },
-];
-
-const videographers: BaseCreator[] = [
-  {
-    id: 'v1',
-    name: 'Alex Rodriguez',
-  specialization: ['Wedding Cinematography', 'Cinematic', 'Documentary'],
-    rating: 4.8,
-    reviews: 89,
-    price: '$3,000-$8,000',
-    location: 'Los Angeles, CA',
-    image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
-    bio: 'Cinematic wedding videographer creating emotional stories that last a lifetime.',
-    portfolio_count: 52,
-    experience_years: 6,
-    availability: 'Available',
-    type: 'videographer',
-  },
-  {
-    id: 'v2',
-    name: 'Emma Chen',
-  specialization: ['Corporate Events', 'Conferences'],
-    rating: 4.7,
-    reviews: 74,
-    price: '$1,500-$4,000',
-    location: 'San Francisco, CA',
-    image_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
-    bio: 'Professional corporate videographer specializing in conferences and company events.',
-    portfolio_count: 38,
-    experience_years: 5,
-    availability: 'Available',
-    type: 'videographer',
-  },
-];
-
-const eventTeams: BaseCreator[] = [
-  {
-    id: 'e1',
-    name: 'Premier Event Co.',
-  specialization: ['Full Service Events', 'Planning', 'Execution'],
-    rating: 4.9,
-    reviews: 203,
-    price: '$5,000-$25,000',
-    location: 'Miami, FL',
-    image_url: 'https://images.unsplash.com/photo-1511578314322-379afb476865',
-    bio: 'Complete event planning and execution for weddings, corporate events, and celebrations.',
-    portfolio_count: 95,
-    experience_years: 12,
-    availability: 'Available',
-    type: 'event_team',
-  },
-];
+// All creators now come from the database photographers table
+// We can filter by specialization to create different categories
 
 export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -127,6 +49,13 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
   const [dateFilter, setDateFilter] = useState('');
   const [availabilityFilter, setAvailabilityFilter] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+
+  // Use the photographers hook with filters
+  const { data: photographers, isLoading, error } = usePhotographers({
+    specialization: activeFilter !== 'all' ? activeFilter : undefined,
+    location: locationFilter || undefined,
+    minRating: 4.0,
+  });
 
   useEffect(() => {
     if (filter && filter !== activeFilter) setActiveFilter(filter);
@@ -153,41 +82,66 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
     }
   }, [onboardingData]);
 
-  const allCreators = [...photographers, ...videographers, ...eventTeams];
+  const getFilteredCreators = () => {
+    if (!photographers) return [];
 
-  const getFilteredCreators = (type: string) => {
-    let creators = allCreators;
-
-    if (type !== 'all') {
-      creators = creators.filter((c) => c.type === type);
-    }
+    let creators = photographers;
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       creators = creators.filter((c) => {
-        const spec = Array.isArray(c.specialization) ? c.specialization.join(', ') : c.specialization || '';
         return (
           c.name.toLowerCase().includes(q) ||
-          spec.toLowerCase().includes(q) ||
-          c.location.toLowerCase().includes(q)
+          c.specialization.toLowerCase().includes(q) ||
+          c.location.toLowerCase().includes(q) ||
+          (c.bio && c.bio.toLowerCase().includes(q))
         );
       });
-    }
-
-    if (availabilityFilter) {
-      creators = creators.filter((c) => c.availability === availabilityFilter);
-    }
-
-    if (priceFilter) {
-      creators = creators.filter((c) => c.price.toLowerCase().includes(priceFilter.toLowerCase()));
     }
 
     if (locationFilter) {
       creators = creators.filter((c) => c.location.toLowerCase().includes(locationFilter.toLowerCase()));
     }
 
-    return creators;
+    // Add availability and type properties for compatibility with CreatorCard
+    return creators.map(creator => ({
+      ...creator,
+      availability: 'Available', // Default availability
+      type: 'photographer' as const, // All from photographers table
+    }));
   };
+
+  // Categorize photographers based on specialization
+  const getPhotographersByCategory = () => {
+    if (!photographers) return { photographers: [], videographers: [], eventTeams: [] };
+
+    const photographersList = photographers.filter(p =>
+      p.specialization.toLowerCase().includes('photography') ||
+      p.specialization.toLowerCase().includes('portrait') ||
+      p.specialization.toLowerCase().includes('wedding')
+    );
+
+    const videographersList = photographers.filter(p =>
+      p.specialization.toLowerCase().includes('video') ||
+      p.specialization.toLowerCase().includes('cinematography') ||
+      p.specialization.toLowerCase().includes('film')
+    );
+
+    const eventTeamsList = photographers.filter(p =>
+      p.specialization.toLowerCase().includes('event') ||
+      p.specialization.toLowerCase().includes('planning') ||
+      p.specialization.toLowerCase().includes('coordination')
+    );
+
+    return {
+      photographers: photographersList,
+      videographers: videographersList,
+      eventTeams: eventTeamsList
+    };
+  };
+
+  const { photographers: photoCreators, videographers, eventTeams } = getPhotographersByCategory();
+  const allCreators = [...photoCreators, ...videographers, ...eventTeams];
 
   const renderFilters = () => (
     <div className="flex flex-wrap gap-4 p-4 bg-card rounded-lg border border-border">
@@ -277,25 +231,73 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
       <Tabs value={activeFilter} onValueChange={setActiveFilter}>
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="all">All ({allCreators.length})</TabsTrigger>
-          <TabsTrigger value="photographer">Photographers ({photographers.length})</TabsTrigger>
+          <TabsTrigger value="photographer">Photographers ({photoCreators.length})</TabsTrigger>
           <TabsTrigger value="videographer">Videographers ({videographers.length})</TabsTrigger>
           <TabsTrigger value="event_team">Event Teams ({eventTeams.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="mt-6">
-          {renderCreatorGrid(getFilteredCreators('all'))}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin" />
+              <span className="ml-2">Loading photographers...</span>
+            </div>
+          ) : (
+            renderCreatorGrid(getFilteredCreators())
+          )}
         </TabsContent>
 
         <TabsContent value="photographer" className="mt-6">
-          {renderCreatorGrid(getFilteredCreators('photographer'))}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin" />
+              <span className="ml-2">Loading photographers...</span>
+            </div>
+          ) : (
+            renderCreatorGrid(getFilteredCreators().filter(c => c.type === 'photographer'))
+          )}
         </TabsContent>
 
         <TabsContent value="videographer" className="mt-6">
-          {renderCreatorGrid(getFilteredCreators('videographer'))}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin" />
+              <span className="ml-2">Loading videographers...</span>
+            </div>
+          ) : videographers.length > 0 ? (
+            renderCreatorGrid(videographers.map(creator => ({
+              ...creator,
+              availability: 'Available',
+              type: 'videographer' as const,
+            })))
+          ) : (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">No videographers found matching your criteria.</p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="event_team" className="mt-6">
-          {renderCreatorGrid(getFilteredCreators('event_team'))}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin" />
+              <span className="ml-2">Loading event teams...</span>
+            </div>
+          ) : eventTeams.length > 0 ? (
+            renderCreatorGrid(eventTeams.map(creator => ({
+              ...creator,
+              availability: 'Available',
+              type: 'event_team' as const,
+            })))
+          ) : (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">No event teams found matching your criteria.</p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
 
@@ -374,7 +376,7 @@ export const WorksTab: React.FC<WorksTabProps> = ({ onboardingData, filter }) =>
       </Card>
 
       {/* No Results */}
-      {getFilteredCreators(activeFilter).length === 0 && (
+      {getFilteredCreators().length === 0 && !isLoading && (
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-muted-foreground">No results found. Try adjusting your filters.</p>

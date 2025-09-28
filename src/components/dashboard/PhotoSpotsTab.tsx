@@ -1,265 +1,314 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { EventSpaceCard } from '@/components/EventSpaceCard';
-import { Search, Filter, MapPin, Star, DollarSign } from 'lucide-react';
-import { EventSpaceDetailsDialog } from '@/components/EventSpaceDetailsDialog';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Search, Filter, MapPin, Star, Clock, Users, Camera, Calendar, Loader2, Heart } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { useToast } from '@/hooks/use-toast'
+import { usePhotoSpots, useBookPhotoSpot } from '@/hooks/use-photo-spots'
+import { useAuth } from '@/hooks/use-auth'
 
 interface OnboardingData {
-  eventDate: Date | undefined;
-  location: string;
-  serviceTypes: string[];
+  eventDate: Date | undefined
+  location: string
+  serviceTypes: string[]
 }
 
 interface PhotoSpotsTabProps {
-  onboardingData: OnboardingData | null;
+  onboardingData: OnboardingData | null
 }
 
-// Mock Find Your Photo Spot data
-const eventSpaces = [
-  {
-    id: 101,
-    name: "Grand Ballroom",
-    category: "Ballroom",
-    price: "$2,000/day",
-    rating: 4.9,
-    location: "New York, NY",
-    description: "Elegant ballroom for weddings and large events.",
-    image_url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-    available: true,
-    reviews: 120,
-    specs: ["Up to 500 guests", "Catering Available", "AV Equipment"]
-  },
-  {
-    id: 102,
-    name: "Rooftop Venue",
-    category: "Rooftop",
-    price: "$1,500/day",
-    rating: 4.8,
-    location: "Los Angeles, CA",
-    description: "Modern rooftop space with city views.",
-    image_url: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-    available: true,
-    reviews: 85,
-    specs: ["Up to 200 guests", "Bar Service", "Outdoor Seating"]
-  },
-  {
-    id: 103,
-    name: "Garden Pavilion",
-    category: "Garden",
-    price: "$1,200/day",
-    rating: 4.7,
-    location: "Miami, FL",
-    description: "Beautiful garden pavilion for outdoor events.",
-    image_url: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308",
-    available: false,
-    reviews: 60,
-    specs: ["Up to 150 guests", "Floral Decor", "Covered Area"]
-  },
-  {
-    id: 104,
-    name: "Urban Studio Loft",
-    category: "Studio",
-    price: "$800/day",
-    rating: 4.6,
-    location: "Brooklyn, NY",
-    description: "Industrial loft space perfect for fashion and portrait photography.",
-    image_url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64",
-    available: true,
-    reviews: 42,
-    specs: ["High Ceilings", "Natural Light", "Brick Walls"]
-  },
-  {
-    id: 105,
-    name: "Beachfront Pavilion",
-    category: "Beach",
-    price: "$1,800/day",
-    rating: 4.9,
-    location: "Malibu, CA",
-    description: "Stunning beachfront location with ocean views.",
-    image_url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-    available: true,
-    reviews: 98,
-    specs: ["Ocean Views", "Sunset Timing", "Beach Access"]
-  },
-  {
-    id: 106,
-    name: "Historic Library",
-    category: "Indoor",
-    price: "$600/day",
-    rating: 4.5,
-    location: "Boston, MA",
-    description: "Classic library setting with vintage architecture.",
-    image_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
-    available: true,
-    reviews: 34,
-    specs: ["Classic Architecture", "Reading Rooms", "Natural Light"]
-  }
-];
+const spotTypes = [
+  'Urban',
+  'Nature',
+  'Beach',
+  'Mountain',
+  'Desert',
+  'Forest',
+  'Cityscape',
+  'Industrial',
+  'Historical',
+  'Modern'
+]
 
-const categories = ['Ballroom', 'Rooftop', 'Garden', 'Studio', 'Beach', 'Indoor', 'Outdoor'];
+const difficultyLevels = [
+  'Easy',
+  'Moderate',
+  'Challenging',
+  'Expert'
+]
 
 export const PhotoSpotsTab: React.FC<PhotoSpotsTabProps> = ({ onboardingData }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-  const [priceFilter, setPriceFilter] = useState('');
-  const [locationFilter, setLocationFilter] = useState('');
-  const [availabilityFilter, setAvailabilityFilter] = useState('available');
-  const [selectedEventSpace, setSelectedEventSpace] = useState<any>(null);
-  const [showEventSpaceDialog, setShowEventSpaceDialog] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    category: '',
-    price: '',
-    description: '',
-    location: '',
-    image_url: '',
-    specs: '',
-    available: true
-  });
-  const [items, setItems] = useState(eventSpaces);
-  const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState('')
+  const [locationFilter, setLocationFilter] = useState('')
+  const [spotTypeFilter, setSpotTypeFilter] = useState('')
+  const [difficultyFilter, setDifficultyFilter] = useState('')
+  const [priceFilter, setPriceFilter] = useState('')
+  const [selectedSpot, setSelectedSpot] = useState<any>(null)
+  const [showBookingDialog, setShowBookingDialog] = useState(false)
+  const [bookingDate, setBookingDate] = useState('')
+  const [duration, setDuration] = useState(2)
+  const [specialRequests, setSpecialRequests] = useState('')
 
-  const getFilteredItems = () => {
-    let filtered = items;
-    if (categoryFilter && categoryFilter !== 'all-categories') {
-      filtered = filtered.filter(item => item.category === categoryFilter);
-    }
+  const { user } = useAuth()
+  const { toast } = useToast()
+
+  // Use the photo spots hook with filters
+  const { data: photoSpots, isLoading, error } = usePhotoSpots({
+    location: locationFilter || undefined,
+    spotType: spotTypeFilter || undefined,
+    difficultyLevel: difficultyFilter || undefined,
+    available: true,
+  })
+
+  const bookPhotoSpot = useBookPhotoSpot()
+
+  const getFilteredSpots = () => {
+    if (!photoSpots) return []
+
+    let spots = photoSpots
+
     if (searchQuery) {
-      filtered = filtered.filter(item =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      spots = spots.filter(spot =>
+        spot.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        spot.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        spot.location.toLowerCase().includes(searchQuery.toLowerCase())
+      )
     }
-    if (availabilityFilter === 'available') {
-      filtered = filtered.filter(item => item.available);
+
+    if (priceFilter) {
+      spots = spots.filter(spot => {
+        const price = parseFloat(spot.price.replace(/[^0-9.]/g, '')) || 0
+        switch (priceFilter) {
+          case 'under-50': return price < 50
+          case '50-100': return price >= 50 && price < 100
+          case '100-200': return price >= 100 && price < 200
+          case 'over-200': return price >= 200
+          default: return true
+        }
+      })
     }
-    return filtered;
-  };
 
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      category: '',
-      price: '',
-      description: '',
-      location: '',
-      image_url: '',
-      specs: '',
-      available: true
-    });
-  };
+    return spots
+  }
 
-  const handleAddPhotoSpot = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newSpot = {
-      id: Date.now(),
-      name: formData.name,
-      category: formData.category,
-      price: formData.price,
-      description: formData.description,
-      location: formData.location,
-      image_url: formData.image_url || 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
-      available: formData.available,
-      rating: 0,
-      reviews: 0,
-      specs: formData.specs.split(',').map(s => s.trim()).filter(s => s.length > 0)
-    };
-    setItems(prev => [...prev, newSpot]);
-    toast({
-      title: 'Photo Spot Added',
-      description: `${newSpot.name} has been added.`
-    });
-    setShowAddModal(false);
-    resetForm();
-  };
+  const handleBooking = async () => {
+    if (!user?.id) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please log in to book a photo spot',
+        variant: 'destructive'
+      })
+      return
+    }
 
-  return (
-    <div className="p-6 space-y-6 relative">
-      {/* Floating Add Photo Spot Button (FAB) */}
-      <button
-        className="fixed bottom-8 right-8 z-50 bg-primary text-primary-foreground rounded-full shadow-lg p-0 w-16 h-16 flex items-center justify-center hover:bg-primary/90 transition-colors"
-        style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }}
-        onClick={() => { resetForm(); setShowAddModal(true); }}
-        aria-label="Add Photo Spot"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-      </button>
+    if (!bookingDate) {
+      toast({
+        title: 'Date Required',
+        description: 'Please select a booking date',
+        variant: 'destructive'
+      })
+      return
+    }
 
-      {/* Add Photo Spot Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
-            <h2 className="text-xl font-semibold mb-4">Add New Photo Spot</h2>
-            <form onSubmit={handleAddPhotoSpot} className="space-y-4">
-              <input
-                className="w-full border p-2 rounded"
-                placeholder="Spot Name"
-                value={formData.name}
-                onChange={e => setFormData(f => ({ ...f, name: e.target.value }))}
-                required
-              />
-              <select
-                className="w-full border p-2 rounded"
-                value={formData.category}
-                onChange={e => setFormData(f => ({ ...f, category: e.target.value }))}
-                required
-              >
-                <option value="">Select Category</option>
-                {categories.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-              <input
-                className="w-full border p-2 rounded"
-                placeholder="Price per Day"
-                value={formData.price}
-                onChange={e => setFormData(f => ({ ...f, price: e.target.value }))}
-                required
-              />
-              <input
-                className="w-full border p-2 rounded"
-                placeholder="Location"
-                value={formData.location}
-                onChange={e => setFormData(f => ({ ...f, location: e.target.value }))}
-                required
-              />
-              <input
-                className="w-full border p-2 rounded"
-                placeholder="Image URL"
-                value={formData.image_url}
-                onChange={e => setFormData(f => ({ ...f, image_url: e.target.value }))}
-              />
-              <textarea
-                className="w-full border p-2 rounded"
-                placeholder="Description"
-                value={formData.description}
-                onChange={e => setFormData(f => ({ ...f, description: e.target.value }))}
-                required
-              />
-              <input
-                className="w-full border p-2 rounded"
-                placeholder="Specs (comma separated)"
-                value={formData.specs}
-                onChange={e => setFormData(f => ({ ...f, specs: e.target.value }))}
-              />
-              <div className="flex justify-end gap-2 mt-4">
-                <Button type="button" variant="outline" onClick={() => setShowAddModal(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  Add Photo Spot
-                </Button>
-              </div>
-            </form>
+    try {
+      await bookPhotoSpot.mutateAsync({
+        spotId: selectedSpot.id,
+        customerId: user.id,
+        bookingDate,
+        duration,
+        specialRequests
+      })
+
+      toast({
+        title: 'Booking Successful',
+        description: `Your photo spot has been booked for ${new Date(bookingDate).toLocaleDateString()}`
+      })
+
+      setShowBookingDialog(false)
+      setSelectedSpot(null)
+      setBookingDate('')
+      setDuration(2)
+      setSpecialRequests('')
+    } catch (error) {
+      toast({
+        title: 'Booking Failed',
+        description: error instanceof Error ? error.message : 'Failed to book photo spot',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const renderSpotCard = (spot: any) => (
+    <Card key={spot.id} className="group hover:shadow-lg transition-all duration-300">
+      <div className="relative">
+        <img
+          src={spot.image_url || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4'}
+          alt={spot.name}
+          className="w-full h-48 object-cover rounded-t-lg"
+        />
+        <div className="absolute top-3 right-3">
+          <Button
+            variant="secondary"
+            size="sm"
+            className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={(e) => {
+              e.stopPropagation()
+              // Add to favorites logic
+            }}
+          >
+            <Heart className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="absolute top-3 left-3">
+          <Badge variant="secondary" className="bg-white/90 text-black">
+            {spot.spot_type || 'General'}
+          </Badge>
+        </div>
+      </div>
+
+      <CardContent className="p-4">
+        <div className="flex justify-between items-start mb-2">
+          <div>
+            <h3 className="font-semibold text-lg">{spot.name}</h3>
+            <div className="flex items-center text-sm text-muted-foreground mb-1">
+              <MapPin className="h-3 w-3 mr-1" />
+              {spot.location}
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="font-bold text-primary">{spot.price}</p>
+            <div className="flex items-center text-sm text-muted-foreground">
+              <Star className="h-3 w-3 fill-current text-yellow-400 mr-1" />
+              {spot.rating || 0}
+            </div>
           </div>
         </div>
-      )}
+
+        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+          {spot.description}
+        </p>
+
+        <div className="flex flex-wrap gap-2 mb-3">
+          <Badge variant="outline" className="text-xs">
+            <Users className="h-3 w-3 mr-1" />
+            Max {spot.max_people || 'Unlimited'}
+          </Badge>
+          <Badge variant="outline" className="text-xs">
+            <Clock className="h-3 w-3 mr-1" />
+            {spot.best_time || 'Any time'}
+          </Badge>
+          <Badge variant="outline" className="text-xs">
+            {spot.difficulty_level || 'Easy'}
+          </Badge>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex flex-wrap gap-1">
+            {spot.amenities?.slice(0, 2).map((amenity: string, index: number) => (
+              <Badge key={index} variant="secondary" className="text-xs">
+                {amenity}
+              </Badge>
+            ))}
+            {spot.amenities && spot.amenities.length > 2 && (
+              <Badge variant="secondary" className="text-xs">
+                +{spot.amenities.length - 2} more
+              </Badge>
+            )}
+          </div>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                size="sm"
+                onClick={() => setSelectedSpot(spot)}
+              >
+                View Details
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>{spot.name}</DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                <img
+                  src={spot.image_url || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4'}
+                  alt={spot.name}
+                  className="w-full h-64 object-cover rounded-lg"
+                />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">Details</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center">
+                        <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                        {spot.location}
+                      </div>
+                      <div className="flex items-center">
+                        <Camera className="h-4 w-4 mr-2 text-muted-foreground" />
+                        {spot.spot_type || 'General'}
+                      </div>
+                      <div className="flex items-center">
+                        <Users className="h-4 w-4 mr-2 text-muted-foreground" />
+                        Max {spot.max_people || 'Unlimited'} people
+                      </div>
+                      <div className="flex items-center">
+                        <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                        Best time: {spot.best_time || 'Any time'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold mb-2">Amenities</h4>
+                    <div className="flex flex-wrap gap-1">
+                      {spot.amenities?.map((amenity: string, index: number) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {amenity}
+                        </Badge>
+                      )) || <p className="text-sm text-muted-foreground">No amenities listed</p>}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2">Description</h4>
+                  <p className="text-sm text-muted-foreground">{spot.description}</p>
+                </div>
+
+                <div className="flex justify-between items-center pt-4 border-t">
+                  <div className="text-lg font-bold">{spot.price}/hour</div>
+                  <Button
+                    onClick={() => {
+                      setShowBookingDialog(true)
+                    }}
+                    disabled={!spot.available}
+                  >
+                    {spot.available ? 'Book Now' : 'Not Available'}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </CardContent>
+    </Card>
+  )
+
+  return (
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="text-center space-y-2">
+        <h2 className="text-3xl font-bold">Photo Spots</h2>
+        <p className="text-muted-foreground">
+          Discover and book amazing locations for your photography sessions
+        </p>
+      </div>
+
       {/* Filters */}
       <div className="flex flex-wrap gap-4 p-4 bg-card rounded-lg border border-border">
         <div className="flex-1 min-w-64">
@@ -274,31 +323,6 @@ export const PhotoSpotsTab: React.FC<PhotoSpotsTabProps> = ({ onboardingData }) 
           </div>
         </div>
 
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all-categories">All Categories</SelectItem>
-            {categories.map(category => (
-              <SelectItem key={category} value={category}>{category}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={priceFilter} onValueChange={setPriceFilter}>
-          <SelectTrigger className="w-48">
-            <DollarSign className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Price Range" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="under-500">Under $500/day</SelectItem>
-            <SelectItem value="500-1000">$500 - $1,000/day</SelectItem>
-            <SelectItem value="1000-2000">$1,000 - $2,000/day</SelectItem>
-            <SelectItem value="over-2000">Over $2,000/day</SelectItem>
-          </SelectContent>
-        </Select>
-
         <Select value={locationFilter} onValueChange={setLocationFilter}>
           <SelectTrigger className="w-48">
             <MapPin className="h-4 w-4 mr-2" />
@@ -307,80 +331,160 @@ export const PhotoSpotsTab: React.FC<PhotoSpotsTabProps> = ({ onboardingData }) 
           <SelectContent>
             <SelectItem value="new-york">New York, NY</SelectItem>
             <SelectItem value="los-angeles">Los Angeles, CA</SelectItem>
+            <SelectItem value="san-francisco">San Francisco, CA</SelectItem>
             <SelectItem value="miami">Miami, FL</SelectItem>
-            <SelectItem value="boston">Boston, MA</SelectItem>
-            <SelectItem value="malibu">Malibu, CA</SelectItem>
+            <SelectItem value="seattle">Seattle, WA</SelectItem>
+            <SelectItem value="chicago">Chicago, IL</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={spotTypeFilter} onValueChange={setSpotTypeFilter}>
+          <SelectTrigger className="w-48">
+            <Camera className="h-4 w-4 mr-2" />
+            <SelectValue placeholder="Spot Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All Types</SelectItem>
+            {spotTypes.map(type => (
+              <SelectItem key={type} value={type}>{type}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Difficulty" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All Levels</SelectItem>
+            {difficultyLevels.map(level => (
+              <SelectItem key={level} value={level}>{level}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={priceFilter} onValueChange={setPriceFilter}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Price Range" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Any Price</SelectItem>
+            <SelectItem value="under-50">Under $50/hr</SelectItem>
+            <SelectItem value="50-100">$50 - $100/hr</SelectItem>
+            <SelectItem value="100-200">$100 - $200/hr</SelectItem>
+            <SelectItem value="over-200">Over $200/hr</SelectItem>
           </SelectContent>
         </Select>
 
         <Button variant="outline" onClick={() => {
-          setSearchQuery('');
-          setCategoryFilter('all-categories');
-          setPriceFilter('');
-          setLocationFilter('');
+          setSearchQuery('')
+          setLocationFilter('')
+          setSpotTypeFilter('')
+          setDifficultyFilter('')
+          setPriceFilter('')
         }}>
           <Filter className="h-4 w-4 mr-2" />
           Clear Filters
         </Button>
       </div>
 
-      {/* Category Tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        <Button
-          variant={categoryFilter === 'all-categories' || categoryFilter === '' ? 'default' : 'outline'}
-          onClick={() => setCategoryFilter('all-categories')}
-          size="sm"
-        >
-          All
-        </Button>
-        {categories.map(category => (
-          <Button
-            key={category}
-            variant={categoryFilter === category ? 'default' : 'outline'}
-            onClick={() => setCategoryFilter(category)}
-            size="sm"
-          >
-            {category}
-          </Button>
-        ))}
-      </div>
-
       {/* Photo Spots Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {getFilteredItems().map((space) => (
-          <EventSpaceCard 
-            key={space.id} 
-            space={space} 
-            onViewDetails={(space) => {
-              setSelectedEventSpace(space);
-              setShowEventSpaceDialog(true);
-            }}
-          />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="ml-2">Loading photo spots...</span>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {getFilteredSpots().map(renderSpotCard)}
+        </div>
+      )}
 
       {/* No Results */}
-      {getFilteredItems().length === 0 && (
+      {getFilteredSpots().length === 0 && !isLoading && (
         <Card>
           <CardContent className="py-12 text-center">
+            <Camera className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">No photo spots found. Try adjusting your filters.</p>
           </CardContent>
         </Card>
       )}
 
-      {/* Event Space Details Dialog */}
-      <EventSpaceDetailsDialog
-        eventSpace={selectedEventSpace}
-        isOpen={showEventSpaceDialog}
-        onClose={() => setShowEventSpaceDialog(false)}
-        onBookNow={(spaceId) => {
-          toast({
-            title: "Booking Request Sent",
-            description: `Your booking request for ${selectedEventSpace?.name} has been sent.`,
-          });
-          setShowEventSpaceDialog(false);
-        }}
-      />
+      {/* Booking Dialog */}
+      <Dialog open={showBookingDialog} onOpenChange={setShowBookingDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Book Photo Spot</DialogTitle>
+          </DialogHeader>
+
+          {selectedSpot && (
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-semibold">{selectedSpot.name}</h4>
+                <p className="text-sm text-muted-foreground">{selectedSpot.location}</p>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium">Booking Date</label>
+                  <Input
+                    type="date"
+                    value={bookingDate}
+                    onChange={(e) => setBookingDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Duration (hours)</label>
+                  <Select value={duration.toString()} onValueChange={(value) => setDuration(parseInt(value))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 hour</SelectItem>
+                      <SelectItem value="2">2 hours</SelectItem>
+                      <SelectItem value="4">4 hours</SelectItem>
+                      <SelectItem value="8">Full day (8 hours)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Special Requests (Optional)</label>
+                  <textarea
+                    className="w-full p-2 border rounded-md text-sm"
+                    rows={3}
+                    value={specialRequests}
+                    onChange={(e) => setSpecialRequests(e.target.value)}
+                    placeholder="Any special requirements or requests..."
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center pt-4 border-t">
+                <div className="text-lg font-semibold">
+                  Total: ${calculateTotal(duration)}
+                </div>
+                <div className="space-x-2">
+                  <Button variant="outline" onClick={() => setShowBookingDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleBooking} disabled={bookPhotoSpot.isPending}>
+                    {bookPhotoSpot.isPending ? 'Booking...' : 'Confirm Booking'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
-  );
-};
+  )
+}
+
+// Helper function to calculate total price
+const calculateTotal = (hours: number): number => {
+  const hourlyRate = 75 // Default rate
+  return hourlyRate * hours
+}

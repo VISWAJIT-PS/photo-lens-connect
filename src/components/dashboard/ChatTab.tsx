@@ -10,6 +10,8 @@ import {
   DropdownMenuSeparator,
 } from '../ui/dropdown-menu';
 import { useToast } from '../ui/use-toast';
+import { useChats, useMessages, useSendMessage } from '@/hooks/use-chat';
+import { useAuth } from '@/hooks/use-auth';
 
 // Types
 interface Message {
@@ -418,10 +420,10 @@ const initialChatData: ChatAppData = {
 };
 
 const ChatApp: React.FC = () => {
-  const [chatData, setChatData] = useState<ChatAppData>(initialChatData);
+  const { user } = useAuth();
   const params = useParams();
   const location = useLocation();
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(params?.conversationId ?? "conv-1");
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(params?.conversationId ?? null);
   const [searchQuery, setSearchQuery] = useState("");
   const [messageInput, setMessageInput] = useState("");
   const [isMobileView, setIsMobileView] = useState(false);
@@ -429,8 +431,13 @@ const ChatApp: React.FC = () => {
   const { toast } = useToast();
   const [mutedConversations, setMutedConversations] = useState<Record<string, boolean>>({});
   const [blockedConversations, setBlockedConversations] = useState<Record<string, boolean>>({});
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Use real hooks
+  const { data: chats } = useChats(user?.id || '');
+  const { messages } = useMessages(selectedConversationId || '');
+  const sendMessageMutation = useSendMessage();
 
   // Check for mobile view
   useEffect(() => {
@@ -446,7 +453,7 @@ const ChatApp: React.FC = () => {
   // Auto scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [selectedConversationId, chatData]);
+  }, [selectedConversationId, messages]);
 
   // Load persisted mock messages for a selected conversation (written by ProfilePage)
   useEffect(() => {
@@ -460,7 +467,35 @@ const ChatApp: React.FC = () => {
       // Transform persisted messages into Message shape
       const savedMessages: Message[] = Array.isArray(arr) ? arr.map((m, i) => ({
         id: `mock-${Date.now()}-${i}`,
-        senderId: m.author === 'user' ? chatData.currentUserId : `vendor-${vendorId}`,
+        senderId: m.author === 'user' ? user?.id || 'user-1' : `vendor-${vendorId}`,
+        content: m.content,
+        timestamp: new Date(m.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        type: 'text',
+        status: 'sent'
+      })) : [];
+
+      // Skip this functionality for now since we're using real chat data
+      return;
+    } catch (e) {
+      // noop
+    }
+  }, [selectedConversationId, location.search, user?.id]);
+
+  // Initialize chat data state
+  const [chatData, setChatData] = useState(initialChatData);
+
+  useEffect(() => {
+    if (!selectedConversationId) return;
+    try {
+      const vendorId = selectedConversationId.replace(/^conv-/, '');
+      const key = `mock_chat_${vendorId}`;
+      const raw = localStorage.getItem(key);
+      const arr = raw ? JSON.parse(raw) as any[] : [];
+
+      // Transform persisted messages into Message shape
+      const savedMessages: Message[] = Array.isArray(arr) ? arr.map((m, i) => ({
+        id: `mock-${Date.now()}-${i}`,
+        senderId: m.author === 'user' ? user?.id || 'user-1' : `vendor-${vendorId}`,
         content: m.content,
         timestamp: new Date(m.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         type: 'text',
@@ -523,63 +558,39 @@ const ChatApp: React.FC = () => {
 
   // Get filtered conversations based on search
   const getFilteredConversations = () => {
-    return chatData.conversations.filter(conv =>
+    return (chats || []).filter(conv =>
       // exclude blocked conversations
       !blockedConversations[conv.id] && (
-        conv.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        conv.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        conv.bookingId.toLowerCase().includes(searchQuery.toLowerCase())
+        conv.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        conv.description?.toLowerCase().includes(searchQuery.toLowerCase())
       )
     );
   };
 
   // Get selected conversation
-  const selectedConversation = selectedConversationId 
-    ? chatData.conversations.find(conv => conv.id === selectedConversationId)
+  const selectedConversation = selectedConversationId
+    ? chats?.find(conv => conv.id === selectedConversationId)
     : null;
 
   // Send message function
-  const sendMessage = () => {
-    if (!messageInput.trim() || !selectedConversationId) return;
+  const handleSendMessage = () => {
+    if (!messageInput.trim() || !selectedConversationId || !user?.id) return;
 
-    const newMessage: Message = {
-      id: `msg-${Date.now()}`,
-      senderId: chatData.currentUserId,
+    sendMessageMutation.mutate({
+      chat_id: selectedConversationId,
+      sender_id: user.id,
       content: messageInput.trim(),
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      type: 'text',
-      status: 'sent'
-    };
-
-    setChatData(prev => ({
-      ...prev,
-      conversations: prev.conversations.map(conv => {
-        if (conv.id === selectedConversationId) {
-          return {
-            ...conv,
-            messages: [...conv.messages, newMessage],
-            lastMessage: newMessage.content,
-            timestamp: 'now'
-          };
-        }
-        return conv;
-      })
-    }));
+      message_type: 'text'
+    });
 
     setMessageInput("");
   };
 
   // Mark conversation as read
   const markAsRead = (conversationId: string) => {
-    setChatData(prev => ({
-      ...prev,
-      conversations: prev.conversations.map(conv => {
-        if (conv.id === conversationId) {
-          return { ...conv, unreadCount: 0 };
-        }
-        return conv;
-      })
-    }));
+    // This would be handled by the real-time subscription
+    // For now, we'll just update the UI state
+    // In a real implementation, you'd call an API to mark messages as read
   };
 
   // Handle conversation selection
@@ -860,8 +871,8 @@ const ChatApp: React.FC = () => {
       {/* Scrollable Messages */}
       <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
         <div className="space-y-4">
-          {selectedConversation!.messages.map((message) => {
-            const isOwn = message.senderId === chatData.currentUserId;
+          {messages.map((message) => {
+            const isOwn = message.sender_id === user?.id;
             return (
               <div
                 key={message.id}
@@ -879,17 +890,8 @@ const ChatApp: React.FC = () => {
                     <p className={`text-xs ${
                       isOwn ? "text-blue-100" : "text-gray-500"
                     }`}>
-                      {message.timestamp}
+                      {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
-                    {isOwn && (
-                      <span className={`text-xs ml-2 ${
-                        message.status === 'read' ? 'text-blue-200' : 
-                        message.status === 'delivered' ? 'text-blue-300' : 'text-blue-400'
-                      }`}>
-                        {message.status === 'read' ? '✓✓' : 
-                         message.status === 'delivered' ? '✓✓' : '✓'}
-                      </span>
-                    )}
                   </div>
                 </div>
               </div>
@@ -911,12 +913,12 @@ const ChatApp: React.FC = () => {
             placeholder="Type your message..."
             value={messageInput}
             onChange={(e) => setMessageInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
             className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
           />
           <Button variant="ghost"
-            onClick={sendMessage}
-            disabled={!messageInput.trim()}
+            onClick={handleSendMessage}
+            disabled={!messageInput.trim() || sendMessageMutation.isPending}
             className="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Send className="h-4 w-4" />
