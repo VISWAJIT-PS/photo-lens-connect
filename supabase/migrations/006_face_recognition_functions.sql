@@ -4,6 +4,71 @@
 -- This migration adds functions for face recognition and photo matching
 
 -- =====================================================
+-- CREATE REQUIRED TABLES
+-- =====================================================
+
+-- Table to store face recognition results
+CREATE TABLE IF NOT EXISTS public.face_recognition_results (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    photo_id UUID NOT NULL REFERENCES public.event_photos(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES public.event_users(id) ON DELETE CASCADE,
+    confidence_score DECIMAL(5,2) NOT NULL DEFAULT 0.0,
+    bounding_box JSONB,
+    algorithm_version TEXT DEFAULT '1.0',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Add indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_face_recognition_photo_id ON public.face_recognition_results(photo_id);
+CREATE INDEX IF NOT EXISTS idx_face_recognition_user_id ON public.face_recognition_results(user_id);
+CREATE INDEX IF NOT EXISTS idx_face_recognition_confidence ON public.face_recognition_results(confidence_score);
+
+-- Enable RLS
+ALTER TABLE public.face_recognition_results ENABLE ROW LEVEL SECURITY;
+
+-- Create policies for face_recognition_results
+CREATE POLICY "Users can view their own face recognition results"
+    ON public.face_recognition_results FOR SELECT
+    USING (
+        auth.uid()::text = user_id OR
+        EXISTS (
+            SELECT 1 FROM public.event_users eu
+            WHERE eu.id = user_id AND eu.event_id IN (
+                SELECT ep.event_id FROM public.event_photos ep WHERE ep.id = photo_id
+            )
+        )
+    );
+
+-- Table to store photo matching queue
+CREATE TABLE IF NOT EXISTS public.photo_matching_queue (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    photo_id UUID NOT NULL REFERENCES public.event_photos(id) ON DELETE CASCADE,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
+    priority INTEGER DEFAULT 5,
+    attempts INTEGER DEFAULT 0,
+    max_attempts INTEGER DEFAULT 3,
+    error_message TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    started_at TIMESTAMPTZ,
+    completed_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Add indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_photo_matching_queue_status ON public.photo_matching_queue(status);
+CREATE INDEX IF NOT EXISTS idx_photo_matching_queue_priority ON public.photo_matching_queue(priority DESC);
+CREATE INDEX IF NOT EXISTS idx_photo_matching_queue_created_at ON public.photo_matching_queue(created_at);
+
+-- Enable RLS
+ALTER TABLE public.photo_matching_queue ENABLE ROW LEVEL SECURITY;
+
+-- Create policies for photo_matching_queue
+CREATE POLICY "Service role can manage photo matching queue"
+    ON public.photo_matching_queue FOR ALL
+    USING (true);
+
+-- =====================================================
 -- FACE RECOGNITION FUNCTIONS
 -- =====================================================
 
@@ -122,16 +187,16 @@ BEGIN
             SET matches_found = matches_found + 1
             WHERE id = match_result.user_id;
 
-            -- Create notification for user
-            PERFORM public.create_notification(
-                match_result.user_id,
-                'photo_match',
-                'New Photo Match Found!',
-                'A photo has been matched with your profile. Check it out!',
-                jsonb_build_object('photo_id', queue_item.photo_id),
-                '/gallery',
-                'normal'
-            );
+            -- Create notification for user (disabled - notification system not implemented yet)
+            -- PERFORM public.create_notification(
+            --     match_result.user_id,
+            --     'photo_match',
+            --     'New Photo Match Found!',
+            --     'A photo has been matched with your profile. Check it out!',
+            --     jsonb_build_object('photo_id', queue_item.photo_id),
+            --     '/gallery',
+            --     'normal'
+            -- );
         END LOOP;
 
         -- Update queue item to completed

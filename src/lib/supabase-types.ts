@@ -89,6 +89,19 @@ export interface PopularTag {
   updated_at: string;
 }
 
+export interface WebsiteStats {
+  id: string;
+  photographers_count: number;
+  events_count: number;
+  average_rating: number;
+  response_time_hours: number;
+  active_photographers: number;
+  completed_events: number;
+  total_reviews: number;
+  updated_at: string;
+  created_at: string;
+}
+
 // Database schema type for Supabase client
 export interface Database {
   public: {
@@ -128,12 +141,20 @@ export interface Database {
         Insert: Omit<PopularTag, 'id' | 'created_at' | 'updated_at'>;
         Update: Partial<Omit<PopularTag, 'id' | 'created_at' | 'updated_at'>>;
       };
+      website_stats: {
+        Row: WebsiteStats;
+        Insert: Omit<WebsiteStats, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Omit<WebsiteStats, 'id' | 'created_at' | 'updated_at'>>;
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      update_website_stats: {
+        Args: Record<string, never>;
+        Returns: void;
+      };
     };
     Enums: {
       [_ in never]: never;

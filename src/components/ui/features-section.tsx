@@ -1,6 +1,7 @@
 import { Camera, MapPin, Package, Star, Users, Zap } from "lucide-react";
 import { Button } from "./button";
 import { AuthModal } from "./auth-modal";
+import { useWebsiteStats } from "@/hooks/use-website-stats";
 import rentalImage from "@/assets/rental-equipment.jpg";
 import locationImage from "@/assets/photo-location.jpg";
 import photographerImage from "@/assets/hero-photographer.jpg";
@@ -44,6 +45,31 @@ const stats = [
 ];
 
 export const FeaturesSection = () => {
+  const { data: websiteStats, isLoading } = useWebsiteStats();
+
+  const dynamicStats = [
+    { 
+      icon: Users, 
+      label: "Active Photographers", 
+      value: isLoading ? "..." : `${websiteStats?.active_photographers || 500}+` 
+    },
+    { 
+      icon: Camera, 
+      label: "Events Completed", 
+      value: isLoading ? "..." : `${websiteStats?.completed_events?.toLocaleString() || "1,000"}+` 
+    },
+    { 
+      icon: Star, 
+      label: "Average Rating", 
+      value: isLoading ? "..." : `${websiteStats?.average_rating || 4.9}` 
+    },
+    { 
+      icon: Zap, 
+      label: "Response Time", 
+      value: isLoading ? "..." : `<${websiteStats?.response_time_hours || 2}hrs` 
+    }
+  ];
+
   return (
     <section className="py-20 bg-gradient-to-b from-background to-accent/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -83,7 +109,7 @@ export const FeaturesSection = () => {
         {/* Stats Section */}
         <div className="bg-card rounded-2xl p-8 md:p-12 shadow-soft border border-border">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
+            {dynamicStats.map((stat, index) => (
               <div key={index} className="text-center">
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
                   <stat.icon className="h-6 w-6 text-primary" />

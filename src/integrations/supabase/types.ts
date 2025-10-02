@@ -1376,6 +1376,45 @@ export type Database = {
           },
         ]
       }
+      website_stats: {
+        Row: {
+          id: string
+          photographers_count: number
+          events_count: number
+          average_rating: number
+          response_time_hours: number
+          active_photographers: number
+          completed_events: number
+          total_reviews: number
+          updated_at: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          photographers_count?: number
+          events_count?: number
+          average_rating?: number
+          response_time_hours?: number
+          active_photographers?: number
+          completed_events?: number
+          total_reviews?: number
+          updated_at?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          photographers_count?: number
+          events_count?: number
+          average_rating?: number
+          response_time_hours?: number
+          active_photographers?: number
+          completed_events?: number
+          total_reviews?: number
+          updated_at?: string | null
+          created_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       event_summary: {
@@ -1448,6 +1487,10 @@ export type Database = {
       update_event_stats: {
         Args: { event_id_param: string }
         Returns: undefined
+      }
+      update_website_stats: {
+        Args: Record<string, never>
+        Returns: void
       }
     }
     Enums: {

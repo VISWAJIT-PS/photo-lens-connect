@@ -6,12 +6,14 @@ import { OnboardingPopup } from "@/components/OnboardingPopup";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth-store";
+import { useWebsiteStats } from "@/hooks/use-website-stats";
 import heroImage from "@/assets/hero-photographer.jpg";
 
 export const HeroSection = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const { data: stats, isLoading } = useWebsiteStats();
 
   const handleOnboardingComplete = (data: any) => {
     setShowOnboarding(false);
@@ -59,15 +61,21 @@ export const HeroSection = () => {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-6 py-6 max-w-md">
               <div className="text-left">
-                <div className="text-2xl md:text-3xl font-bold text-primary">500+</div>
+                <div className="text-2xl md:text-3xl font-bold text-primary">
+                  {isLoading ? "..." : `${stats?.photographers_count || 500}+`}
+                </div>
                 <div className="text-sm text-gray-300">Photographers</div>
               </div>
               <div className="text-left">
-                <div className="text-2xl md:text-3xl font-bold text-primary">1000+</div>
+                <div className="text-2xl md:text-3xl font-bold text-primary">
+                  {isLoading ? "..." : `${stats?.events_count || 1000}+`}
+                </div>
                 <div className="text-sm text-gray-300">Events Captured</div>
               </div>
               <div className="text-left">
-                <div className="text-2xl md:text-3xl font-bold text-primary">4.9★</div>
+                <div className="text-2xl md:text-3xl font-bold text-primary">
+                  {isLoading ? "..." : `${stats?.average_rating || 4.9}★`}
+                </div>
                 <div className="text-sm text-gray-300">Average Rating</div>
               </div>
             </div>
@@ -104,7 +112,7 @@ export const HeroSection = () => {
               </Button>
 
               <div className="text-center text-sm text-gray-500">
-                Over 500 verified photographers available
+                Over {stats?.photographers_count || 500} verified photographers available
               </div>
             </div>
           </div>
